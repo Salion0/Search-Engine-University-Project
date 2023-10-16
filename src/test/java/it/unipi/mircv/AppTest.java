@@ -1,4 +1,4 @@
-package org.example;
+package it.unipi.mircv;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
