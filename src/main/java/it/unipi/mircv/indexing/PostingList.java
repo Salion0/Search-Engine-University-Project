@@ -13,7 +13,6 @@ public class PostingList {
     public void addPostingElement(PostingElement postingElement) {
         postingList.add(postingElement);
     }
-
     public ArrayList<PostingElement> getPostingList() {return postingList;}
 
 }

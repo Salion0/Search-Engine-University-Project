@@ -1,5 +1,5 @@
 package it.unipi.mircv.indexing;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InvertedIndex {
@@ -25,8 +25,6 @@ public class InvertedIndex {
                 invertedIndex.get(term).addPostingElement(new PostingElement(docId, wordCount.get(term)));
             }
         }
-
-
         //DEBUG
         /*
         for (String term: invertedIndex.keySet()) {
@@ -35,25 +33,33 @@ public class InvertedIndex {
             System.out.println();
         }
         */
-
     }
 
     //TODO
-    public byte[] toBytes(){
-        byte[] termData = new byte[64];
-        byte lengthPostingList;
-        byte[] postingListData;
+     public byte[] toBytes(){
+        byte[] dataToReturn = null;
 
         for (String term: invertedIndex.keySet()) {
-            System.out.print("ToByte Method: " + term); //DEBUG
-            lengthPostingList = (byte) invertedIndex.get(term).getPostingList().size();
-            for (PostingElement postingElement: ){
-                postingListData
+            System.out.print("ToByte Method Processing: " + term); //DEBUG
+            ArrayList<PostingElement> postingList = invertedIndex.get(term).getPostingList();
+            int lengthPostingList = postingList.size();
+            //64 bytes for String term + 1 int for lengthPostingList + lengthPostingList * 2
+            //2 per postingElement because we have to store docId and occurrences (frequency)
+            byte[] data = new byte[64 + 1 + lengthPostingList*2];
+
+            byte[] termData = term.getBytes();
+            System.arraycopy(termData, 0, data, 0, termData.length);
+
+            data[63] = (byte) lengthPostingList; //in 64th position
+
+            for (int i=0; i < lengthPostingList; i++){
+                byte byteDocId = (byte) postingList.get(i).getDocId();
+                byte byteOccurrences = (byte) postingList.get(i).getOccurrences();
+                //data[64] = TODO
             }
             System.out.println(); //DEBUG
         }
 
-        finalData =
-        return termData;
+        return dataToReturn;
     }
 }
