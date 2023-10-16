@@ -28,21 +28,30 @@ public class Index {
 
      //TODO
      public static void writeInvertedIndexToFile(InvertedIndex invertedIndex, int blockID) throws IOException{
-         byte[] dataInvertedIndex = invertedIndex.toBytes(); //<-TODO
 
          String fileName = blockID +".dat";
          FileOutputStream fileOutputStream = new FileOutputStream(fileName);
          FileChannel fileChannel = fileOutputStream.getChannel();
          fileChannel.position(0);
 
-         ByteBuffer buffer = ByteBuffer.allocate(dataInvertedIndex.length);
-         buffer.put(dataInvertedIndex); //fill the buffer
-         buffer.flip(); //this is necessary because after put() the buffer has switched to read mode
 
-         int bytesWritten = fileChannel.write(buffer);
+         //TODO Fare for each che per ogni termine alloca un buffer in memoria e scrive su file termine e posting lists
+         for(String term:invertedIndex.getInvertedIndex().keySet()) {
 
-         //DEBUG
+             //TODO per ogni termine calcolare in byte il suo valore e quello della Posting List associata
+             ByteBuffer termBuffer = ByteBuffer.allocate(term.getBytes().length); //byte of a term
+             ByteBuffer bufferPostingList = ByteBuffer.allocate(invertedIndex.getInvertedIndex().get(term).getPostingList().size());
+             dataTerm =
+             buffer.put(dataInvertedIndex); //fill the buffer
+             buffer.flip(); //this is necessary because after put() the buffer has switched to read mode
+
+             int bytesWritten = fileChannel.write(buffer);
+         */
+         }
+             //DEBUG
          if (bytesWritten != dataInvertedIndex.length) System.out.println("Errore nella scrittura dio madonna");
+
+
 
          fileChannel.close();
          fileOutputStream.close();
