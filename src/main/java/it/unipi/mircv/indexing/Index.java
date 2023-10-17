@@ -1,5 +1,6 @@
 package it.unipi.mircv.indexing;
 
+import java.nio.ByteBuffer;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -27,18 +28,25 @@ public class Index {
      }
 
      //TODO
-     public static void writeInvertedIndexToFile(InvertedIndex invertedIndex, int blockID) throws IOException{
+     public static void writeInvertedIndexToBlock(InvertedIndex invertedIndex, int blockID) throws IOException{
+         //This method write an inverted index of a block to a file .dat
 
-         String fileName = blockID +".dat";
+         String fileName = blockID +".dat"; //ex: Block_1.dat;2.dat; 3.dat
          FileOutputStream fileOutputStream = new FileOutputStream(fileName);
          FileChannel fileChannel = fileOutputStream.getChannel();
-         fileChannel.position(0);
+         fileChannel.position(0); //start of the block
 
 
          //TODO Fare for each che per ogni termine alloca un buffer in memoria e scrive su file termine e posting lists
-         for(String term:invertedIndex.getInvertedIndex().keySet()) {
 
+             byte[] invertedIndexData = invertedIndex.getBytes()
+
+
+
+
+             ByteBuffer line = ByteBuffer.allocate(termLength+PostingList.size())
              //TODO per ogni termine calcolare in byte il suo valore e quello della Posting List associata
+
              ByteBuffer termBuffer = ByteBuffer.allocate(term.getBytes().length); //byte of a term
              ByteBuffer bufferPostingList = ByteBuffer.allocate(invertedIndex.getInvertedIndex().get(term).getPostingList().size());
              dataTerm =
@@ -80,6 +88,7 @@ public class Index {
             count += 1; //DEBUG
             if (count == 10000) break; //DEBUG
         }
+        invertedIndex.getInvertedIndex();
         writeInvertedIndexToFile(invertedIndex, blockID);
         return false;
     }
@@ -132,8 +141,6 @@ public class Index {
             //System.out.println(result);
             return tokens;
         }
-
-
 
 }
 

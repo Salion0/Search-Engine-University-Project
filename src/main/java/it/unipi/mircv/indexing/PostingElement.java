@@ -1,5 +1,7 @@
 package it.unipi.mircv.indexing;
 
+import java.nio.ByteBuffer;
+
 public class PostingElement {
     private int docId;
     private int occurrences;
@@ -20,4 +22,12 @@ public class PostingElement {
         return "Doc ID: "+getDocId()+" - freq: "+getOccurrences();
     }
 
+
+    public  byte[] getBytes(){
+        ByteBuffer dataBuffer = ByteBuffer.allocate(8);
+        dataBuffer.position(0);     //Set
+        dataBuffer.putInt(docId);
+        dataBuffer.putInt(occurrences);
+        return dataBuffer.array();
+    }
 }
