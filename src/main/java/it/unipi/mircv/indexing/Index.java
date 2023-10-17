@@ -46,10 +46,10 @@ public class Index {
              buffer.flip(); //this is necessary because after put() the buffer has switched to read mode
 
              int bytesWritten = fileChannel.write(buffer);
-         */
+
          }
              //DEBUG
-         if (bytesWritten != dataInvertedIndex.length) System.out.println("Errore nella scrittura dio madonna");
+         if (bytesWritten != dataInvertedIndex.length) System.out.println("Errore nella scrittura");
 
 
 
@@ -86,7 +86,7 @@ public class Index {
 
     public static boolean isValid(String url)
     {
-        /* Try creating a valid URL */
+        // Try creating a valid URL
         try {
             new URL(url).toURI();
             return true;

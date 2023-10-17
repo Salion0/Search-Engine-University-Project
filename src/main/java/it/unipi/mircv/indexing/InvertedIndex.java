@@ -1,4 +1,5 @@
 package it.unipi.mircv.indexing;
+import ca.rmen.porterstemmer.PorterStemmer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,12 +13,15 @@ public class InvertedIndex {
         //Count all occurrence of all terms in a document
 
         HashMap<String, Integer> wordCount = new HashMap<String, Integer>();
+        PorterStemmer stemmer = new PorterStemmer();
 
-        for (String token : tokens)   //map with frequencies only
+        for (String token : tokens) {  //map with frequencies only
+            token = stemmer.stemWord(token);
             if (wordCount.get(token) == null)
-                wordCount.put(token,1);
+                wordCount.put(token, 1);
             else
-                wordCount.put(token,wordCount.get(token) + 1);
+                wordCount.put(token, wordCount.get(token) + 1);
+        }
 
         //
         for (String term: wordCount.keySet()) {
