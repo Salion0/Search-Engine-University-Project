@@ -70,4 +70,5 @@ public class InvertedIndex {
         ByteBuffer invertedIndexBuffer = ByteBuffer.allocate()
 
     }
+
 }
