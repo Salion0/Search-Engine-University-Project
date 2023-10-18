@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
+    /*
      // Replace with your file's path
 
      public static void createInvertedIndex(String filePath){
@@ -141,6 +142,6 @@ public class Index {
             //System.out.println(result);
             return tokens;
         }
-
+*/
 }
 
