@@ -53,7 +53,7 @@ public class InvertedIndex {
         */
     }
 
-/*
+
     public byte[] getBytes(){
         byte[] invertedIndexBytes;
         for(String term: treeMap.keySet()){
@@ -69,6 +69,5 @@ public class InvertedIndex {
         }
         ByteBuffer invertedIndexBuffer = ByteBuffer.allocate()
 
-    }*/
-
+    }
 }
