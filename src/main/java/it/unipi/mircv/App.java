@@ -29,7 +29,9 @@ public class App
         int offsetByteLength = 4;
         int elementOfListByteLength = 4;
         int bytesToRead = 64; // Specify the number of bytes you want to read
-        int offset = 0;
+        int offsetDocIdList = 0;
+        int offsetLexicon = 0;
+        int offsetTermFreq = 0;
         int currentOffset = 0;
         int followingOffset = 0;
 
@@ -62,19 +64,20 @@ public class App
             RandomAccessFile termFreqFile = new RandomAccessFile(directoryPath + termFreqPath + "0.dat", "r");
 
             // Position (offset) we start reading from
-            offset = 164; // We start reading from position 0
+            offsetLexicon = 816; // We start reading from position 0
             // Seek to the desired position
-            docIdFile.seek(offset);
+            lexiconFile.seek(offsetLexicon);
             // Read data from that position
-            byte[] bufferTest = new byte[4]; // Define a buffer to hold the data
-            int numberOfBytesRead = docIdFile.read(bufferTest);
+            byte[] bufferTest = new byte[64]; // Define a buffer to hold the data
+            int numberOfBytesRead = lexiconFile.read(bufferTest);
 
             System.out.println("Numero di bytes letti: " + numberOfBytesRead);
 
-            offset += termByteLength;
+            offsetLexicon += termByteLength;
+            String term = new String(bufferTest);
 
             int result = ByteBuffer.wrap(bufferTest).getInt();
-            System.out.println("docId: " + result);
+            System.out.println("term: " + term);
             docIdFile.close();
             if (count == 0) break;
 
