@@ -3,10 +3,8 @@ import it.unipi.mircv.indexing.Index;
 import it.unipi.mircv.indexing.PostingElement;
 import it.unipi.mircv.indexing.PostingList;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -52,6 +50,21 @@ public class App
 
         int count = 0;
         while (true) {
+
+            String striga = "Hello World!";
+            ByteBuffer stringaBuffer = ByteBuffer.allocate(64);
+            stringaBuffer.put(striga.getBytes());
+            FileOutputStream fos = new FileOutputStream("test.dat");
+            fos.write(stringaBuffer.array());
+
+            FileInputStream test = new FileInputStream("test.dat");
+            BufferedInputStream testBuff = new BufferedInputStream(test);
+            bytesRead = testBuff.read(buffer, offsetIncrement, offsetIncrement + termByteLength); //leggo il primo int
+
+            String termTest = new String(buffer,StandardCharsets.UTF_8);
+            System.out.println(termTest.charAt(10));
+
+            if (count == 0) return;
             bytesRead = lexiconBufferedInputStream.read(buffer, offsetIncrement, offsetIncrement + termByteLength); //leggo il primo int
 
             if (bytesRead == -1) {
@@ -59,13 +72,12 @@ public class App
                 return;
             }
 
-            System.out.println(buffer.length);
+            System.out.println(bytesRead);
             String term = new String(buffer,StandardCharsets.UTF_8);
             terms.add(term);
             //terms.add(count,String.valueOf(lexiconBufferedInputStream.read(buffer, offsetIncrement, bytesRead + offsetIncrement)));
             offsetIncrement += termByteLength;
             System.out.println(terms.get(0));
-            if (count == 0) return;
             currentOffset = lexiconBufferedInputStream.read(buffer, offsetIncrement, offsetIncrement + offsetByteLength);
             followingOffset = lexiconBufferedInputStream.read(buffer, offsetIncrement + termByteLength, offsetIncrement + offsetByteLength);
 

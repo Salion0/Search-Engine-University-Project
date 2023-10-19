@@ -65,6 +65,7 @@ public class Lexicon {
             for(String term: treeMap.keySet()){
                 //Write Lexicon on file using ByteBuffer
                 lexiconBuffer.put(term.getBytes());
+                lexiconBuffer.position(64);
                 lexiconBuffer.put((byte) offset);
                 offset += getPostingList(term).getSize();
                 fosLexicon.write(lexiconBuffer.array());

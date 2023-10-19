@@ -56,7 +56,7 @@ public class Test{
         StringBuffer.get(stringByte,0,stringDataLength0);
         String s = new String(stringByte, StandardCharsets.UTF_8);
         System.out.println("Stringa "+i+": "+s);
-*/
+
         }
 
     }
@@ -128,7 +128,7 @@ public class Test{
         public void computePostingList(blockReader) {
             for (quanto) {
             bytesRead = bufferedInputStream.read(buffer, offset, offset + 4); //leggo il primo int
-
+*/
         }
 
     }
