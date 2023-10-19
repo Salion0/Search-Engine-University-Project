@@ -17,6 +17,7 @@ public class Index {
              while(reader!=null){
                  //singlePassInMemoryIndexing may stop for memory lack
                  reader = singlePassInMemoryIndexing(blockID,reader);
+                 //TODO mi sa che qui c'è da chiamare il garbage collector perchè altrimenti non viene pulita subito la memoria (forse)
                  blockID++;
              }
          } catch (IOException e) {
