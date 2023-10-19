@@ -3,14 +3,20 @@ package it.unipi.mircv;
 import it.unipi.mircv.indexing.PostingElement;
 import it.unipi.mircv.indexing.PostingList;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class Test{/*
+public class Test{
     public static void main(String[] args){
+        //Test per check if file exist
+
+
+
         //Classe per testare funzioni
         //Test bytes
+        /*
         byte[] data = "à".getBytes();
         int dataLength = data.length;
         int a= 2;
@@ -50,9 +56,8 @@ public class Test{/*
         StringBuffer.get(stringByte,0,stringDataLength0);
         String s = new String(stringByte, StandardCharsets.UTF_8);
         System.out.println("Stringa "+i+": "+s);
-
+*/
         }
 
 
-    }*/
-}
+    }
