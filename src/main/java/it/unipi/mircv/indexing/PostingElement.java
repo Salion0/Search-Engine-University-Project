@@ -23,11 +23,4 @@ public class PostingElement {
     }
 
 
-    public  byte[] getBytes(){
-        ByteBuffer dataBuffer = ByteBuffer.allocate(8);
-        dataBuffer.position(0);     //Set
-        dataBuffer.putInt(docId);
-        dataBuffer.putInt(occurrences);
-        return dataBuffer.array();
-    }
 }

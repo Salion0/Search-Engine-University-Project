@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class PostingList {
-    private ArrayList<PostingElement> postingList = new ArrayList<PostingElement>();
 
+    private ArrayList<PostingElement> postingList = new ArrayList<PostingElement>();
     public PostingList(PostingElement postingElement) {
         postingList.add(postingElement);
     }
@@ -16,13 +16,34 @@ public class PostingList {
     }
     public ArrayList<PostingElement> getPostingList() {return postingList;}
 
-    public byte[] getBytes(){
-        ByteBuffer dataBuffer = ByteBuffer.allocate(postingList.size()*8); //Each PostingElement occupies 8 bytes
-        dataBuffer.position(0);
-        for(PostingElement pe: postingList) {
-            dataBuffer.put(pe.getBytes());
+    public int getSize() {return postingList.size();}
+
+     //TODO
+    public byte[][] getBytes(){
+        int bufferSize = postingList.size()*4;  //num of element times byte qt. for int
+        ByteBuffer docIdBuffer = ByteBuffer.allocate(bufferSize);
+        ByteBuffer termFreqBuffer = ByteBuffer.allocate(bufferSize);
+        for (PostingElement pe: postingList){
+            docIdBuffer.putInt(pe.getDocId());
+            termFreqBuffer.putInt(pe.getOccurrences());
         }
-        return dataBuffer.array();
+        byte[][] postingListData = new byte[2][];
+        postingListData[0] = docIdBuffer.array();
+        postingListData[1] = termFreqBuffer.array();
+
+        return postingListData;
     }
 
+    public byte[][] getBytes(ByteBuffer docIdBuffer,ByteBuffer termFreqBuffer){
+
+        for (PostingElement pe: postingList){
+            docIdBuffer.putInt(pe.getDocId());
+            termFreqBuffer.putInt(pe.getOccurrences());
+        }
+        byte[][] postingListData = new byte[2][];
+        postingListData[0] = docIdBuffer.array();
+        postingListData[1] = termFreqBuffer.array();
+
+        return postingListData;
+    }
 }
