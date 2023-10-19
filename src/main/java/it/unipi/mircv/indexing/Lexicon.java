@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -66,18 +67,22 @@ public class Lexicon {
             for(String term: treeMap.keySet()){
                 count++;
                 //Write Lexicon on file using ByteBuffer
+                byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
                 System.out.println("term:"+term); //DEBUG
-                if (count == 1) {//DEBUG
+                if (count == 5) {//DEBUG
                     System.out.println("posting:" + treeMap.get(term).getPostingList().toString());
                     System.out.println("size: " + treeMap.get(term).getPostingList().getSize());
+                    System.out.println("Byte Term 1: "+termBytes.length);
                 }
-                byte[] termBytes = term.getBytes();
+
                 if (termBytes.length>64) continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
                 ByteBuffer termBuffer = ByteBuffer.allocate(64 + 4);
-                termBuffer.put(term.getBytes());
+
+                termBuffer.put(termBytes);
                 termBuffer.position(64);
-                termBuffer.put((byte) offset);
+                termBuffer.putInt(offset);
                 offset += getPostingList(term).getSize();
+
                 fosLexicon.write(termBuffer.array());
 
                 //Write posting list in two files: docIds file and termFreq file
