@@ -52,13 +52,12 @@ public class Test{/*
         String s = new String(stringByte, StandardCharsets.UTF_8);
         System.out.println("Stringa "+i+": "+s);
 
-        }*/
+        }
 
-        merge();
     }
 
     public void merge() {
-            HashMap<String, PostingList> index = new HashMap<String, PostingList>();
+            //HashMap<String, PostingList> index = new HashMap<String, PostingList>();
 
             //File file = new File("C:/temp/test.txt");
             //byte[] bytes = new byte[(int) fiepath.length()];

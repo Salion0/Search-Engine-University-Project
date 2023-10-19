@@ -11,6 +11,8 @@ public class PostingList {
     public PostingList(PostingElement postingElement) {
         postingList.add(postingElement);
     }
+
+    public PostingList() {}
     public void addPostingElement(PostingElement postingElement) {
         postingList.add(postingElement);
     }
