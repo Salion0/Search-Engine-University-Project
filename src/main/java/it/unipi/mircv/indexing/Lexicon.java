@@ -48,9 +48,22 @@ public class Lexicon {
 
     //TODO
     public void toDisk(String path,String  fileLexicon,String fileDocId,String fileTermFreq) throws IOException {
-        File data = new File("./data");
-        if(data.exists() && data.isDirectory()){
-            data.delete();
+
+        File data = new File("data");
+        if(data.exists() && data.isDirectory()) {
+            File[] files = data.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        if (file.delete()) {
+                            System.out.println("File eliminato: " + file.getName());
+                        } else {
+                            System.err.println("Impossibile eliminare il file: " + file.getName());
+                        }
+                    }
+                }
+            }
         }
             data.mkdir();
 
@@ -64,32 +77,45 @@ public class Lexicon {
 
 
             int count=0;
-            for(String term: treeMap.keySet()){
+
+            for(String term: treeMap.keySet()) {
                 count++;
-                //Write Lexicon on file using ByteBuffer
-                byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
-                System.out.println("term:"+term); //DEBUG
-                if (count == 5) {//DEBUG
+                if (count == 10000) {
+                    //Write Lexicon on file using ByteBuffer
+                    byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
+
+
+                    System.out.println(termBytes);
+                    System.out.println("term:" + term); //DEBUG
                     System.out.println("posting:" + treeMap.get(term).getPostingList().toString());
                     System.out.println("size: " + treeMap.get(term).getPostingList().getSize());
-                    System.out.println("Byte Term 1: "+termBytes.length);
+                    System.out.println("Byte Term 1: " + termBytes.length);
+
+
+                    if (termBytes.length > 64)
+                        continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
+                    ByteBuffer termBuffer = ByteBuffer.allocate(64 + 4);
+                    termBuffer.put(termBytes);
+                    termBuffer.position(64);
+                    termBuffer.putInt(offset);
+
+                    System.out.print(offset);
+                    int c = 0;
+                    for (Byte b : termBuffer.array()) {
+                        System.out.println("Byte " + c + "-" + b);
+                        c++;
+                    }
+
+                    offset += getPostingList(term).getSize();
+
+                    fosLexicon.write(termBuffer.array());
+
+                    //Write posting list in two files: docIds file and termFreq file
+                    byte[][] bytePostingList = getPostingList(term).getBytes();
+                    fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
+                    fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
+
                 }
-
-                if (termBytes.length>64) continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
-                ByteBuffer termBuffer = ByteBuffer.allocate(64 + 4);
-
-                termBuffer.put(termBytes);
-                termBuffer.position(64);
-                termBuffer.putInt(offset);
-                offset += getPostingList(term).getSize();
-
-                fosLexicon.write(termBuffer.array());
-
-                //Write posting list in two files: docIds file and termFreq file
-                byte [][] bytePostingList = getPostingList(term).getBytes();
-                fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
-                fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-
             }
 
             fosLexicon.close();
