@@ -7,7 +7,7 @@ public class App
 
     public static void main( String[] args )
     {
-        Index.createIndex();
+        Index index = new Index("test_collection.tsv");
     }
 
 

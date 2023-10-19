@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class Test{
+public class Test{/*
     public static void main(String[] args){
         //Classe per testare funzioni
         //Test bytes
@@ -54,5 +54,5 @@ public class Test{
         }
 
 
-    }
+    }*/
 }

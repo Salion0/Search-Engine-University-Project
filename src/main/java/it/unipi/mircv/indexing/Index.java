@@ -17,8 +17,9 @@ public class Index {
              while(reader!=null){
                  //singlePassInMemoryIndexing may stop for memory lack
                  reader = singlePassInMemoryIndexing(blockID,reader);
-                 //TODO mi sa che qui c'è da chiamare il garbage collector perchè altrimenti non viene pulita subito la memoria (forse)
+                 System.gc();
                  blockID++;
+                 System.out.println("BlockID: "+blockID); //DEBUG
              }
          } catch (IOException e) {
              System.err.println("Error reading the file: " + e.getMessage());
@@ -26,11 +27,12 @@ public class Index {
      }
 
      //TODO
-     private void writeLexionToBlock(Lexicon lexicon, int blockID) throws IOException {
+     private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
+         String  path = "./data/";
          String fileLexicon = "lexicon" + blockID + ".dat";
          String fileDocIds = "docIds" + blockID+".dat";
          String fileTermFreq = "termFreq" + blockID+".dat";
-         lexicon.toDisk(fileLexicon, fileDocIds, fileTermFreq);
+         lexicon.toDisk(path+fileLexicon,path+fileDocIds,path+fileTermFreq);
      }
 
     private double freeMemoryPercentage() {
@@ -40,14 +42,14 @@ public class Index {
     }
 
     private BufferedReader singlePassInMemoryIndexing(int blockID, BufferedReader reader) throws IOException {
-        Lexicon lexicon = Lexicon();
+        Lexicon lexicon = new Lexicon();
         int count = 0; //DEBUG
         BufferedReader readerToReturn = null;
         while (true) {
-            if(freeMemoryPercentage() > 80){
-                //we reached the end of the memory -> break
+            if(freeMemoryPercentage() < 20){
+                //poor memory qt available -> break
                 readerToReturn = reader;
-                System.out.println("Free memory percentage: "+ freeMemoryPercentage()); //DEBUG - print the memory available
+                System.out.println("Memory leak! Free memory: "+ freeMemoryPercentage()); //DEBUG - print the memory available
                 break;
             }
             String line = reader.readLine();
@@ -58,7 +60,7 @@ public class Index {
             }
 
             //DEBUG - every tot print the memory available
-            if (count%10000 == 0)
+            if (count%1000 == 0)
                 System.out.println("Free memory percentage: "+ freeMemoryPercentage());
 
             //parsing and processing the document corresponding
@@ -66,10 +68,10 @@ public class Index {
             String[] tokens = Index.tokenization(values[1]);  //take tokens from the text
             processDocument(lexicon, Integer.parseInt(values[0]), tokens);
 
-            count += 1; //DEBUG
-            if (count == 5) break; //DEBUG
+            count++; //DEBUG
+            //if (count == 5) break; //DEBUG
         }
-        writeLexionToBlock(lexicon, blockID);
+        writeLexiconToBlock(lexicon, blockID);
         return readerToReturn;
     }
 
