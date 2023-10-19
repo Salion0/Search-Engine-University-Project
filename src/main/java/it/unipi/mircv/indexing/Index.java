@@ -28,11 +28,12 @@ public class Index {
 
      //TODO
      private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
+
          String  path = "./data/";
          String fileLexicon = "lexicon" + blockID + ".dat";
          String fileDocIds = "docIds" + blockID+".dat";
          String fileTermFreq = "termFreq" + blockID+".dat";
-         lexicon.toDisk(path+fileLexicon,path+fileDocIds,path+fileTermFreq);
+         lexicon.toDisk(path,fileLexicon,fileDocIds,fileTermFreq);
      }
 
     private double freeMemoryPercentage() {
