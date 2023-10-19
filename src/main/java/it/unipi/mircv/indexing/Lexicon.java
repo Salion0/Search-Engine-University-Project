@@ -80,7 +80,6 @@ public class Lexicon {
 
             for(String term: treeMap.keySet()) {
                 count++;
-                if (count == 10000) {
                     //Write Lexicon on file using ByteBuffer
                     byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
 
@@ -115,7 +114,7 @@ public class Lexicon {
                     fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
                     fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
 
-                }
+
             }
 
             fosLexicon.close();

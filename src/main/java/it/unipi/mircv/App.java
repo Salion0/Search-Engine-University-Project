@@ -12,8 +12,8 @@ import java.util.ArrayList;
 public class App
 {
     public static void main( String[] args ) throws IOException {
-        //testBlock(0);
-        Index index = new Index("test_collection.tsv");
+        testBlock(0);
+        //Index index = new Index("test_collection.tsv");
     }
 
     public static void testBlock(int numberOfBlocks) throws IOException {
@@ -64,7 +64,7 @@ public class App
             //RandomAccessFile lexiconFile = new RandomAccessFile("test.dat", "r");
 
             // Position (offset) we start reading from
-            offsetLexicon = 0; // We start reading from position 0
+            offsetLexicon = 680000 - 136; // We start reading from position 0
             // Seek to the desired position
             lexiconFile.seek(offsetLexicon);
             // Read data from that position
