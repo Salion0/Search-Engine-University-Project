@@ -81,14 +81,7 @@ public class App
             lexiconFile.close();
             if (count == 0) break;
 
-            /*
-            currentOffset = lexiconBufferedInputStream.read(buffer, offsetIncrement, offsetIncrement + offsetByteLength);
-            followingOffset = lexiconBufferedInputStream.read(buffer, offsetIncrement + termByteLength, offsetIncrement + offsetByteLength);
-
-            postingList.add(count,readPostingList(currentOffset,followingOffset,buffer,docIdBufferedInputStream,termFreqBufferedInputStream));
-        */}
-
-    }
+    }/*
 
     public static PostingList readPostingList(int currentOffset, int followingOffset, byte[] buffer, BufferedInputStream docIdBufferedInputStream, BufferedInputStream termFreqBufferedInputStream) throws IOException {
 
@@ -107,7 +100,7 @@ public class App
         return postingList;
     }
 
-    /*
+
     public void testWord() throws FileNotFoundException {
 
         int[] buffer = new int[64];
