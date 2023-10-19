@@ -19,7 +19,7 @@ public class PostingElement {
     public int getDocId() { return docId; }
     public int getOccurrences() { return occurrences; }
     public String toString(){
-        return "Doc ID: "+getDocId()+" - freq: "+getOccurrences();
+        return "doc id: "+getDocId()+" - freq: "+getOccurrences();
     }
 
 
