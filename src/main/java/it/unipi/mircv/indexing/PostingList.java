@@ -48,4 +48,11 @@ public class PostingList {
 
         return postingListData;
     }
+    public String toString(){
+        String string = new String();
+        for (PostingElement pe : postingList){
+            string += pe.toString() + "\t";
+        }
+        return string;
+    }
 }

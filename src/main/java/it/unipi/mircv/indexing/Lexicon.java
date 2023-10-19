@@ -1,7 +1,5 @@
 package it.unipi.mircv.indexing;
 
-import com.sun.source.tree.Tree;
-
 import javax.swing.text.Position;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,23 +50,35 @@ public class Lexicon {
         File data = new File("./data");
         if(data.exists() && data.isDirectory()){
             data.delete();
-        }else
-        {
+        }
             data.mkdir();
+
             boolean append = true; //Open all FileOutputStream in append mode
             FileOutputStream fosLexicon = new FileOutputStream(path+fileLexicon,append);
             FileOutputStream fosDocId = new FileOutputStream(path+fileDocId,append);
             FileOutputStream fosTermFreq = new FileOutputStream(path+fileTermFreq,append);
             int offset =0;
-            int bufferLexiconSize = (treeMap.size())*(64+4);
-            ByteBuffer lexiconBuffer = ByteBuffer.allocate(bufferLexiconSize);
+            //PRIMA int bufferLexiconSize = (treeMap.size())*(64+4);
+            //PRIMA ByteBuffer lexiconBuffer = ByteBuffer.allocate(bufferLexiconSize);
+
+
+            int count=0;
             for(String term: treeMap.keySet()){
+                count++;
                 //Write Lexicon on file using ByteBuffer
-                lexiconBuffer.put(term.getBytes());
-                lexiconBuffer.position(64);
-                lexiconBuffer.put((byte) offset);
+                System.out.println("term:"+term); //DEBUG
+                if (count == 1) {//DEBUG
+                    System.out.println("posting:" + treeMap.get(term).getPostingList().toString());
+                    System.out.println("size: " + treeMap.get(term).getPostingList().getSize());
+                }
+                byte[] termBytes = term.getBytes();
+                if (termBytes.length>64) continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
+                ByteBuffer termBuffer = ByteBuffer.allocate(64 + 4);
+                termBuffer.put(term.getBytes());
+                termBuffer.position(64);
+                termBuffer.put((byte) offset);
                 offset += getPostingList(term).getSize();
-                fosLexicon.write(lexiconBuffer.array());
+                fosLexicon.write(termBuffer.array());
 
                 //Write posting list in two files: docIds file and termFreq file
                 byte [][] bytePostingList = getPostingList(term).getBytes();
@@ -84,6 +94,6 @@ public class Lexicon {
 
     }
 
-}
+
 
 
