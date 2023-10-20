@@ -3,7 +3,6 @@ package it.unipi.mircv.indexing;
 import java.nio.ByteBuffer;
 
 public class LexiconEntry {
-
     private int df;
     private int cf;
     private PostingList postingList;

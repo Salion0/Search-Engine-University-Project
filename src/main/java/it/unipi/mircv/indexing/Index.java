@@ -10,25 +10,25 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
-    public Index(String fileCollectionPath){
-         int blockID = 0;
-         try {
-             BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
-             while(reader!=null){
-                 //singlePassInMemoryIndexing may stop for memory lack
-                 reader = singlePassInMemoryIndexing(blockID,reader);
-                 System.gc();
-                 blockID++;
-                 System.out.println("BlockID: "+blockID); //DEBUG
-             }
-         } catch (IOException e) {
-             System.err.println("Error reading the file: " + e.getMessage());
-         }
-     }
+    public Index(String fileCollectionPath) throws IOException {
+        //this method remove precedent files
+        Utils.cleanFolder("data");
+        int blockID = 0;
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
+            while(reader!=null){
+                //singlePassInMemoryIndexing may stop for memory lack
+                reader = singlePassInMemoryIndexing(blockID,reader);
+                System.gc();
+                blockID++;
+                System.out.println("BlockID: "+blockID); //DEBUG
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading the file: " + e.getMessage());
+        }
+    }
 
-     //TODO
      private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
-
          String  path = "./data/";
          String fileLexicon = "lexicon" + blockID + ".dat";
          String fileDocIds = "docIds" + blockID+".dat";
@@ -60,7 +60,7 @@ public class Index {
                 break;
             }
 
-            //DEBUG - every tot print the memory available
+            //DEBUG - every tot document print the memory available
             if (count%1000 == 0)
                 System.out.println("Free memory percentage: "+ freeMemoryPercentage());
 
