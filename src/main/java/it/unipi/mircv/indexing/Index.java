@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
+    public int count = 0; //DEBUG
     public Index(String fileCollectionPath) throws IOException {
         //this method remove precedent files
         Utils.cleanFolder("data");
@@ -17,11 +18,11 @@ public class Index {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
             while(reader!=null){
+                System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack
                 reader = singlePassInMemoryIndexing(blockID,reader);
                 System.gc();
                 blockID++;
-                System.out.println("BlockID: "+blockID); //DEBUG
             }
         } catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());
@@ -44,13 +45,21 @@ public class Index {
 
     private BufferedReader singlePassInMemoryIndexing(int blockID, BufferedReader reader) throws IOException {
         Lexicon lexicon = new Lexicon();
-        int count = 0; //DEBUG
+
         BufferedReader readerToReturn = null;
         while (true) {
+            count++; //DEBUG
+
             if(freeMemoryPercentage() < 20){
                 //poor memory qt available -> break
                 readerToReturn = reader;
                 System.out.println("Memory leak! Free memory: "+ freeMemoryPercentage()); //DEBUG - print the memory available
+                break;
+            }
+            //DEBUG per creare più di un blocco
+            if (count == 3000 || count == 6000){
+                readerToReturn = reader;
+                System.out.println("blocco finito per debug");
                 break;
             }
             String line = reader.readLine();
@@ -69,7 +78,7 @@ public class Index {
             String[] tokens = Index.tokenization(values[1]);  //take tokens from the text
             processDocument(lexicon, Integer.parseInt(values[0]), tokens);
 
-            count++; //DEBUG
+             //DEBUG
             //if (count == 5) break; //DEBUG
         }
         writeLexiconToBlock(lexicon, blockID);
