@@ -12,8 +12,8 @@ import java.util.ArrayList;
 public class App
 {
     public static void main( String[] args ) throws IOException {
-        testBlock(0);
-        //Index index = new Index("test_collection.tsv");
+        //testBlock(0);
+        Index index = new Index("test_collection.tsv");
     }
 
     public static void testBlock(int numberOfBlocks) throws IOException {
@@ -49,19 +49,12 @@ public class App
         FileInputStream termFreqFileInputStream = new FileInputStream(directoryPath + termFreqPath + "0.dat");
         BufferedInputStream termFreqBufferedInputStream = new BufferedInputStream(termFreqFileInputStream);
 
+        RandomAccessFile lexiconFile = new RandomAccessFile(directoryPath + lexiconPath + "0.dat", "r");
+        RandomAccessFile docIdFile = new RandomAccessFile(directoryPath + docIdPath + "0.dat", "r");
+        RandomAccessFile termFreqFile = new RandomAccessFile(directoryPath + termFreqPath + "0.dat", "r");
+
         int count = 0;
         while (true) {
-
-            /*bytesRead = lexiconBufferedInputStream.read(buffer, offsetIncrement, termByteLength); //leggo il primo int
-
-            if (bytesRead == -1) {
-                System.out.println("File finito");
-                return;
-            }*/
-
-            RandomAccessFile lexiconFile = new RandomAccessFile(directoryPath + lexiconPath + "0.dat", "r");
-            RandomAccessFile docIdFile = new RandomAccessFile(directoryPath + docIdPath + "0.dat", "r");
-            //RandomAccessFile lexiconFile = new RandomAccessFile("test.dat", "r");
 
             // Position (offset) we start reading from
             offsetLexicon = 680000 - 136; // We start reading from position 0
