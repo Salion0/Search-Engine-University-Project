@@ -1,4 +1,5 @@
 package it.unipi.mircv;
+import it.unipi.mircv.indexing.BlockReadingHandler;
 import it.unipi.mircv.indexing.Index;
 import it.unipi.mircv.indexing.PostingElement;
 import it.unipi.mircv.indexing.PostingList;
@@ -12,8 +13,8 @@ import java.util.ArrayList;
 public class App
 {
     public static void main( String[] args ) throws IOException {
-        //testBlock(0);
-        Index index = new Index("test_collection.tsv");
+        testBlock(0);
+        //Index index = new Index("test_collection.tsv");
     }
 
     public static void testBlock(int numberOfBlocks) throws IOException {
@@ -23,58 +24,22 @@ public class App
         String lexiconPath = "lexicon";
         String termFreqPath = "termFreq";
 
-
-        byte[] buffer = null;
-        int termByteLength = 64;
-        int offsetByteLength = 4;
-        int elementOfListByteLength = 4;
-        int bytesToRead = 64; // Specify the number of bytes you want to read
-        int offsetDocIdList = 0;
-        int offsetLexicon = 0;
-        int offsetTermFreq = 0;
-        int currentOffset = 0;
-        int followingOffset = 0;
+        BlockReadingHandler block = new BlockReadingHandler(directoryPath,lexiconPath,docIdPath,termFreqPath,0);
 
         ArrayList<String> terms = new ArrayList<String>();
         ArrayList<PostingList> postingList = new ArrayList<>();
 
-        buffer = new byte[bytesToRead];
-
-        FileInputStream docIdFileInputStream = new FileInputStream(directoryPath + docIdPath + "0.dat");
-        BufferedInputStream docIdBufferedInputStream = new BufferedInputStream(docIdFileInputStream);
-
-        FileInputStream lexiconFileInputStream = new FileInputStream(directoryPath + lexiconPath + "0.dat");
-        BufferedInputStream lexiconBufferedInputStream = new BufferedInputStream(lexiconFileInputStream);
-
-        FileInputStream termFreqFileInputStream = new FileInputStream(directoryPath + termFreqPath + "0.dat");
-        BufferedInputStream termFreqBufferedInputStream = new BufferedInputStream(termFreqFileInputStream);
-
-        RandomAccessFile lexiconFile = new RandomAccessFile(directoryPath + lexiconPath + "0.dat", "r");
-        RandomAccessFile docIdFile = new RandomAccessFile(directoryPath + docIdPath + "0.dat", "r");
-        RandomAccessFile termFreqFile = new RandomAccessFile(directoryPath + termFreqPath + "0.dat", "r");
-
         int count = 0;
         while (true) {
 
-            // Position (offset) we start reading from
-            offsetLexicon = 680000 - 136; // We start reading from position 0
-            // Seek to the desired position
-            lexiconFile.seek(offsetLexicon);
-            // Read data from that position
-            byte[] bufferTest = new byte[64]; // Define a buffer to hold the data
-            int numberOfBytesRead = lexiconFile.read(bufferTest);
+            block.readLexiconFile();
+            count++;
+            if (count == 10) break;
 
-            System.out.println("Numero di bytes letti: " + numberOfBytesRead);
+        }
+    }
 
-            offsetLexicon += termByteLength;
-            String term = new String(bufferTest,StandardCharsets.UTF_8);
-
-            int result = ByteBuffer.wrap(bufferTest).getInt();
-            System.out.println("term: " + term);
-            lexiconFile.close();
-            if (count == 0) break;
-
-    }/*
+    /*
 
     public static PostingList readPostingList(int currentOffset, int followingOffset, byte[] buffer, BufferedInputStream docIdBufferedInputStream, BufferedInputStream termFreqBufferedInputStream) throws IOException {
 
