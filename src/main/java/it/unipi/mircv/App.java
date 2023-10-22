@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public class App
 {
+
     public static void main( String[] args ) throws IOException {
         //Index index = new Index("test_collection.tsv");
         testBlock(3);
@@ -85,7 +86,6 @@ public class App
             //TODO fine
             //iterations ++;
         }
-
 
         //DEBUG printing the whole lexicon
         for (int i = 0; i < terms.size(); i++) {   // printo tutti termini di tutti i merged blocks con Posting List associata
