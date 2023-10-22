@@ -29,49 +29,65 @@ public class App
         ArrayList<String> terms = new ArrayList<>();
         ArrayList<PostingList> postingLists = new ArrayList<>();
         ArrayList<String> currentTermsOfBlocks = new ArrayList<>();
+        ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
 
         for (int i = 0; i < numberOfBlocks; i++) {
             BlockReadingHandler block = new BlockReadingHandler(directoryPath,lexiconPath,docIdPath,termFreqPath,i);
+            minTermFoundInBlock.add(true);
             blocks.add(i,block);
             currentTermsOfBlocks.add(""); // inizializzo l'ArrayList
         }
 
+        //DEBUG
+        int iterations = 0;
 
+        String termRead = null;
         int count = 0;
         String minTerm; // come valore iniziale prendo questo che controllerò con un if
+
         while(true) {
 
             minTerm = null;
             for (int i = 0; i < numberOfBlocks; i++) {      // cerco il term minore dal punto di vista lessicografico
-                String termRead = blocks.get(i).readLexiconFile();
-                if (termRead == null) {
+                if (minTermFoundInBlock.get(i) == true)
+                    currentTermsOfBlocks.set(i, blocks.get(i).readLexiconFile()); //TODO rinominare in nextTermLexiconFile
+
+                if (currentTermsOfBlocks.get(i) == null) { //ho finito il blocco e incremento contatore dei blocchi letti
                     count++;
-                    continue;
                 }
-                if (minTerm == null) minTerm = termRead;  // serve all' inizio per settare minTerm al primo term trovato
-                currentTermsOfBlocks.set(i, termRead);
-                int compare = termRead.compareTo(minTerm);
-                if (compare < 0)
-                    minTerm = termRead;
+                else {
+                    if (minTerm == null)
+                        minTerm = currentTermsOfBlocks.get(i);  // serve all' inizio per settare minTerm al primo term trovato
+                    int compare = currentTermsOfBlocks.get(i).compareTo(minTerm);
+                    if (compare < 0)
+                        minTerm = currentTermsOfBlocks.get(i);
+                }
             }
 
-            //System.out.println(minTerm);
-            //count++;
             if (count == numberOfBlocks) break; // condizione di terminazione del while, i.e ho letto tutti i lexicon
             count = 0;
 
+            //TODO adesso scriviamo su una postingList """mergiata""" in memoria e poi la stampiamo per debugging -> dobbiamo scrivere su file
             PostingList postingList = new PostingList();
-            for (int i = 0; i < numberOfBlocks; i++) {      // scorro i blocchi e se ne trovo uno con term che matcha lo aggiungo alla Posting List del term
+            for (int i = 0; i < numberOfBlocks; i++) {  // scorro i blocchi e se ne trovo uno con term che matcha lo aggiungo alla Posting List del term
+                if (currentTermsOfBlocks.get(i) == null) continue;
                 int compare = minTerm.compareTo(currentTermsOfBlocks.get(i));
                 if (compare == 0) {
                     blocks.get(i).readPostingListFiles(postingList);
+                    minTermFoundInBlock.set(i,true);
                 }
+                else
+                    minTermFoundInBlock.set(i, false);
             }
 
             terms.add(minTerm);  //  salvo term e Posting List associata
             postingLists.add(postingList);
+            //TODO fine
+            //iterations ++;
         }
 
+
+        //DEBUG printing the whole lexicon
         for (int i = 0; i < terms.size(); i++) {   // printo tutti termini di tutti i merged blocks con Posting List associata
             System.out.println(terms.get(i) + " --->> " + postingLists.get(i));
             System.out.println();
@@ -79,25 +95,6 @@ public class App
     }
 
     /*
-
-    public static PostingList readPostingList(int currentOffset, int followingOffset, byte[] buffer, BufferedInputStream docIdBufferedInputStream, BufferedInputStream termFreqBufferedInputStream) throws IOException {
-
-        PostingList postingList = new PostingList();
-
-        //ArrayList<Integer> listDocIds = new ArrayList<Integer>();
-        //ArrayList<Integer> listTermFreqs = new ArrayList<Integer>();
-        int count = 0;
-        for (int i = currentOffset; i < followingOffset; i++,count++) {
-            PostingElement postingElement = new PostingElement(docIdBufferedInputStream.read(buffer, i, 1),
-                    termFreqBufferedInputStream.read(buffer, i, 1));
-
-            postingList.addPostingElement(postingElement);
-        }
-
-        return postingList;
-    }
-
-
     public void testWord() throws FileNotFoundException {
 
         int[] buffer = new int[64];
