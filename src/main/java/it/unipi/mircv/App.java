@@ -111,7 +111,6 @@ public class App
 
         String termTest = new String(buffer,StandardCharsets.UTF_8);
         System.out.println(termTest.charAt(10));
-
     }*/
 }
 
