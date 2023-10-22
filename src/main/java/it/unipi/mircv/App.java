@@ -78,6 +78,7 @@ public class App
                 }
                 else
                     minTermFoundInBlock.set(i, false);
+
             }
 
             terms.add(minTerm);  //  salvo term e Posting List associata
