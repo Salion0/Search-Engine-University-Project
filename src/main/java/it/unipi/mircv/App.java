@@ -12,9 +12,10 @@ import java.util.ArrayList;
 
 public class App
 {
+
     public static void main( String[] args ) throws IOException {
-        testBlock(0);
         //Index index = new Index("test_collection.tsv");
+        testBlock(3);
     }
 
     public static void testBlock(int numberOfBlocks) throws IOException {
@@ -24,18 +25,56 @@ public class App
         String lexiconPath = "lexicon";
         String termFreqPath = "termFreq";
 
-        BlockReadingHandler block = new BlockReadingHandler(directoryPath,lexiconPath,docIdPath,termFreqPath,0);
+        ArrayList<BlockReadingHandler> blocks = new ArrayList<>();
+        ArrayList<String> terms = new ArrayList<>();
+        ArrayList<PostingList> postingLists = new ArrayList<>();
+        ArrayList<String> currentTermsOfBlocks = new ArrayList<>();
 
-        ArrayList<String> terms = new ArrayList<String>();
-        ArrayList<PostingList> postingList = new ArrayList<>();
+        for (int i = 0; i < numberOfBlocks; i++) {
+            BlockReadingHandler block = new BlockReadingHandler(directoryPath,lexiconPath,docIdPath,termFreqPath,i);
+            blocks.add(i,block);
+            currentTermsOfBlocks.add(""); // inizializzo l'ArrayList
+        }
+
 
         int count = 0;
-        while (true) {
+        String minTerm; // come valore iniziale prendo questo che controllerò con un if
+        while(true) {
 
-            block.readLexiconFile();
-            count++;
-            if (count == 10) break;
+            minTerm = null;
+            for (int i = 0; i < numberOfBlocks; i++) {      // cerco il term minore dal punto di vista lessicografico
+                String termRead = blocks.get(i).readLexiconFile();
+                if (termRead == null) {
+                    count++;
+                    continue;
+                }
+                if (minTerm == null) minTerm = termRead;  // serve all' inizio per settare minTerm al primo term trovato
+                currentTermsOfBlocks.set(i, termRead);
+                int compare = termRead.compareTo(minTerm);
+                if (compare < 0)
+                    minTerm = termRead;
+            }
 
+            //System.out.println(minTerm);
+            //count++;
+            if (count == numberOfBlocks) break; // condizione di terminazione del while, i.e ho letto tutti i lexicon
+            count = 0;
+
+            PostingList postingList = new PostingList();
+            for (int i = 0; i < numberOfBlocks; i++) {      // scorro i blocchi e se ne trovo uno con term che matcha lo aggiungo alla Posting List del term
+                int compare = minTerm.compareTo(currentTermsOfBlocks.get(i));
+                if (compare == 0) {
+                    blocks.get(i).readPostingListFiles(postingList);
+                }
+            }
+
+            terms.add(minTerm);  //  salvo term e Posting List associata
+            postingLists.add(postingList);
+        }
+
+        for (int i = 0; i < terms.size(); i++) {   // printo tutti termini di tutti i merged blocks con Posting List associata
+            System.out.println(terms.get(i) + " --->> " + postingLists.get(i));
+            System.out.println();
         }
     }
 
