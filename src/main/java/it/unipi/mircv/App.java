@@ -91,6 +91,7 @@ public class App
         for (int i = 0; i < terms.size(); i++) {   // printo tutti termini di tutti i merged blocks con Posting List associata
             System.out.println(terms.get(i) + " --->> " + postingLists.get(i));
             System.out.println();
+
         }
     }
 
