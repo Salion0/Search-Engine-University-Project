@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 public class App
 {
-
     public static void main( String[] args ) throws IOException {
         //Index index = new Index("test_collection.tsv");
         testBlock(3);
