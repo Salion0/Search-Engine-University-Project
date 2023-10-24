@@ -10,7 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
-    public int count = 0; //DEBUG
+    private int numberOfBlocks;
+
     public Index(String fileCollectionPath) throws IOException {
         //this method remove precedent files
         Utils.cleanFolder("data");
@@ -24,9 +25,11 @@ public class Index {
                 System.gc();
                 blockID++;
             }
+            numberOfBlocks = blockID + 1;
         } catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());
         }
+
     }
 
      private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
@@ -45,6 +48,8 @@ public class Index {
 
     private BufferedReader singlePassInMemoryIndexing(int blockID, BufferedReader reader) throws IOException {
         Lexicon lexicon = new Lexicon();
+
+        int count = 0; //DEBUG
 
         BufferedReader readerToReturn = null;
         while (true) {
@@ -103,6 +108,9 @@ public class Index {
             lexicon.update(term, docId, wordCountDocument.get(term));
         }
     }
+    public int getNumberOfBlocks() {
+        return numberOfBlocks;
+    }
 
     public static String findURLsExample(String inputString) {
             String pattern = "\\b(?:https?|ftp)://\\S+\\b"; // Matches URLs starting with http://, https://, or ftp://
@@ -126,5 +134,7 @@ public class Index {
             String[] tokens = result.split("\\s+");
             return tokens;
         }
+
+
 }
 

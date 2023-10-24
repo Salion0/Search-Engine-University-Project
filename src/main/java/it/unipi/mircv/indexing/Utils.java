@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 
 public class Utils {
 
-    //function called every time the indexing starts
+    //function called every time the indexing starts in order to clean up the folder where blocks are stored
     public static void cleanFolder(String folderName) throws IOException {
         File folder = new File(folderName);
         if(folder.exists() && folder.isDirectory()) {

@@ -6,26 +6,26 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public class BlockReadingHandler {
+public class BlockReader {
 
     // Positions (offset) we start reading from, We start reading from position 0
-    private int offsetDocId;
-    private int offsetLexicon;
-    private int offsetTermFreq;
+    private int positionDocId;
+    private int positionLexicon;
+    private int positionTermFreq;
     private int blockId;
     private int currentOffsetRead;
     private int successiveOffsetRead;
-    private int termByteLength = 64;
-    private int offsetByteLength = 4;
-    private RandomAccessFile lexiconFile;
-    private RandomAccessFile docIdFile;
-    private RandomAccessFile termFreqFile;
+    private final int TERM_BYTES_LENGTH = 64;
+    private final int OFFSET_BYTES_LENGTH = 4;
+    private final RandomAccessFile lexiconFile;
+    private final RandomAccessFile docIdFile;
+    private final RandomAccessFile termFreqFile;
     public boolean endOfLexiconReached;
 
-    public BlockReadingHandler(String directoryPath, String lexiconPath, String docIdPath, String termFreqPath, int blockId) throws FileNotFoundException {
-        offsetLexicon = 0;
-        offsetDocId = 0;
-        offsetTermFreq = 0;
+    public BlockReader(String directoryPath, String lexiconPath, String docIdPath, String termFreqPath, int blockId) throws FileNotFoundException {
+        positionLexicon = 0;
+        positionDocId = 0;
+        positionTermFreq = 0;
         currentOffsetRead = 0;
         successiveOffsetRead = 0;
         this.blockId = blockId;
@@ -35,63 +35,59 @@ public class BlockReadingHandler {
         endOfLexiconReached = false;
     }
 
-    public String readLexiconFile() throws IOException {    // leggo un term e il suo offset
+    public String nextTermLexiconFile() throws IOException {    // reading the next term with his offset
+        //TODO da rivedere
 
-        if (endOfLexiconReached == true) return null;
+        if (endOfLexiconReached)
+            return null;
 
         int numberOfBytesRead;
         String termRead;
-        byte[] bufferForTermRead = new byte[64]; // Define a buffer to hold the term read
-        byte[] bufferForOffsetRead = new byte[4]; // Define a buffer to hold the offset read
+        byte[] bufferForTermRead = new byte[TERM_BYTES_LENGTH]; // Define a buffer to hold the term read
+        byte[] bufferForOffsetRead = new byte[OFFSET_BYTES_LENGTH]; // Define a buffer to hold the offset read
 
-        lexiconFile.seek(offsetLexicon); // Seek to the desired position, Read data from that position
+        lexiconFile.seek(positionLexicon); // Seek to the desired position, Read data from that position
         ///////// ***************   TERM    ******************** ///////
         numberOfBytesRead = lexiconFile.read(bufferForTermRead);   // metto nel buffer il term letto
         if (numberOfBytesRead == -1) {
             System.out.println("Raggiunta la fine del Lexicon file");
             lexiconFile.close();
             endOfLexiconReached = true;
-            return "";
+            return null;
         }
-        //System.out.println("Numero di bytes letti: " + numberOfBytesRead);
         termRead = new String(bufferForTermRead, StandardCharsets.UTF_8);
-        //System.out.println("term: " + termRead);
 
-        offsetLexicon += termByteLength;
-        lexiconFile.seek(offsetLexicon);
-
-        /////  ****************  OFFSET  ************* //////
+        ///////   ****************  OFFSET  ************* //////
+        positionLexicon += TERM_BYTES_LENGTH;
+        lexiconFile.seek(positionLexicon);
         numberOfBytesRead = lexiconFile.read(bufferForOffsetRead);  //  metto nel buffer l'offset letto
         if (numberOfBytesRead == -1) {
             System.out.println("Raggiunta la fine del Lexicon file");
             lexiconFile.close();
             endOfLexiconReached = true;
-            return "";
+            return null;
         }
-        //System.out.println("Numero di bytes letti: " + numberOfBytesRead);
-        currentOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
-        //System.out.println("offset: " + offsetRead);
-        offsetLexicon += offsetByteLength; //  metto a 68 ma per leggere l'offset dopo faccio +64 non in-place
-        lexiconFile.seek(offsetLexicon + termByteLength);
 
-        ///////    *******************   OFFSET SUCCESSIVO   *************  //////
+        currentOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
+
+        positionLexicon += OFFSET_BYTES_LENGTH; //  metto a 68 ma per leggere l'offset dopo faccio +64 non in-place
+        lexiconFile.seek(positionLexicon + TERM_BYTES_LENGTH);
+
+        ///////    *******************   OFFSET SUCCESSIVA   *************  //////
 
         numberOfBytesRead = lexiconFile.read(bufferForOffsetRead);
         if (numberOfBytesRead == -1) {
             System.out.println("Raggiunta la fine del Lexicon file");
             lexiconFile.close();
             endOfLexiconReached = true;
-            return "";
+            return null;
         }
-        //System.out.println("Numero di bytes letti: " + numberOfBytesRead);
-        successiveOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
-        //System.out.println("offset: " + successiveOffsetRead);
-        lexiconFile.seek(offsetLexicon);  //  rimetto il seek a 68 così al ciclo dopo leggo correttamente il term successivo
 
+        successiveOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
+
+        lexiconFile.seek(positionLexicon);  //  rimetto il seek a 68 così al ciclo dopo leggo correttamente il term successivo
 
         return termRead;
-        //for (int i = offsetRead; i < successiveOffsetRead; i++)
-        //    readPostingListFiles(offsetRead);
 
     }
 
@@ -99,13 +95,13 @@ public class BlockReadingHandler {
         int numberOfBytesRead;
         int docIdRead;
         int termFreqRead;
-        byte[] bufferForIntegerRead = new byte[4]; // Define a buffer to hold the offset read
+        byte[] bufferForIntegerRead = new byte[OFFSET_BYTES_LENGTH]; // Define a buffer to hold the offset read
 
-        offsetDocId = currentOffsetRead*4;
-        offsetTermFreq = currentOffsetRead*4;
+        positionDocId = currentOffsetRead * OFFSET_BYTES_LENGTH;
+        positionTermFreq = currentOffsetRead * OFFSET_BYTES_LENGTH;
         for (int i = currentOffsetRead; i < successiveOffsetRead; i++) {
-            docIdFile.seek(offsetDocId); // Seek to the desired position, Read data from that position
-            termFreqFile.seek(offsetTermFreq);
+            docIdFile.seek(positionDocId); // Seek to the desired position, Read data from that position
+            termFreqFile.seek(positionTermFreq);
 
             numberOfBytesRead = docIdFile.read(bufferForIntegerRead);
             if (numberOfBytesRead == -1) {
@@ -113,9 +109,8 @@ public class BlockReadingHandler {
                 docIdFile.close();
                 return ;
             }
-            //System.out.println("Numero di bytes letti: " + numberOfBytesRead);
+
             docIdRead = ByteBuffer.wrap(bufferForIntegerRead).getInt();
-            //System.out.println("docId: " + docIdRead);
 
             numberOfBytesRead = termFreqFile.read(bufferForIntegerRead);
             if (numberOfBytesRead == -1) {
@@ -123,15 +118,15 @@ public class BlockReadingHandler {
                 termFreqFile.close();
                 return ;
             }
-            //System.out.println("Numero di bytes letti: " + numberOfBytesRead);
+
             termFreqRead = ByteBuffer.wrap(bufferForIntegerRead).getInt();
-            //System.out.println("termFreq: " + termFreqRead);
+
 
             PostingElement postingElement = new PostingElement(docIdRead, termFreqRead);
             postingList.addPostingElement(postingElement);
 
-            offsetDocId += offsetByteLength;
-            offsetTermFreq += offsetByteLength;
+            positionDocId += OFFSET_BYTES_LENGTH;
+            positionTermFreq += OFFSET_BYTES_LENGTH;
             //docIdFile.seek(offsetDocId);
             //termFreqFile.seek(offsetTermFreq);
         }
