@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
+    int count = 0; //DEBUG
     private int numberOfBlocks;
 
     public Index(String fileCollectionPath) throws IOException {
@@ -25,7 +26,7 @@ public class Index {
                 System.gc();
                 blockID++;
             }
-            numberOfBlocks = blockID + 1;
+            numberOfBlocks = blockID;
         } catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());
         }
@@ -33,7 +34,7 @@ public class Index {
     }
 
      private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
-         String  path = "./data/";
+         String path = "./data/";
          String fileLexicon = "lexicon" + blockID + ".dat";
          String fileDocIds = "docIds" + blockID+".dat";
          String fileTermFreq = "termFreq" + blockID+".dat";
@@ -48,8 +49,6 @@ public class Index {
 
     private BufferedReader singlePassInMemoryIndexing(int blockID, BufferedReader reader) throws IOException {
         Lexicon lexicon = new Lexicon();
-
-        int count = 0; //DEBUG
 
         BufferedReader readerToReturn = null;
         while (true) {

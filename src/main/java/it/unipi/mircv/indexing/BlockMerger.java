@@ -1,7 +1,10 @@
 package it.unipi.mircv.indexing;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class BlockMerger {
@@ -17,8 +20,18 @@ public class BlockMerger {
     private final ArrayList<Boolean> blockFinished = new ArrayList<>();
     private final ArrayList<String> currentTermOfBlocks = new ArrayList<>();
     private final ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
+    private final FileOutputStream fosLexicon;
+    private final FileOutputStream fosDocId;
+    private final FileOutputStream fosTermFreq;
+    int postingListOffset;  //offset to write in the final lexicon file for each term
+
 
     public BlockMerger(int numberOfBlocks) throws FileNotFoundException {
+
+        fosLexicon = new FileOutputStream("./data/lexicon.dat",true);
+        fosDocId = new FileOutputStream("./data/termFreq.dat",true);
+        fosTermFreq = new FileOutputStream("./data/docIds.dat",true);
+
         this.numberOfBlocks = numberOfBlocks;
 
         for (int i = 0; i < numberOfBlocks; i++) {
@@ -28,6 +41,7 @@ public class BlockMerger {
             blocks.add(i, blockReader);
             currentTermOfBlocks.add(""); // initialize arrayList
         }
+        postingListOffset = 0;
     }
 
     public void mergeBlocks() throws IOException {
@@ -83,17 +97,19 @@ public class BlockMerger {
                     minTermFoundInBlock.set(i, false);
             }
 
-            //TODO adesso dovremmo scirvere la postingList """mergiata""" in memoria, su file
-            //TODO ---> writeOnDisk()
+            //appending term and posting list in final files
+            writeToDisk(minTerm, postingList);
 
             //DEBUG -----------------------------
-            terms.add(minTerm);  //salvo term e Posting List associata
-            postingLists.add(postingList);
-
-            System.out.println(minTerm + " --->> " + postingList);
+            //terms.add(minTerm);  //salvo term e Posting List associata
+            //postingLists.add(postingList);
+            //System.out.println(minTerm + " --->> " + postingList);
             //DEBUG ---------------------------------------
 
         }
+        fosLexicon.close();
+        fosDocId.close();
+        fosTermFreq.close();
 
         //DEBUG ------printing the whole merged lexicon-------
         /*
@@ -104,8 +120,22 @@ public class BlockMerger {
         //DEBUG ---------------------------------------
     }
 
-    //TODO
-    private void writeOnDisk(){
+    //TODO da vedere se funziona
+    private void writeToDisk(String term, PostingList postingList) throws IOException {
+
+        byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
+        ByteBuffer termBuffer = ByteBuffer.allocate(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH);
+        termBuffer.put(termBytes);
+        termBuffer.position(Config.TERM_BYTES_LENGTH);
+        termBuffer.putInt(postingListOffset);
+        //update the offset to write in the lexicon for the next term (next iteration)
+        postingListOffset += postingList.getSize();
+        fosLexicon.write(termBuffer.array());
+
+        //Write posting list in docIds and termFreq files
+        byte[][] bytePostingList = postingList.getBytes();
+        fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
+        fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
 
     }
 }

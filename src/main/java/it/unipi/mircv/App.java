@@ -1,5 +1,7 @@
 package it.unipi.mircv;
 import it.unipi.mircv.indexing.BlockMerger;
+import it.unipi.mircv.indexing.Index;
+
 import java.io.*;
 
 
@@ -7,10 +9,8 @@ public class App
 {
 
     public static void main( String[] args ) throws IOException {
-        //Index index = new Index("test_collection.tsv");
-        //int getNumberOfBlocks = index.getNumBlocks();
-
-        int numberOfBlocks = 3;
+        Index index = new Index("test_collection.tsv");
+        int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks();
     }

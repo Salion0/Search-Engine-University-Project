@@ -38,7 +38,7 @@ public class Lexicon {
         }
     }
 
-    public void toDisk(String path,String  fileLexicon,String fileDocId,String fileTermFreq) throws IOException {
+    public void toDisk(String path, String  fileLexicon, String fileDocId, String fileTermFreq) throws IOException {
         FileOutputStream fosLexicon = new FileOutputStream(path+fileLexicon,true);
         FileOutputStream fosDocId = new FileOutputStream(path+fileDocId,true);
         FileOutputStream fosTermFreq = new FileOutputStream(path+fileTermFreq,true);
