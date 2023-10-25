@@ -128,22 +128,20 @@ public class Index {
                 System.out.println("Match found: " + url);
             }
             return "";
-        }
+    }
 
+    public static String[] tokenization(String doc) {
+        //System.out.println(doc);
+        //html tags removal
+        doc = doc.replaceAll("<[^>]*>", "");
+        //punctuation and whitespace
+        String result = doc.replaceAll("\\p{Punct}","").toLowerCase();
+        String[] tokens = result.split("\\s+");
+        return tokens;
+    }
 
-        public static String[] tokenization(String doc) {
-            //System.out.println(doc);
-            //html tags removal
-            doc = doc.replaceAll("<[^>]*>", "");
-            //punctuation and whitespace
-            String result = doc.replaceAll("\\p{Punct}","").toLowerCase();
-            String[] tokens = result.split("\\s+");
-            return tokens;
-        }
-
-        public int getDocumentLength (int docId){
-            return documentIndex.get(docId);
-        }
-
+    public DocumentIndex getDocumentIndex() {
+        return documentIndex;
+    }
 }
 
