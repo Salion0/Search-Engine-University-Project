@@ -44,7 +44,7 @@ public class Lexicon {
         FileOutputStream fosTermFreq = new FileOutputStream(path+fileTermFreq,true);
         //offset to save in lexicon
 
-        int offset =0;
+        int offset = 0;
         //int count = 0; //DEBUG
 
         for(String term: treeMap.keySet()) {

@@ -3,30 +3,29 @@ package it.unipi.mircv.indexing;
 import java.nio.ByteBuffer;
 
 public class LexiconEntry {
-    private int df;
-    private int cf;
+    private int documentFreq;
+    private int collectionFreq;
     private PostingList postingList;
-
     public LexiconEntry(){}
     public LexiconEntry(int df, int cf, PostingList postingList){
-        this.df=df;
-        this.cf=cf;
+        this.documentFreq = df;
+        this.collectionFreq = cf;
         this.postingList=postingList;
     }
     public int getDf() {
-        return df;
+        return documentFreq;
     }
 
     public void setDf(int df) {
-        this.df = df;
+        this.documentFreq = df;
     }
 
     public int getCf() {
-        return cf;
+        return collectionFreq;
     }
 
     public void setCf(int tf) {
-        this.cf = tf;
+        this.collectionFreq = tf;
     }
 
     public PostingList getPostingList() {

@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
+    DocumentIndex documentIndex = new DocumentIndex();
+    PorterStemmer stemmer = new PorterStemmer();
     int count = 0; //DEBUG
     private int numberOfBlocks;
 
@@ -30,16 +32,14 @@ public class Index {
         } catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());
         }
-
     }
-
-     private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
-         String path = "./data/";
-         String fileLexicon = "lexicon" + blockID + ".dat";
-         String fileDocIds = "docIds" + blockID+".dat";
-         String fileTermFreq = "termFreq" + blockID+".dat";
-         lexicon.toDisk(path,fileLexicon,fileDocIds,fileTermFreq);
-     }
+    private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
+        String path = "./data/";
+        String fileLexicon = "lexicon" + blockID + ".dat";
+        String fileDocIds = "docIds" + blockID+".dat";
+        String fileTermFreq = "termFreq" + blockID+".dat";
+        lexicon.toDisk(path,fileLexicon,fileDocIds,fileTermFreq);
+    }
 
     private double freeMemoryPercentage() {
         long totalMemory = Runtime.getRuntime().totalMemory();
@@ -51,6 +51,9 @@ public class Index {
         Lexicon lexicon = new Lexicon();
 
         BufferedReader readerToReturn = null;
+
+        int docLength;
+
         while (true) {
             count++; //DEBUG
 
@@ -80,8 +83,8 @@ public class Index {
             //parsing and processing the document corresponding
             String[] values = line.split("\t"); //split document text and docID
             String[] tokens = Index.tokenization(values[1]);  //take tokens from the text
-            processDocument(lexicon, Integer.parseInt(values[0]), tokens);
-
+            docLength = processDocument(lexicon, Integer.parseInt(values[0]), tokens);
+            documentIndex.add(docLength);
              //DEBUG
             //if (count == 5) break; //DEBUG
         }
@@ -89,23 +92,27 @@ public class Index {
         return readerToReturn;
     }
 
-    public void processDocument(Lexicon lexicon, int docId, String[] tokens) {
+    private int processDocument(Lexicon lexicon, int docId, String[] tokens) {
         HashMap<String, Integer> wordCountDocument = new HashMap<>();
-        PorterStemmer stemmer = new PorterStemmer();
-
+        int tokenCount = 0;
         //Count all occurrence of all terms in a document
         for (String token : tokens) {  //map with frequencies only
             token = stemmer.stemWord(token);
-            if (wordCountDocument.get(token) == null)
-                wordCountDocument.put(token, 1);
-            else
-                wordCountDocument.put(token, wordCountDocument.get(token) + 1);
+            //TODO stopWordRemoval
+            //token = stopWordRemoval (token);
+            if (token != null){
+                tokenCount++;
+                if (wordCountDocument.get(token) == null)
+                    wordCountDocument.put(token, 1);
+                else
+                    wordCountDocument.put(token, wordCountDocument.get(token) + 1);
+            }
         }
-
         //updating the lexicon with the document processing results
         for (String term: wordCountDocument.keySet()) {
             lexicon.update(term, docId, wordCountDocument.get(term));
         }
+        return tokenCount;
     }
     public int getNumberOfBlocks() {
         return numberOfBlocks;
@@ -134,6 +141,9 @@ public class Index {
             return tokens;
         }
 
+        public int getDocumentLength (int docId){
+            return documentIndex.get(docId);
+        }
 
 }
 

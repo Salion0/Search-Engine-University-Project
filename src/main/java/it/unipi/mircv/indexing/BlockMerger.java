@@ -124,9 +124,11 @@ public class BlockMerger {
     private void writeToDisk(String term, PostingList postingList) throws IOException {
 
         byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer termBuffer = ByteBuffer.allocate(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH);
+        ByteBuffer termBuffer = ByteBuffer.allocate(Config.TERM_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH);
         termBuffer.put(termBytes);
         termBuffer.position(Config.TERM_BYTES_LENGTH);
+        termBuffer.putInt(postingList.getSize());
+        termBuffer.position(Config.TERM_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH);
         termBuffer.putInt(postingListOffset);
         //update the offset to write in the lexicon for the next term (next iteration)
         postingListOffset += postingList.getSize();
