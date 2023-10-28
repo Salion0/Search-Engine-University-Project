@@ -63,7 +63,10 @@ public class DAAT {
 
         float BM25value = 0;
         for(Map.Entry<String, Integer> entry : queryTermsFrequency.entrySet()) {
-            int termFrequency;
+            int termFrequency; // la term frequency si intende quante volte quel term compare nella query,
+                               // che è un caso che va consdirato. Siccome BM25 è una sommatoria per ogni term che compare
+                               // nella query, salvandomi la frequency la uso come moltiplicatore invece che ricalcolarmi
+                               // BM25 per i termini duplicati
             int documentFrequency;
             int documentLength;
             int averageDocumentLength;
@@ -76,6 +79,8 @@ public class DAAT {
             documentFrequency = lexicon.get(entry.getKey());
             documentLength = index.getDocumentIndex().get(docId);
             averageDocumentLength = index.getDocumentIndex().getAverageDocumentLength;
+
+
         }
 
     }
