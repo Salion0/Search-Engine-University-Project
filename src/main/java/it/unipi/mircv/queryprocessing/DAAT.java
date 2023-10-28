@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,9 @@ public class DAAT {
     private final RandomAccessFile lexiconFile;
     private final RandomAccessFile docIdFile;
     private final RandomAccessFile termFreqFile;
-    private HashMap<String, Integer> currentPositionInPostingLists = new HashMap<String, Integer>();
+    private HashMap<String, Integer> currentPositionsInPostingLists = new HashMap<String, Integer>();
+
+    private HashMap<String, Integer> lexicon = new HashMap<String, Integer>();
     private PorterStemmer stemmer = new PorterStemmer();
 
     public DAAT() throws FileNotFoundException {
@@ -62,12 +65,70 @@ public class DAAT {
         for(Map.Entry<String, Integer> entry : queryTermsFrequency.entrySet()) {
             int termFrequency;
             int documentFrequency;
+            int documentLength;
+            int averageDocumentLength;
             byte[] bufferForIntegerRead = new byte[Config.OFFSET_BYTES_LENGTH];
+
             termFreqFile.seek(currentPositionInPostingLists.get(entry.getValue())); // mi posiziono per leggere la frequency del query term per quel docId
             termFreqFile.read(bufferForIntegerRead);
             termFrequency = ByteBuffer.wrap(bufferForIntegerRead).getInt();
 
+            documentFrequency = lexicon.get(entry.getKey());
+            documentLength = index.getDocumentIndex().get(docId);
+            averageDocumentLength = index.getDocumentIndex().getAverageDocumentLength;
         }
 
+    }
+
+    public void getAllLexicon() throws IOException {  // ottengo tutti i termini del lexicon e la lunghezza della loro posting list
+
+        int positionLexicon = 0;
+        while(true) {
+            int numberOfBytesRead;
+            String termRead;
+            int currentOffsetRead;
+            int successiveOffsetRead;
+            byte[] bufferForTermRead = new byte[Config.TERM_BYTES_LENGTH]; // Define a buffer to hold the term read
+            byte[] bufferForOffsetRead = new byte[Config.OFFSET_BYTES_LENGTH]; // Define a buffer to hold the offset read
+
+            lexiconFile.seek(positionLexicon); // Seek to the desired position, Read data from that position
+            //////// ***************   TERM    ******************** ///////
+            numberOfBytesRead = lexiconFile.read(bufferForTermRead);   // metto nel buffer il term letto
+            if (numberOfBytesRead == -1) {
+                System.out.println("Raggiunta la fine del Lexicon file");
+                lexiconFile.close();
+                return;
+            }
+            termRead = new String(bufferForTermRead, StandardCharsets.UTF_8);
+
+            ///////   ****************  OFFSET  ************* //////
+            positionLexicon += Config.TERM_BYTES_LENGTH;
+            lexiconFile.seek(positionLexicon);
+            numberOfBytesRead = lexiconFile.read(bufferForOffsetRead);  //  metto nel buffer l'offset letto
+            if (numberOfBytesRead == -1) {
+                System.out.println("Raggiunta la fine del Lexicon file");
+                lexiconFile.close();
+                return;
+            }
+            currentOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
+
+            positionLexicon += Config.OFFSET_BYTES_LENGTH; //  metto a 68 ma per leggere l'offset dopo faccio +64 non in-place
+            lexiconFile.seek(positionLexicon + Config.TERM_BYTES_LENGTH);
+
+            ///////    *******************   OFFSET SUCCESSIVA   *************  //////
+            numberOfBytesRead = lexiconFile.read(bufferForOffsetRead);
+            if (numberOfBytesRead == -1) {
+                System.out.println("Raggiunta la fine del Lexicon file");
+                lexiconFile.close();
+                return;
+            }
+
+            successiveOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
+
+            lexiconFile.seek(positionLexicon);  //  rimetto il seek a 68 così al ciclo dopo leggo correttamente il term successivo
+
+            lexicon.put(termRead,successiveOffsetRead - currentOffsetRead);
+
+        }
     }
 }
