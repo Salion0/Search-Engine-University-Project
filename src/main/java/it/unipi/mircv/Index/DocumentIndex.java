@@ -1,33 +1,31 @@
 package it.unipi.mircv.Index;
+import it.unipi.mircv.File.DocumentIndexHandler;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
 public class DocumentIndex {
-    private final ArrayList<Integer> documentLengths = new ArrayList<>();
-    private Float averageDocumentLength = null;
+    //private final ArrayList<Integer> documentLengths = new ArrayList<>();
+    //private final ArrayList<String> documentNos = new ArrayList<>();
+    private int collectionSize;
+    private final DocumentIndexHandler documentIndexHandler;
+    private long collectionLength;
 
-    public void add(int docLength){
-        documentLengths.add(docLength);
-    }
-    public int get(int docId){
-        return documentLengths.get(docId);
-    }
-
-    public int getDocIndexLen(){
-        return this.documentLengths.size();
+    public DocumentIndex() throws IOException {
+        documentIndexHandler = new DocumentIndexHandler();
+        this.collectionSize = 0;
     }
 
-    //to be performed ones
-    public void computeAverageDocumentLength(){
-        int collectionLen = 0;
-        for (Integer docLen : documentLengths) {
-            collectionLen += docLen;
-        }
-        averageDocumentLength = ((float) collectionLen/documentLengths.size());
+    public void add(String docNo, int docLength) throws IOException {
+        documentIndexHandler.writeEntry(docNo, docLength);
+        collectionSize++;
+        collectionLength += docLength;
     }
 
-    public Float getAverageDocumentLength(){
-        return averageDocumentLength;
+    public void addAverageDocumentLength() throws IOException {
+        documentIndexHandler.addAverageDocumentLength(collectionLength / (float) collectionSize);
     }
 
 }
