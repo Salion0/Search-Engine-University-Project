@@ -11,7 +11,7 @@ public class QueryProcessor {
     //------------------------------------------------------------------------//
     private int[] docIDRetrieved;  //list of docIDs retrieved sorted by ranking
 
-    private int [] docsScore; //list of score related to docIDs
+    private int[] docsScore; //list of score related to docIDs
 
     //------------------------------------------------------------------------//
     private int[] query_tf;  //list of term frequencies in the queries
@@ -21,13 +21,13 @@ public class QueryProcessor {
     private String[] queryTerms;//query terms
 
     //------------------------------------------------------------------------//
-    public QueryProcessor(String query, int collectionSize){
+    public QueryProcessor(String query, int collectionSize) {
         this.queryTerms = query.split("\\s");
         this.query_tf = new int[queryTerms.length];
         this.collectionSize = collectionSize;
     }
 
-    public QueryProcessor(String[] query, int collectionSize){
+    public QueryProcessor(String[] query, int collectionSize) {
         this.queryTerms = query;
         this.collectionSize = collectionSize;
     }
@@ -38,27 +38,28 @@ public class QueryProcessor {
     }
 
 
-    private  int getMinDocId(Lexicon lexicon){
+    private int getMinDocId(Lexicon lexicon) {
 
         int minDocId = this.collectionSize;  //valore che indica che le posting list sono state raggiunte
         //TODO
         PostingList term_pl;
-        for (String term: this.queryTerms)
-        {
+        for (String term : this.queryTerms) {
             term_pl = lexicon.getPostingList(term);
             int current_doc_id = term_pl.currentDocId();  //return the current doc id pointed
-            if(current_doc_id<minDocId){
+            if (current_doc_id < minDocId) {
                 minDocId = current_doc_id;
             }
         }
         return minDocId;
     }
-    private float termScore(){
+
+    private float termScore() {
         float termscore = 0;
         //TODO
 
         return termscore;
     }
+
     public int[] DAAT(Lexicon lexicon) {
         //Process the query using Document At A Time
         //TODO
@@ -75,12 +76,15 @@ public class QueryProcessor {
                     termPl.next();  //increment the position in the posting list
                     score += termScore();
                 }
+                //TODO check if the score is correct
             }
 
-            //TODO sort docIDRetrieved
-            return this.docIDRetrieved;
+
         }
+        //TODO sort docIDRetrieved
+        return this.docIDRetrieved;
     }
+
 
     public int[] TAAT(){
         //Process the query using Document At A Time
