@@ -76,6 +76,7 @@ public class QueryProcessor {
                     termPl.next();  //increment the position in the posting list
                     score += termScore();
                 }
+                //TODO check if the score is correct
             }
 
 
