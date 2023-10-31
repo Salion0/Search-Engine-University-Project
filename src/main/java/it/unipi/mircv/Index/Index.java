@@ -1,9 +1,10 @@
-package it.unipi.mircv.indexing;
+package it.unipi.mircv.Index;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 
 import java.io.*;
-import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -15,9 +16,25 @@ public class Index {
     int count = 0; //DEBUG
     private int numberOfBlocks;
 
+    private static void cleanFolder(String folderName) throws IOException {
+        //function called every time the indexing starts in order to clean up the folder where blocks are stored
+        File folder = new File(folderName);
+        if(folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        if (file.delete()) System.out.println("File deleted: " + file.getName());
+                        else System.err.println("It's impossible to delete the file: " + file.getName());
+                    }
+                }
+            }
+        } else Files.createDirectory(Paths.get("data"));
+    }
     public Index(String fileCollectionPath) throws IOException {
         //this method remove precedent files
-        Utils.cleanFolder("data");
+        cleanFolder("data");
         int blockID = 0;
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));

@@ -1,13 +1,5 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.indexing.PostingElement;
-import it.unipi.mircv.indexing.PostingList;
-
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-
 public class Test{
     public static void main(String[] args){
 

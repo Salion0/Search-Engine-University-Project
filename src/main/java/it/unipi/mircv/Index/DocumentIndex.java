@@ -1,4 +1,4 @@
-package it.unipi.mircv.indexing;
+package it.unipi.mircv.Index;
 import java.util.ArrayList;
 
 
@@ -11,6 +11,10 @@ public class DocumentIndex {
     }
     public int get(int docId){
         return documentLengths.get(docId);
+    }
+
+    public int getDocIndexLen(){
+        return this.documentLengths.size();
     }
 
     //to be performed ones

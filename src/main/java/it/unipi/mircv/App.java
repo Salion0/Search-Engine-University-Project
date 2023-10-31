@@ -1,6 +1,6 @@
 package it.unipi.mircv;
-import it.unipi.mircv.indexing.BlockMerger;
-import it.unipi.mircv.indexing.Index;
+import it.unipi.mircv.Index.BlockMerger;
+import it.unipi.mircv.Index.Index;
 
 import java.io.*;
 

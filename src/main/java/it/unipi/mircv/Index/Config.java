@@ -1,4 +1,4 @@
-package it.unipi.mircv.indexing;
+package it.unipi.mircv.Index;
 
 public class Config {
     public static final int TERM_BYTES_LENGTH = 64;

@@ -1,7 +1,7 @@
-package it.unipi.mircv.queryprocessing;
+package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import it.unipi.mircv.indexing.Config;
+import it.unipi.mircv.Index.Config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DAAT {
+public class DAAT_Lorenzo {
     // We utilize the fact that the posting lists are ordered by document ID. Then, it's enough to iterate in parallel
     // through term query term's posting list, and score the minimum docid at each iteration.
     // We keep a pointer for each query term and we move it forward every time a docid is scored.
@@ -25,7 +25,7 @@ public class DAAT {
     private HashMap<String, Integer> lexicon = new HashMap<String, Integer>();
     private PorterStemmer stemmer = new PorterStemmer();
 
-    public DAAT() throws FileNotFoundException {
+    public DAAT_Lorenzo() throws FileNotFoundException {
         lexiconFile = new RandomAccessFile("lexicon.dat","r");
         docIdFile = new RandomAccessFile("docIdFile.dat","r");
         termFreqFile = new RandomAccessFile("termFreq.dat","r");

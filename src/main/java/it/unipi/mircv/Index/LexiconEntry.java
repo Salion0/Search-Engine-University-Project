@@ -1,6 +1,4 @@
-package it.unipi.mircv.indexing;
-
-import java.nio.ByteBuffer;
+package it.unipi.mircv.Index;
 
 public class LexiconEntry {
     private int documentFreq;

@@ -1,4 +1,4 @@
-package it.unipi.mircv.indexing;
+package it.unipi.mircv.Index;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
