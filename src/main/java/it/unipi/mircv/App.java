@@ -14,10 +14,6 @@ public class App
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks();
-
-        index.getDocumentIndex().computeAverageDocumentLength();
-
-        System.out.println(index.getDocumentIndex().getAverageDocumentLength());
     }
 
 
