@@ -24,11 +24,8 @@ public class TestMatteo {
         byte[] intCompressed1 = Compression.variableByteCompression(1000);
         byte[] intCompressed2 = Compression.variableByteCompression(10023402);
 
-        byte[] intCompressedReversed1 = Compression.reverseArray(intCompressed1);
-        byte[] intCompressedReversed2 = Compression.reverseArray(intCompressed2);
-
-        Compression.printBytes(intCompressedReversed1);
-        Compression.printBytes(intCompressedReversed2);
+        Compression.printBytes(Compression.reverseArray(intCompressed1));
+        Compression.printBytes(Compression.reverseArray(intCompressed2));
 
         System.out.println(Compression.variableByteDecompression(intCompressed1));
         System.out.println(Compression.variableByteDecompression(intCompressed2));
