@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
-    DocumentIndex documentIndex = new DocumentIndex();
+    DocumentIndex documentIndex;
     PorterStemmer stemmer = new PorterStemmer();
     int count = 0; //DEBUG
     private int numberOfBlocks;
@@ -20,6 +20,7 @@ public class Index {
     public Index(String fileCollectionPath) throws IOException {
         //this method remove precedent files
         cleanFolder("data");
+        documentIndex = new DocumentIndex();
 
         currentDocId = 0;
         int blockID = 0;
@@ -90,7 +91,7 @@ public class Index {
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
             //DEBUG
-            //if (count == 5) break; //DEBUG
+            if (count == 5) break; //DEBUG
         }
         writeLexiconToBlock(lexicon, blockID);
         return readerToReturn;
