@@ -1,9 +1,10 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.Index.Compression;
+import it.unipi.mircv.compression.ByteManipulator;
+import it.unipi.mircv.compression.VariableByte;
+import it.unipi.mircv.compression.Utils;
 
 import java.io.IOException;
-
 
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
@@ -20,15 +21,28 @@ public class TestMatteo {
         documentIndexHandler.closeFileChannel();
         */
 
-        // test compression
-        byte[] intCompressed1 = Compression.variableByteCompression(1000);
-        byte[] intCompressed2 = Compression.variableByteCompression(10023402);
 
-        Compression.printBytes(Compression.reverseArray(intCompressed1));
-        Compression.printBytes(Compression.reverseArray(intCompressed2));
+        /*
+        // test Variable Byte compression
+        byte[] intCompressed1 = VariableByte.compress(1000);
+        byte[] intCompressed2 = VariableByte.compress(10023402);
 
-        System.out.println(Compression.variableByteDecompression(intCompressed1));
-        System.out.println(Compression.variableByteDecompression(intCompressed2));
+        Utils.printBytes(intCompressed1);
+        Utils.printBytes(intCompressed2);
+
+        Utils.printBytes(Utils.reverseByteArray(intCompressed1));
+        Utils.printBytes(Utils.reverseByteArray(intCompressed2));
+
+        System.out.println(VariableByte.decompress(intCompressed1));
+        System.out.println(VariableByte.decompress(intCompressed2));
+        */
+
+        //test
+        ByteManipulator b = new ByteManipulator();
+        b.setBitToOne(2);
+        b.setBitToZero(1);
+        System.out.println(b);
+
     }
 
 
