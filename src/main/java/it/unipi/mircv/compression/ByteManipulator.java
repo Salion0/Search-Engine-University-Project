@@ -7,11 +7,15 @@ public class ByteManipulator {
         this.data = 0; // Initialize the byte with all bits set to 0
     }
 
+    public ByteManipulator(byte newData) {
+        data = newData;
+    }
+
     public void setBitToOne(int position) {
         if (position < 0 || position > 7) {
             throw new IllegalArgumentException("Bit position must be in the range [0, 7]");
         }
-        data |= (1 << (7 - position));
+        data |= (1 << position);
     }
 
     public void setBitToZero(int position) {
@@ -19,7 +23,7 @@ public class ByteManipulator {
             throw new IllegalArgumentException("Bit position must be in the range [0, 7]");
         }
 
-        data &= ~(1 << (7 - position));
+        data &= ~(1 << position);
     }
 
     public boolean getBit(int position) {
@@ -27,10 +31,10 @@ public class ByteManipulator {
             throw new IllegalArgumentException("Bit position must be in the range [0, 7]");
         }
 
-        return (data & (1 << (7 - position))) != 0;
+        return (data & (1 << position)) != 0;
     }
 
-    public byte getData() {
+    public byte getByte() {
         return data;
     }
 
