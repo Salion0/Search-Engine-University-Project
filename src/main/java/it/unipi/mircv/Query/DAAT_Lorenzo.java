@@ -1,3 +1,4 @@
+/*
 package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
@@ -137,3 +138,4 @@ public class DAAT_Lorenzo {
         }
     }
 }
+*/
