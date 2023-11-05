@@ -76,7 +76,6 @@ public class BlockMerger {
                         minTerm = currentTermOfBlocks.get(i);
                 }
             }
-
             /*
             if (countBlockFinished == numberOfBlocks) // condizione di terminazione del while, i.e ho letto tutti i lexicon
                 break;

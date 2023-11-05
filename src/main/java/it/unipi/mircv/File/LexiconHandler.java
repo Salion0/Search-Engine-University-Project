@@ -8,8 +8,12 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
 
+import static it.unipi.mircv.Index.Config.*;
+
 public class LexiconHandler{
     //Class that create a filechannel to the lexicon file and implement write and read method for that file
+
+    private boolean binarySearchDone = false;
     private FileChannel lexiconFile;
 
     private String name = "lexicon.dat";
@@ -24,50 +28,73 @@ public class LexiconHandler{
         this.lexiconFile = raf.getChannel();
     }
 
-    private byte[] findTermEntry(String term) throws IOException {
+    public ByteBuffer findTermEntry(String term) throws IOException {
         //Find a term in the lexicon file by binary search assuming that a=0; b=FileSize; c = center that we calculate at each iteration
-        byte[] data = null;
+        for(int i=term.length();i<TERM_BYTES_LENGTH;i++){      //ADD BLANKSPACE TO THE STRING
+            term = term.concat("\0");
+        }
 
-        //TODO ricerca binaria su file binario con acesso casuale
-        ByteBuffer termBuffer = ByteBuffer.allocate(64);
-        long b = lexiconFile.size();  // size = b
+        ByteBuffer dataBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);
 
+
+        ByteBuffer termBuffer = ByteBuffer.allocate(TERM_BYTES_LENGTH);
+
+        long fileSize = lexiconFile.size();  // size
+        System.out.println("File size:"+fileSize); //DEBUG
+
+        long left = 0;
+        long numTerm = (int)(fileSize/LEXICON_ENTRY_LENGTH);
+        long right = numTerm-1;
         //calculate the center using the file size
-        int centerRow = Math.round((float) b /2);
+
 
         //take the center element.
-        lexiconFile.read(termBuffer,centerRow);
-        String centerTerm = new String(termBuffer.array(), StandardCharsets.UTF_8);
 
-         while(centerTerm!=term){
-             if(centerTerm.compareTo(term)==)
+
+         while(left<=right){  //search another term if not found
+             long center = (right+left)/2;
+             lexiconFile.read(termBuffer, (long) center *LEXICON_ENTRY_LENGTH);
+             String centerTerm = new String(termBuffer.array(), StandardCharsets.UTF_8);
+
+             if(centerTerm.compareTo(term)<0){
+
+                 left = center+1;  //move the left bound to centerRow
+
+             }
+             else if (centerTerm.compareTo(term)>0){
+
+                 right = center-1;   //move the right bound to centerRow
+
+             }
+             else{
+
+                 lexiconFile.read(dataBuffer,(long) center *LEXICON_ENTRY_LENGTH);
+                 return dataBuffer;
+             }
              termBuffer.clear();
-             //calculate new center using as new end of interval the old center
-             int b = 0;
-
-
          }
-        return data;
+
+         System.out.println(); //DEBUG
+         return dataBuffer;
     }
 
-    public int getCf(String term) throws IOException {
+
+
+    public int getCf(ByteBuffer dataBuffer) throws IOException {
         int cf = 0;
-        byte[] entry = findTermEntry(term);
         //TODO
 
 
         return cf;
     }
-    public int getDf(String term) throws IOException {
+    public int getDf(ByteBuffer dataBuffer) throws IOException {
         int df=0;
-        byte[] entry = findTermEntry(term);
         //TODO
 
         return df;
     }
-    public int getOffset(String term) throws IOException {
+    public int getOffset(ByteBuffer dataBuffer) throws IOException {
         int offset = 0;
-        byte[] entry = findTermEntry(term);
         //TODO
 
         return offset;
