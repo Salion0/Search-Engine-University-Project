@@ -1,9 +1,39 @@
 package it.unipi.mircv;
 
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.RandomAccess;
+
 public class Test{
     public static void main(String[] args){
+        try{
+            /* FileChannel fcw = new RandomAccessFile("prova.dat","rw").getChannel();
+            fc.write(ByteBuffer.wrap(stringa.getBytes()),0);
+           */
+            String stringa = "Hello World!";
 
-        //Test per check if file exist
+            FileChannel fcr = new RandomAccessFile("prova.dat","rw").getChannel();
+            ByteBuffer buffer = ByteBuffer.allocate(stringa.length());
+            fcr.read(buffer,0);
+
+            String fileString = new String(buffer.array(), StandardCharsets.UTF_8);
+            System.out.println("File size: "+fcr.size());
+            System.out.print("Stringa: "+fileString);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+
+
+       //Test per check if file exist
 
 
 

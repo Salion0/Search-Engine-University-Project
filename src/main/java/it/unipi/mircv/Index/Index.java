@@ -105,6 +105,7 @@ public class Index {
              //DEBUG
             //if (count == 5) break; //DEBUG
         }
+
         writeLexiconToBlock(lexicon, blockID);
         return readerToReturn;
     }
