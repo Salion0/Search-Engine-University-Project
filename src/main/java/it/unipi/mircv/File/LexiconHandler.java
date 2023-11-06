@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import static it.unipi.mircv.Index.Config.*;
 
 public class LexiconHandler{
-    //Class that create a filechannel to the lexicon file and implement write and read method for that file
+    //Class that create a file-channel to the lexicon file and implement write and read method for that file
 
     private boolean binarySearchDone = false;
     private FileChannel lexiconFile;
