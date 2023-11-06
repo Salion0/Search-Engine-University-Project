@@ -7,6 +7,18 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.Index.BlockReader;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.RandomAccess;
+
+
 public class Test{
     public static void main(String[] args) throws IOException {
 
@@ -52,6 +64,61 @@ public class Test{
                 System.out.println(new String(content, 0, bytesRead));
             }
         }*/
+        /*
+        try{
+            /* FileChannel fcw = new RandomAccessFile("prova.dat","rw").getChannel();
+            fc.write(ByteBuffer.wrap(stringa.getBytes()),0);
+           */
+            /*String stringa = "Hello World!";
+
+            FileChannel fcr = new RandomAccessFile("prova.dat","rw").getChannel();
+            ByteBuffer buffer = ByteBuffer.allocate(stringa.length());
+            fcr.read(buffer,0);
+
+            String fileString = new String(buffer.array(), StandardCharsets.UTF_8);
+            System.out.println("File size: "+fcr.size());
+            System.out.print("Stringa: "+fileString);
+        }catch(Exception e){
+            e.printStackTrace();
+        }/
+        */
+
+        //----------TEST PER LA RICERCA BINARIA------------------
+
+        try {
+            BlockReader blockReader = new BlockReader("data./", "lexicon", "docIds", "termFreq", 0);
+            blockReader.nextTermLexiconFile();
+            System.out.println("term: " + blockReader.nextTermLexiconFile());
+            System.out.println("term: " + blockReader.nextTermLexiconFile());
+            System.out.println("sessp: " + blockReader.getCollectionFrequency());
+            LexiconHandler lexhandler = new LexiconHandler("lexicon.dat");
+            ByteBuffer dataBuffer = lexhandler.findTermEntry("bbomb");
+            //System.out.println("Byte size: "+dataBuffer.array().length);
+
+            byte [] termData = new byte[64];
+            dataBuffer.get(0,termData);
+
+            dataBuffer.position(64);
+            int cf = dataBuffer.getInt();
+
+            System.out.println("Term: "+new String(termData,StandardCharsets.UTF_8));
+            System.out.println("CF "+cf);
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+
+
+
+
+
+       //Test per check if file exist
 
 
 

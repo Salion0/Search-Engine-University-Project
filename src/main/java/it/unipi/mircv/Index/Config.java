@@ -8,4 +8,9 @@ public class Config {
     public static final int AVGDOCLENGHT_BYTES_LENGTH = 4;
     public static final int DOCLENGTH_BYTES_LENGTH = 4;
     public static final int NUM_DOC_BYTES_LENGTH = 4;
+
+    public static final int COLLECTIONFREQ_BYTES_LENGTH = 4;
+
+    public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH+OFFSET_BYTES_LENGTH;//TODO aggiungere collection freq
+
 }
