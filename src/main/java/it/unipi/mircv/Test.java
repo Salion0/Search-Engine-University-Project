@@ -1,9 +1,57 @@
 package it.unipi.mircv;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class Test{
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
 
-        //Test per check if file exist
+        //Test per leggere senza unzippare
+        String tarFilePath = "collection.tar.gz";
+
+        try {
+            FileInputStream fis = new FileInputStream(tarFilePath);
+            GZIPInputStream gzis = new GZIPInputStream(fis);
+            InputStreamReader reader = new InputStreamReader(gzis);
+            BufferedReader br = new BufferedReader(reader);
+
+            String line;
+            br.readLine(); // la prima riga contiene metadati quindi la salto
+            int count = 0;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+                count++;
+                if (count == 5) break; //DEBUG
+            }
+
+            br.close();
+            reader.close();
+            gzis.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*
+        FileInputStream fis = new FileInputStream(tarFilePath);
+        TarArchiveInputStream tis = new TarArchiveInputStream(fis);
+
+        TarArchiveEntry entry;
+
+        while ((entry = tis.getNextTarEntry()) != null) {
+            System.out.println("File: " + entry.getName() + ", Size: " + entry.getSize());
+
+            byte[] content = new byte[(int) entry.getSize()];
+            int bytesRead = tis.read(content);
+
+            if (bytesRead != -1) {
+                System.out.println(new String(content, 0, bytesRead));
+            }
+        }*/
 
 
 
