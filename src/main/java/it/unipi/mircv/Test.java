@@ -1,9 +1,120 @@
 package it.unipi.mircv;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.Index.BlockReader;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.RandomAccess;
+
 
 public class Test{
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
 
-        //Test per check if file exist
+        /*
+        //Test per leggere senza unzippare
+        String tarFilePath = "collection.tar.gz";
+
+        try {
+            FileInputStream fis = new FileInputStream(tarFilePath);
+            GZIPInputStream gzis = new GZIPInputStream(fis);
+            InputStreamReader reader = new InputStreamReader(gzis);
+            BufferedReader br = new BufferedReader(reader);
+
+            String line;
+            br.readLine(); // la prima riga contiene metadati quindi la salto
+            int count = 0;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+                count++;
+                if (count == 5) break; //DEBUG
+            }
+
+            br.close();
+            reader.close();
+            gzis.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*
+        FileInputStream fis = new FileInputStream(tarFilePath);
+        TarArchiveInputStream tis = new TarArchiveInputStream(fis);
+
+        TarArchiveEntry entry;
+
+        while ((entry = tis.getNextTarEntry()) != null) {
+            System.out.println("File: " + entry.getName() + ", Size: " + entry.getSize());
+
+            byte[] content = new byte[(int) entry.getSize()];
+            int bytesRead = tis.read(content);
+
+            if (bytesRead != -1) {
+                System.out.println(new String(content, 0, bytesRead));
+            }
+        }*/
+        /*
+        try{
+            /* FileChannel fcw = new RandomAccessFile("prova.dat","rw").getChannel();
+            fc.write(ByteBuffer.wrap(stringa.getBytes()),0);
+           */
+            /*String stringa = "Hello World!";
+
+            FileChannel fcr = new RandomAccessFile("prova.dat","rw").getChannel();
+            ByteBuffer buffer = ByteBuffer.allocate(stringa.length());
+            fcr.read(buffer,0);
+
+            String fileString = new String(buffer.array(), StandardCharsets.UTF_8);
+            System.out.println("File size: "+fcr.size());
+            System.out.print("Stringa: "+fileString);
+        }catch(Exception e){
+            e.printStackTrace();
+        }/
+        */
+
+        //----------TEST PER LA RICERCA BINARIA------------------
+
+        try {
+            LexiconHandler lexhandler = new LexiconHandler("lexicon.dat");
+            ByteBuffer dataBuffer = lexhandler.findTermEntry("Solis,");
+            //System.out.println("Byte size: "+dataBuffer.array().length);
+
+            byte [] termData = new byte[64];
+            dataBuffer.get(0,termData);
+
+            dataBuffer.position(72);
+            int cf = dataBuffer.getInt();
+
+            System.out.println("Term: "+new String(termData,StandardCharsets.UTF_8));
+            System.out.println("CF "+cf);
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+
+
+
+
+
+       //Test per check if file exist
 
 
 
