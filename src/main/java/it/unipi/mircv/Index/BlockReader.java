@@ -13,6 +13,8 @@ public class BlockReader {
     private int positionLexicon;
     private int positionTermFreq;
     private int blockId;
+    private int collectionFrequency;
+    private int documentFrequency;
     private int currentOffsetRead;
     private int successiveOffsetRead;
 
@@ -44,6 +46,8 @@ public class BlockReader {
         String termRead;
         byte[] bufferForTermRead = new byte[Config.TERM_BYTES_LENGTH]; // Define a buffer to hold the term read
         byte[] bufferForOffsetRead = new byte[Config.OFFSET_BYTES_LENGTH]; // Define a buffer to hold the offset read
+        byte[] bufferForDocumentFreq = new byte[Config.DOCUMFREQ_BYTES_LENGTH];
+        byte[] bufferForCollectionFreq = new byte[Config.COLLECTIONFREQ_BYTES_LENGTH];
 
         lexiconFile.seek(positionLexicon); // Seek to the desired position, Read data from that position
         //////// ***************   TERM    ******************** ///////
@@ -55,11 +59,11 @@ public class BlockReader {
             return null;
         }
         termRead = new String(bufferForTermRead, StandardCharsets.UTF_8);
+        positionLexicon += Config.TERM_BYTES_LENGTH;
 
         ///////   ****************  OFFSET  ************* //////
-        positionLexicon += Config.TERM_BYTES_LENGTH;
         lexiconFile.seek(positionLexicon);
-        numberOfBytesRead = lexiconFile.read(bufferForOffsetRead);  //  metto nel buffer l'offset letto
+        numberOfBytesRead = lexiconFile.read(bufferForOffsetRead);  // metto nel buffer l'offset letto
         if (numberOfBytesRead == -1) {
             System.out.println("Raggiunta la fine del Lexicon file");
             lexiconFile.close();
@@ -68,9 +72,23 @@ public class BlockReader {
         }
 
         currentOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
+        positionLexicon += Config.OFFSET_BYTES_LENGTH;
 
-        positionLexicon += Config.OFFSET_BYTES_LENGTH; //  metto a 68 ma per leggere l'offset dopo faccio +64 non in-place
-        lexiconFile.seek(positionLexicon + Config.TERM_BYTES_LENGTH);
+
+        //////// ********** COLLECTION FREQUENCY ************ ///////////
+        lexiconFile.seek(positionLexicon);
+        numberOfBytesRead = lexiconFile.read(bufferForCollectionFreq);  //  metto nel buffer la collection frequency letta
+        if (numberOfBytesRead == -1) {
+            System.out.println("Raggiunta la fine del Lexicon file");
+            lexiconFile.close();
+            endOfLexiconReached = true;
+            return null;
+        }
+
+        collectionFrequency = ByteBuffer.wrap(bufferForCollectionFreq).getInt();
+
+        positionLexicon += Config.COLLECTIONFREQ_BYTES_LENGTH;
+        lexiconFile.seek(positionLexicon + Config.TERM_BYTES_LENGTH); // leggo così l'offset successivo, poi riporto all'inizio della entry
 
         ///////    *******************   OFFSET SUCCESSIVA   *************  //////
 
@@ -84,7 +102,10 @@ public class BlockReader {
 
         successiveOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
 
-        lexiconFile.seek(positionLexicon);  //  rimetto il seek a 68 così al ciclo dopo leggo correttamente il term successivo
+        lexiconFile.seek(positionLexicon);  //  rimetto il seek indietro così al ciclo dopo leggo correttamente il term successivo
+
+        //////// ********** DOCUMENT FREQUENCY ************ ///////////  la ottengo facendo la differenza tra l'offset successivo e il corrente
+        documentFrequency = successiveOffsetRead - currentOffsetRead;
 
         return termRead;
 
@@ -130,4 +151,15 @@ public class BlockReader {
             //termFreqFile.seek(offsetTermFreq);
         }
     }
+
+    public int getCurrentOffsetRead() {
+        return currentOffsetRead;
+    }
+    public int getCollectionFrequency() {
+        return collectionFrequency;
+    }
+    public int getDocumentFrequency() {
+        return documentFrequency;
+    }
+
 }
