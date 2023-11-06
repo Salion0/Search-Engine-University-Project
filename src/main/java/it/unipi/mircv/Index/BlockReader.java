@@ -13,6 +13,7 @@ public class BlockReader {
     private int positionLexicon;
     private int positionTermFreq;
     private int blockId;
+    private int collectionFrequency;
     private int currentOffsetRead;
     private int successiveOffsetRead;
 
@@ -82,7 +83,7 @@ public class BlockReader {
             return null;
         }
 
-        currentOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
+        collectionFrequency = ByteBuffer.wrap(bufferForCollectionFreq).getInt();
 
         positionLexicon += Config.COLLECTIONFREQ_BYTES_LENGTH; //  metto a 72 ma per leggere l'offset dopo faccio +68 non in-place
         lexiconFile.seek(positionLexicon + Config.TERM_BYTES_LENGTH);
@@ -99,7 +100,7 @@ public class BlockReader {
 
         successiveOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
 
-        lexiconFile.seek(positionLexicon);  //  rimetto il seek a 68 così al ciclo dopo leggo correttamente il term successivo
+        lexiconFile.seek(positionLexicon);  //  rimetto il seek a 72 così al ciclo dopo leggo correttamente il term successivo
 
         return termRead;
 
@@ -145,4 +146,13 @@ public class BlockReader {
             //termFreqFile.seek(offsetTermFreq);
         }
     }
+
+    public int getCurrentOffsetRead() {
+        return currentOffsetRead;
+    }
+
+    public int getCollectionFrequency() {
+        return collectionFrequency;
+    }
+
 }

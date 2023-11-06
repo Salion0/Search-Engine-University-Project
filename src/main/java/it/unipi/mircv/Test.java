@@ -1,6 +1,7 @@
 package it.unipi.mircv;
 
 import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.Index.BlockReader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,9 +37,14 @@ public class Test{
         //----------TEST PER LA RICERCA BINARIA------------------
 
         try {
+            BlockReader blockReader = new BlockReader("data./", "lexicon", "docIds", "termFreq", 0);
+            blockReader.nextTermLexiconFile();
+            System.out.println("term: " + blockReader.nextTermLexiconFile());
+            System.out.println("term: " + blockReader.nextTermLexiconFile());
+            System.out.println("sessp: " + blockReader.getCollectionFrequency());
             LexiconHandler lexhandler = new LexiconHandler("lexicon.dat");
             ByteBuffer dataBuffer = lexhandler.findTermEntry("bbomb");
-            System.out.println("Byte size: "+dataBuffer.array().length);
+            //System.out.println("Byte size: "+dataBuffer.array().length);
 
             byte [] termData = new byte[64];
             dataBuffer.get(0,termData);

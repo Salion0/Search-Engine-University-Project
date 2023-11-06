@@ -43,7 +43,7 @@ public class LexiconHandler{
         System.out.println("File size:"+fileSize); //DEBUG
 
         long left = 0;
-        long numTerm = (int)(fileSize/LEXICON_ENTRY_LENGTH);
+        long numTerm = (fileSize/LEXICON_ENTRY_LENGTH);
         long right = numTerm-1;
         //calculate the center using the file size
 
@@ -53,7 +53,7 @@ public class LexiconHandler{
 
          while(left<=right){  //search another term if not found
              long center = (right+left)/2;
-             lexiconFile.read(termBuffer, (long) center *LEXICON_ENTRY_LENGTH);
+             lexiconFile.read(termBuffer, center *LEXICON_ENTRY_LENGTH);
              String centerTerm = new String(termBuffer.array(), StandardCharsets.UTF_8);
 
              if(centerTerm.compareTo(term)<0){
@@ -68,7 +68,7 @@ public class LexiconHandler{
              }
              else{
 
-                 lexiconFile.read(dataBuffer,(long) center *LEXICON_ENTRY_LENGTH);
+                 lexiconFile.read(dataBuffer, center *LEXICON_ENTRY_LENGTH);
                  return dataBuffer;
              }
              termBuffer.clear();
