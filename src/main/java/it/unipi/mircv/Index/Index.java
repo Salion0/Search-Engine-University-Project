@@ -11,30 +11,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Index {
-    DocumentIndex documentIndex = new DocumentIndex();
+    DocumentIndex documentIndex;
     PorterStemmer stemmer = new PorterStemmer();
     int count = 0; //DEBUG
     private int numberOfBlocks;
+    private int currentDocId;
 
-    private static void cleanFolder(String folderName) throws IOException {
-        //function called every time the indexing starts in order to clean up the folder where blocks are stored
-        File folder = new File(folderName);
-        if(folder.exists() && folder.isDirectory()) {
-            File[] files = folder.listFiles();
-
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()) {
-                        if (file.delete()) System.out.println("File deleted: " + file.getName());
-                        else System.err.println("It's impossible to delete the file: " + file.getName());
-                    }
-                }
-            }
-        } else Files.createDirectory(Paths.get("data"));
-    }
     public Index(String fileCollectionPath) throws IOException {
         //this method remove precedent files
         cleanFolder("data");
+        documentIndex = new DocumentIndex();
+
+        currentDocId = 0;
         int blockID = 0;
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
@@ -49,6 +37,7 @@ public class Index {
         } catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());
         }
+        documentIndex.addAverageDocumentLength();
     }
     private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
         String path = "./data/";
@@ -68,8 +57,6 @@ public class Index {
         Lexicon lexicon = new Lexicon();
 
         BufferedReader readerToReturn = null;
-
-        int docLength;
 
         while (true) {
             count++; //DEBUG
@@ -100,9 +87,10 @@ public class Index {
             //parsing and processing the document corresponding
             String[] values = line.split("\t"); //split document text and docID
             String[] tokens = Index.tokenization(values[1]);  //take tokens from the text
-            docLength = processDocument(lexicon, Integer.parseInt(values[0]), tokens);
-            documentIndex.add(docLength);
-             //DEBUG
+            String docNo = values[0];
+            int docLength = processDocument(lexicon, tokens);
+            documentIndex.add(docNo, docLength);
+            //DEBUG
             //if (count == 5) break; //DEBUG
         }
 
@@ -110,11 +98,12 @@ public class Index {
         return readerToReturn;
     }
 
-    private int processDocument(Lexicon lexicon, int docId, String[] tokens) {
+    private int processDocument(Lexicon lexicon, String[] tokens) {
         HashMap<String, Integer> wordCountDocument = new HashMap<>();
         int tokenCount = 0;
         //Count all occurrence of all terms in a document
         for (String token : tokens) {  //map with frequencies only
+
             token = stemmer.stemWord(token);
             //TODO stopWordRemoval
             //token = stopWordRemoval (token);
@@ -128,8 +117,10 @@ public class Index {
         }
         //updating the lexicon with the document processing results
         for (String term: wordCountDocument.keySet()) {
-            lexicon.update(term, docId, wordCountDocument.get(term));
+            lexicon.update(term, currentDocId , wordCountDocument.get(term));
         }
+        currentDocId ++;
+
         return tokenCount;
     }
     public int getNumberOfBlocks() {
@@ -137,25 +128,44 @@ public class Index {
     }
 
     public static String findURLsExample(String inputString) {
-            String pattern = "\\b(?:https?|ftp)://\\S+\\b"; // Matches URLs starting with http://, https://, or ftp://
-            Pattern p = Pattern.compile(pattern);
-            Matcher m = p.matcher(inputString);
-            ArrayList<String> tokens = new ArrayList<String>();
-            while (m.find()) {
-                String url = m.group();
-                System.out.println("Match found: " + url);
-            }
-            return "";
+        String pattern = "\\b(?:https?|ftp)://\\S+\\b"; // Matches URLs starting with http://, https://, or ftp://
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(inputString);
+        ArrayList<String> tokens = new ArrayList<String>();
+        while (m.find()) {
+            String url = m.group();
+            System.out.println("Match found: " + url);
+        }
+        return "";
     }
 
     public static String[] tokenization(String doc) {
-        //System.out.println(doc);
         //html tags removal
         doc = doc.replaceAll("<[^>]*>", "");
         //punctuation and whitespace
         String result = doc.replaceAll("\\p{Punct}","").toLowerCase();
-        String[] tokens = result.split("\\s+");
+        String[] tokens = doc.split("\\s+");
+        for (String token: tokens)
+            if (token.compareTo("Solis") == 0 || token.compareTo("Solis,") == 0)
+                System.out.println(token);
         return tokens;
+    }
+
+    private static void cleanFolder(String folderName) throws IOException {
+        //function called every time the indexing starts in order to clean up the folder where blocks are stored
+        File folder = new File(folderName);
+        if(folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        if (file.delete()) System.out.println("File deleted: " + file.getName());
+                        else System.err.println("It's impossible to delete the file: " + file.getName());
+                    }
+                }
+            }
+        } else Files.createDirectory(Paths.get("data"));
     }
 
     public DocumentIndex getDocumentIndex() {

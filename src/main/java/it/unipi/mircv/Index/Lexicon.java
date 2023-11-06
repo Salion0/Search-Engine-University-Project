@@ -59,15 +59,15 @@ public class Lexicon {
             ByteBuffer termBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
             termBuffer.put(termBytes);
             termBuffer.position(TERM_BYTES_LENGTH);
+
             termBuffer.putInt(offset);
-            termBuffer.position(TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
 
             int collectionFreq =0;
-
             PostingList pl = getPostingList(term);
             for(PostingElement pe: pl.getPostingList()){
                 collectionFreq += pe.getTf();
             }
+            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
 
             termBuffer.putInt(collectionFreq);
 
