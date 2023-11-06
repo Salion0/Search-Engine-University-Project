@@ -82,21 +82,18 @@ public class LexiconHandler{
 
     public int getCf(ByteBuffer dataBuffer) throws IOException {
         int cf = 0;
-        //TODO
         dataBuffer.position(TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH);
         cf = dataBuffer.getInt();
         return cf;
     }
     public int getDf(ByteBuffer dataBuffer) throws IOException {
         int df=0;
-        //TODO
         dataBuffer.position(TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
         df = dataBuffer.getInt();
         return df;
     }
     public int getOffset(ByteBuffer dataBuffer) throws IOException {
         int offset = 0;
-        //TODO
         dataBuffer.position(TERM_BYTES_LENGTH);
         offset = dataBuffer.getInt();
         return offset;
