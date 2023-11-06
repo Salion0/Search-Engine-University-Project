@@ -91,7 +91,7 @@ public class Index {
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
             //DEBUG
-            if (count == 5) break; //DEBUG
+            //if (count == 5) break; //DEBUG
         }
 
         writeLexiconToBlock(lexicon, blockID);
@@ -103,6 +103,7 @@ public class Index {
         int tokenCount = 0;
         //Count all occurrence of all terms in a document
         for (String token : tokens) {  //map with frequencies only
+
             token = stemmer.stemWord(token);
             //TODO stopWordRemoval
             //token = stopWordRemoval (token);
@@ -139,12 +140,14 @@ public class Index {
     }
 
     public static String[] tokenization(String doc) {
-        //System.out.println(doc);
         //html tags removal
         doc = doc.replaceAll("<[^>]*>", "");
         //punctuation and whitespace
         String result = doc.replaceAll("\\p{Punct}","").toLowerCase();
-        String[] tokens = result.split("\\s+");
+        String[] tokens = doc.split("\\s+");
+        for (String token: tokens)
+            if (token.compareTo("Solis") == 0 || token.compareTo("Solis,") == 0)
+                System.out.println(token);
         return tokens;
     }
 

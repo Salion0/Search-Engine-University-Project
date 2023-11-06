@@ -22,6 +22,7 @@ import java.util.RandomAccess;
 public class Test{
     public static void main(String[] args) throws IOException {
 
+        /*
         //Test per leggere senza unzippare
         String tarFilePath = "collection.tar.gz";
 
@@ -86,19 +87,14 @@ public class Test{
         //----------TEST PER LA RICERCA BINARIA------------------
 
         try {
-            BlockReader blockReader = new BlockReader("data./", "lexicon", "docIds", "termFreq", 0);
-            blockReader.nextTermLexiconFile();
-            System.out.println("term: " + blockReader.nextTermLexiconFile());
-            System.out.println("term: " + blockReader.nextTermLexiconFile());
-            System.out.println("sessp: " + blockReader.getCollectionFrequency());
             LexiconHandler lexhandler = new LexiconHandler("lexicon.dat");
-            ByteBuffer dataBuffer = lexhandler.findTermEntry("bbomb");
+            ByteBuffer dataBuffer = lexhandler.findTermEntry("Solis,");
             //System.out.println("Byte size: "+dataBuffer.array().length);
 
             byte [] termData = new byte[64];
             dataBuffer.get(0,termData);
 
-            dataBuffer.position(64);
+            dataBuffer.position(72);
             int cf = dataBuffer.getInt();
 
             System.out.println("Term: "+new String(termData,StandardCharsets.UTF_8));

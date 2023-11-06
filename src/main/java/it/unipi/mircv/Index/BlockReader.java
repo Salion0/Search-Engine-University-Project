@@ -14,6 +14,7 @@ public class BlockReader {
     private int positionTermFreq;
     private int blockId;
     private int collectionFrequency;
+    private int documentFrequency;
     private int currentOffsetRead;
     private int successiveOffsetRead;
 
@@ -45,6 +46,7 @@ public class BlockReader {
         String termRead;
         byte[] bufferForTermRead = new byte[Config.TERM_BYTES_LENGTH]; // Define a buffer to hold the term read
         byte[] bufferForOffsetRead = new byte[Config.OFFSET_BYTES_LENGTH]; // Define a buffer to hold the offset read
+        byte[] bufferForDocumentFreq = new byte[Config.DOCUMFREQ_BYTES_LENGTH];
         byte[] bufferForCollectionFreq = new byte[Config.COLLECTIONFREQ_BYTES_LENGTH];
 
         lexiconFile.seek(positionLexicon); // Seek to the desired position, Read data from that position
@@ -85,8 +87,8 @@ public class BlockReader {
 
         collectionFrequency = ByteBuffer.wrap(bufferForCollectionFreq).getInt();
 
-        positionLexicon += Config.COLLECTIONFREQ_BYTES_LENGTH; //  metto a 72 ma per leggere l'offset dopo faccio +68 non in-place
-        lexiconFile.seek(positionLexicon + Config.TERM_BYTES_LENGTH);
+        positionLexicon += Config.COLLECTIONFREQ_BYTES_LENGTH;
+        lexiconFile.seek(positionLexicon + Config.TERM_BYTES_LENGTH); // leggo così l'offset successivo, poi riporto all'inizio della entry
 
         ///////    *******************   OFFSET SUCCESSIVA   *************  //////
 
@@ -100,7 +102,10 @@ public class BlockReader {
 
         successiveOffsetRead = ByteBuffer.wrap(bufferForOffsetRead).getInt();
 
-        lexiconFile.seek(positionLexicon);  //  rimetto il seek a 72 così al ciclo dopo leggo correttamente il term successivo
+        lexiconFile.seek(positionLexicon);  //  rimetto il seek indietro così al ciclo dopo leggo correttamente il term successivo
+
+        //////// ********** DOCUMENT FREQUENCY ************ ///////////  la ottengo facendo la differenza tra l'offset successivo e il corrente
+        documentFrequency = successiveOffsetRead - currentOffsetRead;
 
         return termRead;
 
@@ -150,9 +155,11 @@ public class BlockReader {
     public int getCurrentOffsetRead() {
         return currentOffsetRead;
     }
-
     public int getCollectionFrequency() {
         return collectionFrequency;
+    }
+    public int getDocumentFrequency() {
+        return documentFrequency;
     }
 
 }

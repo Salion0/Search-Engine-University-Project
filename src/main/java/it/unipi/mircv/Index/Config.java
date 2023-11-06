@@ -11,6 +11,6 @@ public class Config {
 
     public static final int COLLECTIONFREQ_BYTES_LENGTH = 4;
 
-    public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH+OFFSET_BYTES_LENGTH;//TODO aggiungere collection freq
+    public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH;//TODO aggiungere collection freq
 
 }
