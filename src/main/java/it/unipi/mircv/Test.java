@@ -1,8 +1,12 @@
 package it.unipi.mircv;
+import it.unipi.mircv.File.InvertedIndexHandler;
+import it.unipi.mircv.Index.PostingElement;
+import it.unipi.mircv.Index.PostingList;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
 import java.io.*;
+import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -86,7 +90,7 @@ public class Test{
 
         //----------TEST PER LA RICERCA BINARIA------------------
 
-        try {
+    /*    try {
             LexiconHandler lexhandler = new LexiconHandler("lexicon.dat");
             ByteBuffer dataBuffer = lexhandler.findTermEntry("Solis,");
             //System.out.println("Byte size: "+dataBuffer.array().length);
@@ -104,11 +108,32 @@ public class Test{
             e.printStackTrace();
         }
 
+*/
 
+        ///TEST PER LA LETTURA DELLA POSTING LIST DA FILE
 
+       /* InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        PostingList pl = invertedIndexHandler.getPostingList(2323*4,2);
+        System.out.println("Size: "+pl.getSize());
 
+        for(PostingElement pe: pl.getPostingList()){
+            System.out.print("Doc ID: "+pe.getDocId()+" -- ");
+            System.out.println("TermFreq :"+pe.getTf());
+        }
+*/
+        int length = 10;
+        LexiconHandler le = new LexiconHandler();
+        ByteBuffer dataBuffer = le.findTermEntry("your");
+        int offset = le.getOffset(dataBuffer);
 
+        FileChannel file = new RandomAccessFile("data/docIds.dat","rw").getChannel();
 
+        ByteBuffer data = ByteBuffer.allocate(4*length);
+        file.read(data,offset*4);
+        data.position(0);
+        for(int i=1;i<length+1;i++) {
+            System.out.println(data.getInt());
+        }
 
 
 

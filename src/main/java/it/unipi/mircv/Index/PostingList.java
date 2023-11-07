@@ -20,36 +20,6 @@ public class PostingList {
 
     public int getSize() {return postingList.size();}
 
-    public int currentDocId(){
-        //return the current posting
-        return this.postingList.get(position).getDocId();
-    }
-    public int currentTf(){
-        return postingList.get(position).getTf();
-    }
-    public int next(){
-        //moves the iterator to the next posting
-        //it returns -1 if the posting list end is reached
-        if(this.position == postingList.size())
-            return -1;
-        else{
-            this.position +=1;
-            return position;
-        }
-    }
-
-
-    public void nextGEQ(){
-        //TODO implement nextGEQ
-    }
-    public double score(String[] query){
-        double score = 0;
-        //Compute the score for the current pointed posting
-
-        //TODO implement a score function
-       return score;
-    }
-
     public byte[][] getBytes(){
         int bufferSize = postingList.size()*4;  //num of element times byte qt. for int
         ByteBuffer docIdBuffer = ByteBuffer.allocate(bufferSize);
