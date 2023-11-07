@@ -67,7 +67,7 @@ public class Lexicon {
             int collectionFreq =0;
             PostingList pl = getPostingList(term);
             for(PostingElement pe: pl.getPostingList()){
-                collectionFreq += pe.getTf();
+                collectionFreq += pe.getTermFreq();
             }
             termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
 
