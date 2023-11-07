@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import static it.unipi.mircv.Index.Config.*;
 
 public class LexiconHandler{
-    //Class that create a filechannel to the lexicon file and implement write and read method for that file
+    //Class that create a file-channel to the lexicon file and implement write and read method for that file
 
     private boolean binarySearchDone = false;
     private FileChannel lexiconFile;
@@ -78,25 +78,22 @@ public class LexiconHandler{
          return dataBuffer;
     }
 
-
-
     public int getCf(ByteBuffer dataBuffer) throws IOException {
         int cf = 0;
-        //TODO
-
-
+        dataBuffer.position(TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH);
+        cf = dataBuffer.getInt();
         return cf;
     }
     public int getDf(ByteBuffer dataBuffer) throws IOException {
         int df=0;
-        //TODO
-
+        dataBuffer.position(TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
+        df = dataBuffer.getInt();
         return df;
     }
     public int getOffset(ByteBuffer dataBuffer) throws IOException {
         int offset = 0;
-        //TODO
-
+        dataBuffer.position(TERM_BYTES_LENGTH);
+        offset = dataBuffer.getInt();
         return offset;
     }
 }

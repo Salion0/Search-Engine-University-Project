@@ -28,6 +28,8 @@ public class Lexicon {
         return treeMap.get(term).getCf();
     }
 
+
+
     public void update(String term,int docId,int tf){
        //update  term posting lists if exist and create an entry in the lexicon if term not exist.
         if (termExists(term)) {

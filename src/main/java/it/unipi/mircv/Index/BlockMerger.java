@@ -36,8 +36,8 @@ public class BlockMerger {
         offsetToWrite = 0;
         docFreqSum = 0;
         fosLexicon = new FileOutputStream("./data/lexicon.dat",true);
-        fosDocId = new FileOutputStream("./data/termFreq.dat",true);
-        fosTermFreq = new FileOutputStream("./data/docIds.dat",true);
+        fosDocId = new FileOutputStream("./data/docIds.dat",true);
+        fosTermFreq = new FileOutputStream("./data/termFreq.dat",true);
 
         this.numberOfBlocks = numberOfBlocks;
 
@@ -152,8 +152,8 @@ public class BlockMerger {
 
         //Write posting list in docIds and termFreq files
         byte[][] bytePostingList = postingList.getBytes();
+
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-
     }
 }
