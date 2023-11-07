@@ -5,14 +5,12 @@ import java.util.ArrayList;
 
 public class PostingList {
 
-    private int position = 0;
-
     private ArrayList<PostingElement> postingList = new ArrayList<PostingElement>();
+    public PostingList() {}
     public PostingList(PostingElement postingElement) {
         postingList.add(postingElement);
     }
 
-    public PostingList() {}
     public void addPostingElement(PostingElement postingElement) {
         postingList.add(postingElement);
     }
