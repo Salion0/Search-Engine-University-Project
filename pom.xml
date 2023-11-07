@@ -33,5 +33,10 @@
       <artifactId>porter-stemmer</artifactId>
       <version>1.0.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.21</version> <!-- Check for the latest version -->
+    </dependency>
   </dependencies>
 </project>
