@@ -1,7 +1,18 @@
+/*
 package it.unipi.mircv.Query;
 
+import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.Index.Lexicon;
+import it.unipi.mircv.Index.LexiconEntry;
 import it.unipi.mircv.Index.PostingList;
+import it.unipi.mircv.Index.PostingListBlock;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+
+import static it.unipi.mircv.Index.Config.*;
 
 public class QueryProcessor {
 
@@ -15,16 +26,32 @@ public class QueryProcessor {
 
     //------------------------------------------------------------------------//
     private int[] query_tf;  //list of term frequencies in the queries
-
     private boolean[] endOfPostingListFlag;
-
     private String[] queryTerms;//query terms
+    private int[] docFreqs; //doc frequencies of query terms
+    private int[] collectionFreqs; // collection frequencies of query terms
+    private int[] offsets; // offsets of the posting list of query terms
+
 
     //------------------------------------------------------------------------//
-    public QueryProcessor(String query, int collectionSize) {
+    public QueryProcessor(String query, int collectionSize) throws IOException {
         this.queryTerms = query.split("\\s");
         this.query_tf = new int[queryTerms.length];
         this.collectionSize = collectionSize;
+
+        this.docFreqs =  new int[queryTerms.length];
+        this.collectionFreqs = new int[queryTerms.length];
+        this.offsets = new int[queryTerms.length];
+
+        LexiconHandler lexiconHandler = new LexiconHandler(LEXICON_FILE);
+        for (int i = 0; i < queryTerms.length; i++) {
+                ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
+                docFreqs[i] = lexiconHandler.getDf(entryBuffer);
+                collectionFreqs[i] = lexiconHandler.getCf(entryBuffer);
+                offsets[i] = lexiconHandler.getOffset(entryBuffer);
+        }
+
+
     }
 
     public QueryProcessor(String[] query, int collectionSize) {
@@ -60,9 +87,10 @@ public class QueryProcessor {
         return termscore;
     }
 
-    public int[] DAAT(Lexicon lexicon) {
+    public int[] DAAT() {
         //Process the query using Document At A Time
         //TODO
+
         int minDocId;
         float score = 0;
         while ((minDocId = getMinDocId(lexicon)) != this.collectionSize) {
@@ -70,7 +98,7 @@ public class QueryProcessor {
             int i = 0;
             int currentTf = 0;
             for (String term : queryTerms) {
-                PostingList termPl = lexicon.getPostingList(term);
+                PostingListBlock termPl = (PostingListBlock) lexicon.getPostingList(term);
                 if (termPl.currentDocId() == minDocId) {
                     currentTf = termPl.currentTf();
                     termPl.next();  //increment the position in the posting list
@@ -82,6 +110,7 @@ public class QueryProcessor {
 
         }
         //TODO sort docIDRetrieved
+
         return this.docIDRetrieved;
     }
 
@@ -102,3 +131,4 @@ public class QueryProcessor {
         this.collectionSize = collectionSize;
     }
 }
+*/

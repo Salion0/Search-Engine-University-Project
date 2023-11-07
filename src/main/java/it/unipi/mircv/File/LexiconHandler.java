@@ -78,8 +78,6 @@ public class LexiconHandler{
          return dataBuffer;
     }
 
-
-
     public int getCf(ByteBuffer dataBuffer) throws IOException {
         int cf = 0;
         dataBuffer.position(TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH);
