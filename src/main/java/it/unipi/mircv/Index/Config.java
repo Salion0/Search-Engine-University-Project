@@ -19,6 +19,7 @@ public class Config {
 
     public static final int POSTING_LIST_BLOCK_LENGTH=64; //Expressed in KB
 
+    public static final int MAX_NUM_DOC_RETRIEVED = 20;
     public static final String LEXICON_FILE = "lexicon.dat";
 
     public static final String PATH = "data/";
