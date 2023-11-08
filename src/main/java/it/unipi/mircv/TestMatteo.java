@@ -1,15 +1,63 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.File.InvertedIndexHandler;
+import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.Index.Lexicon;
+import it.unipi.mircv.Index.PostingList;
+import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.compression.ByteManipulator;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 import it.unipi.mircv.compression.Utils;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
+
+
+        //testing inverted index handler
+        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        PostingList postingList = invertedIndexHandler.getPostingList(1345, 10);
+        System.out.println(postingList);
+
+        // testing lexicon handler
+
+        LexiconHandler lexiconHandler = new LexiconHandler();
+        ByteBuffer dataBuffer = lexiconHandler.findTermEntry("your");
+
+        int df = lexiconHandler.getDf(dataBuffer);
+        int offset = lexiconHandler.getOffset(dataBuffer);
+        System.out.println("term: " + lexiconHandler.getTerm(dataBuffer));
+        System.out.println("offset: " + offset);
+        System.out.println("df: " + df);
+        System.out.println("cf: " + lexiconHandler.getCf(dataBuffer));
+
+        //posting list block
+        PostingListBlock plTerm = invertedIndexHandler.getPostingList(offset, df);
+        System.out.println("pl position: " + plTerm.getPosition());
+        System.out.println("pl current DocId: " + plTerm.getCurrentDocId());
+        System.out.println("pl current Tf: " + plTerm.getCurrentTf());
+
+        System.out.println("pl.next(): " + plTerm.next());
+        System.out.println("pl position: " + plTerm.getPosition());
+        System.out.println("pl current DocId: " + plTerm.getCurrentDocId());
+        System.out.println("pl current Tf: " + plTerm.getCurrentTf());
+
+        int count = 2;
+        while(plTerm.next() > 0){
+            count +=1;
+            //cycle to finish the posting list
+        }
+        System.out.println("count: " + count);
+        System.out.println("getSize(): " + plTerm.getSize());
+        System.out.println("next(): " + plTerm.next());
+        System.out.println("last DocId con getSize(): " + plTerm.getDocId(plTerm.getSize()-1));
+        System.out.println("getMaxId(): " + plTerm.getMaxDocID());
+
 
         /*
         //test DocumentIndexHandler
@@ -36,7 +84,7 @@ public class TestMatteo {
         */
 
         //test Unary compression
-        int[] values1 = {1,1,2,1,3,1};
+        /*int[] values1 = {1,1,2,1,3,1};
         int[] values2 = {2,3,4,1,1,2,5};
         int[] values3 = {2,1,2};
         int[] values4 = {2,1,2,9,9,9};
@@ -55,8 +103,7 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values2.length, valuesCompressed2)));
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
+        */
 
     }
-
-
 }

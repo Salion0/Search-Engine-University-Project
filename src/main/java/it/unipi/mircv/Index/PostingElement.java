@@ -1,24 +1,17 @@
 package it.unipi.mircv.Index;
 
 public class PostingElement {
-    private int docId;
-    private int tf;
-    //altri campi opzionali qui
-    public PostingElement(int docId,int tf) {
+    private final int docId;
+    private final int termFreq;
+
+    public PostingElement(int docId, int termFreq) {
         this.docId = docId;
-        this.tf = tf;
-    }
-    public PostingElement(int docId) {
-        this.docId = docId;
-    }
-    public void addTf() {
-        tf += 1;
+        this.termFreq = termFreq;
     }
     public int getDocId() { return docId; }
-    public int getTf() { return tf; }
+    public int getTermFreq() { return termFreq; }
+    @Override
     public String toString(){
-        return "doc id: "+getDocId()+" - freq: "+ getTf();
+        return "docId: " + docId + " - termFreq: "+ termFreq;
     }
-
-
 }
