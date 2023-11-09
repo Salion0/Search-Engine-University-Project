@@ -2,7 +2,7 @@
 package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import it.unipi.mircv.Index.Config;
+import it.unipi.mircv.Config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DAAT_Lorenzo {
-    /*
     // We utilize the fact that the posting lists are ordered by document ID. Then, it's enough to iterate in parallel
     // through term query term's posting list, and score the minimum docid at each iteration.
     // We keep a pointer for each query term and we move it forward every time a docid is scored.
@@ -138,6 +137,6 @@ public class DAAT_Lorenzo {
 
         }
     }
-    */
 
 
+*/

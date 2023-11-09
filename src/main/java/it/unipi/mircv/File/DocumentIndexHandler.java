@@ -6,7 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import static it.unipi.mircv.Index.Config.*;
+import static it.unipi.mircv.Config.*;
 
 public class DocumentIndexHandler{
     private final FileChannel fileChannel;
@@ -68,7 +68,7 @@ public class DocumentIndexHandler{
         return buffer.getInt();
     }
 
-    public int readNumDoc() throws IOException {
+    public int collectionSize() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(NUM_DOC_BYTES_LENGTH);
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH);
         fileChannel.read(buffer);

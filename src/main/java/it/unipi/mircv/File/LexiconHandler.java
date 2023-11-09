@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 
-import static it.unipi.mircv.Index.Config.*;
+import static it.unipi.mircv.Config.*;
 
 public class LexiconHandler{
     //Class that create a file-channel to the lexicon file and implement write and read method for that file

@@ -1,15 +1,13 @@
 package it.unipi.mircv.File;
 
 import it.unipi.mircv.Index.PostingElement;
-import it.unipi.mircv.Index.PostingList;
 import it.unipi.mircv.Index.PostingListBlock;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import static it.unipi.mircv.Index.Config.*;
+import static it.unipi.mircv.Config.*;
 
 public class InvertedIndexHandler {
     private final FileChannel docIdChannel;

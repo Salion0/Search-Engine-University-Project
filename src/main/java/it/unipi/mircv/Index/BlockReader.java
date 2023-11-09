@@ -1,5 +1,7 @@
 package it.unipi.mircv.Index;
 
+import it.unipi.mircv.Config;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;

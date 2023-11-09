@@ -1,4 +1,4 @@
-package it.unipi.mircv.Index;
+package it.unipi.mircv;
 
 public class Config {
     public static final int TERM_BYTES_LENGTH = 64;
@@ -12,13 +12,11 @@ public class Config {
     public static final int NUM_DOC_BYTES_LENGTH = 4;
     public static final int COLLECTIONFREQ_BYTES_LENGTH = 4;
     public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH;
-    public static final int POSTING_LIST_BLOCK_LENGTH=64; //Expressed in KB
+    public static final int POSTING_LIST_BLOCK_LENGTH=64; //Expressed in element
     public static final String LEXICON_FILE = "data/lexicon.dat";
     public static final String TERM_FREQ_FILE = "data/termFreq.dat";
     public static final String DOC_ID_FILE = "data/docIds.dat";
 
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
-    public static final String LEXICON_FILE = "lexicon.dat";
 
-    public static final String PATH = "data/";
 }
