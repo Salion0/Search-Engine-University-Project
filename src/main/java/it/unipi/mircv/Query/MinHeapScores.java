@@ -19,10 +19,13 @@ public class MinHeapScores {
     private void insertDocIdInMap(float score,int docId){
         if (score2DocIdMap.containsKey(score)) {  //if score is present in hashmap
             score2DocIdMap.get(score).add(docId); //add element to the arrayList of docId
+            System.out.println("score: " + score + " esiste già nell'hasmap, l'indirizzo è "+ score2DocIdMap.get(score));
         }else{
+            System.out.println("score: " + score + " non esiste");
             ArrayList<Integer> arrayList = new ArrayList<>();
             arrayList.add(docId);
-            score2DocIdMap.put(score,arrayList);
+            score2DocIdMap.put(score, arrayList);
+            System.out.println("adesso è diventato: " + score2DocIdMap.get(score));
         }
     }
     private void removeDocIdFromMap(float score){
@@ -62,11 +65,18 @@ public class MinHeapScores {
     public ArrayList<Integer> getDocId(float scores){return this.score2DocIdMap.get(scores);}
 
     public ArrayList<Integer> getTopDocIdReversed() {
-        float score;
+        Float score;
         ArrayList<Integer> topDocId = new ArrayList<Integer>();
-        while(!topScores.isEmpty()){
-            score = topScores.poll();
-            topDocId.addAll(getDocId(score));
+
+        Float prevScore = 0f;
+
+        System.out.println(topScores);
+        while((score = topScores.poll()) != null){
+            if(score.equals(prevScore)) continue;
+            prevScore = score;
+            for (int docId:score2DocIdMap.get(score)) {
+                topDocId.add(docId);
+            }
         }
 
         return topDocId;

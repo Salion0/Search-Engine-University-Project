@@ -1,4 +1,5 @@
 package it.unipi.mircv;
+import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingList;
@@ -27,9 +28,12 @@ import java.util.RandomAccess;
 
 public class TestSalvo{
     public static void main(String[] args) throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        System.out.println(documentIndexHandler.readAvgDocLen());
+
 
         // ---------------------TEST DAAT-----------------------------
-        String query = "your bbe break";
+        String query = "break your";
         QueryProcessor queryProcessor = new QueryProcessor(query);
         ArrayList<Integer> docId = queryProcessor.DAAT();
         System.out.println("Doc Id retrieved: ");

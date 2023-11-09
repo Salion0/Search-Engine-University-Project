@@ -47,7 +47,9 @@ public class DocumentIndexHandler{
     public void writeAverageDocumentLength(float averageDocumentLength, int numberOfDocuments) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
         byteBuffer.putFloat(averageDocumentLength);
+        byteBuffer.position(AVGDOCLENGHT_BYTES_LENGTH);
         byteBuffer.putInt(numberOfDocuments);
+        byteBuffer.rewind();
         fileChannel.position(0);
         fileChannel.write(byteBuffer);
     }
