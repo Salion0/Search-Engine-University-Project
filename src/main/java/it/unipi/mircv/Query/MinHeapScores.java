@@ -28,7 +28,7 @@ public class MinHeapScores {
     private void removeDocIdFromMap(float score){
         ArrayList<Integer> docIds = score2DocIdMap.get(score);
         if(docIds.size()>1){ //if there are more than 1 docIDs associated to the score then remove only one
-            docIds.removeLast();
+            docIds.remove(docIds.size()-1);
         }
         else{ //if there is only one element then remove the tuple from the hashmap
             score2DocIdMap.remove(score);
