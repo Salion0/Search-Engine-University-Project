@@ -16,7 +16,7 @@ public class PostingListBlock extends PostingList
 
     public int next(){
         if(currentPosition < length - 1) currentPosition += 1;
-        else currentPosition = -1;
+        else return -1;
         return currentPosition;
     }
 

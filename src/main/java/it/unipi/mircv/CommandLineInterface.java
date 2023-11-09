@@ -1,9 +1,14 @@
 package it.unipi.mircv;
+import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.Query.QueryProcessor;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CommandLineInterface {
 
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws IOException {
 
         String commandList = "command list: \n" +
                 "list --> print this command list\n" +
@@ -57,8 +62,12 @@ public class CommandLineInterface {
 
                     //TODO add query processing
 
-                    //DEBUG
-                    for (int i = 0; i<10000; i++){System.out.println("test");}
+                    // ---------------------TEST DAAT-----------------------------
+                    String query = "break your";
+                    QueryProcessor queryProcessor = new QueryProcessor(query);
+                    ArrayList<Integer> docId = queryProcessor.DAAT();
+                    System.out.println("Doc Id retrieved: ");
+                    System.out.println(docId);
 
                     long endTime = System.currentTimeMillis();
                     long elapsedTime = endTime - startTime;

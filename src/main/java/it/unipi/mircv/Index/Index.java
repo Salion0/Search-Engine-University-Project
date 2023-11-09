@@ -104,7 +104,7 @@ public class Index {
         //Count all occurrence of all terms in a document
         for (String token : tokens) {  //map with frequencies only
 
-            token = stemmer.stemWord(token);
+           // token = stemmer.stemWord(token);
             //TODO stopWordRemoval
             //token = stopWordRemoval (token);
             if (token != null){
@@ -144,10 +144,8 @@ public class Index {
         doc = doc.replaceAll("<[^>]*>", "");
         //punctuation and whitespace
         String result = doc.replaceAll("\\p{Punct}","").toLowerCase();
-        String[] tokens = doc.split("\\s+");
-        for (String token: tokens)
-            if (token.compareTo("Solis") == 0 || token.compareTo("Solis,") == 0)
-                System.out.println(token);
+        String[] tokens = result.split("\\s+");
+
         return tokens;
     }
 

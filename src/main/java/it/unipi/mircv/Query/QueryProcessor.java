@@ -38,7 +38,7 @@ public class QueryProcessor {
     public QueryProcessor(String query) throws IOException {
 
         //---------------INITIALIZE ARRAYS---------------------------
-        this.queryTerms = query.split("\\s");
+        this.queryTerms = query.split(" ");
         this.numTermQuery = queryTerms.length;
         this.numBlockRead = new int[numTermQuery];
         this.docFreqs =  new int[numTermQuery];
@@ -86,7 +86,6 @@ public class QueryProcessor {
 
     private int getMinDocId() {
         int minDocId = this.collectionSize;  //valore che indica che le posting list sono state raggiunte
-        //condizione che dice che hon finito di leggere tutte le posting list del termine
 
         //find the current min doc id in the posting lists of the query terms
         for (int i = 0; i < numTermQuery; i++){
@@ -118,6 +117,9 @@ public class QueryProcessor {
                             this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
                                     elementToRead));
                 }
+                else{
+                    endOfPostingListFlag[i]=true;
+                }
             }
         }
     }
@@ -129,28 +131,40 @@ public class QueryProcessor {
         //TODO
 
         MinHeapScores heapScores = new MinHeapScores();
-            int minDocId;
-            float docScore = 0;
-            while ((minDocId = getMinDocId()) != this.collectionSize) {
 
-                //-----------------------COMPUTE THE SCORE-------------------------------------------------------
-                int currentTf;
-                for (int i =0; i<numTermQuery;i++) {
-                    PostingListBlock postingListBlock = postingListBlocks.get(i);
-                    if (postingListBlock.getCurrentDocId() == minDocId) {
+        float docScore;
 
-                        currentTf = postingListBlock.getCurrentTf();
-                        docScore += docPartialScore(currentTf);
+        int minDocId;
+        int count = 0;//DEBUG
+        while ((minDocId = getMinDocId()) != this.collectionSize) {
+            docScore = 0;
+            System.out.println("minDocId: " + minDocId);
+            //-----------------------COMPUTE THE SCORE-------------------------------------------------------
+            int currentTf;
+            for (int i =0; i<numTermQuery;i++) {
+                PostingListBlock postingListBlock = postingListBlocks.get(i);
+                if (postingListBlock.getCurrentDocId() == minDocId) {
 
-                        //increment the position in the posting list
-                        if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag
-                            endOfPostingListBlockFlag[i] = true;
-                        }
+                    currentTf = postingListBlock.getCurrentTf();
+                    docScore += docPartialScore(currentTf);
+
+                    //increment the position in the posting list
+                    if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag
+                        endOfPostingListBlockFlag[i] = true;
                     }
                 }
-                heapScores.insertIntoPriorityQueue(docScore,minDocId);
-                updatePostingListBlocks();
             }
+            heapScores.insertIntoPriorityQueue(docScore,minDocId);
+            updatePostingListBlocks();
+
+            System.out.println("Print postingListBlocks");
+            if(count == 0) {
+                for(PostingListBlock plb: postingListBlocks){
+                    System.out.println(plb);
+                }
+            }
+            count++; //DEBUG
+        }
             
         return heapScores.getTopDocIdReversed();
     }
