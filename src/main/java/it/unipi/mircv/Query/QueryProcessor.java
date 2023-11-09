@@ -20,9 +20,9 @@ public class QueryProcessor {
     private final LexiconHandler lexiconHandler;
     private final DocumentIndexHandler documentIndexHandler;
     //------------------------------------------------------------------------//
-    private  int collectionSize;
-    private  float avgDocLen;
-    private  int  numTermQuery;
+    private int collectionSize;
+    private float avgDocLen;
+    private int  numTermQuery;
     //------------------------------------------------------------------------//
     private boolean[] endOfPostingListBlockFlag;
     private int [] numBlockRead;  //counter for keeping info on how many blocks for each posting list
@@ -72,7 +72,7 @@ public class QueryProcessor {
     private void initializePostingListBlocks() throws IOException {
         this.postingListBlocks = new ArrayList<>(numTermQuery);
         for(int i=0; i<numTermQuery; i++){
-            if(POSTING_LIST_BLOCK_LENGTH>docFreqs[i]){ //if posting list length is less than the block size
+            if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
                 postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
             }
             else{                                     //else posting list length is greather than block size
@@ -127,14 +127,10 @@ public class QueryProcessor {
     //------------------------------------------------------------------------//
 
     public ArrayList<Integer> DAAT() throws IOException {
-        //Process the query using Document At A Time
-        //TODO
-
         MinHeapScores heapScores = new MinHeapScores();
-
         float docScore;
-
         int minDocId;
+
         int count = 0;//DEBUG
         while ((minDocId = getMinDocId()) != this.collectionSize) {
             docScore = 0;
@@ -154,11 +150,12 @@ public class QueryProcessor {
                     }
                 }
             }
-            heapScores.insertIntoPriorityQueue(docScore,minDocId);
+            heapScores.insertIntoPriorityQueue(docScore, minDocId);
             updatePostingListBlocks();
 
             System.out.println("Print postingListBlocks");
-            if(count == 0) {
+
+            if(count == 0) { //DEBUG
                 for(PostingListBlock plb: postingListBlocks){
                     System.out.println(plb);
                 }
@@ -167,21 +164,5 @@ public class QueryProcessor {
         }
             
         return heapScores.getTopDocIdReversed();
-    }
-
-    public int[] TAAT(){
-        //Process the query using Document At A Time
-        //TODO
-
-
-        return null;
-    }
-
-    public String[] getQuery() {
-        return queryTerms;
-    }
-
-    public void setCollectionSize(int collectionSize) {
-        this.collectionSize = collectionSize;
     }
 }
