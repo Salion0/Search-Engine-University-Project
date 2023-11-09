@@ -1,4 +1,4 @@
-/*
+
 package it.unipi.mircv.Query;
 
 import it.unipi.mircv.File.LexiconHandler;
@@ -131,4 +131,4 @@ public class QueryProcessor {
         this.collectionSize = collectionSize;
     }
 }
-*/
+
