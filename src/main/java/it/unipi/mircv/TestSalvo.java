@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.RandomAccess;
 
 
-public class Test{
+public class TestSalvo{
     public static void main(String[] args) throws IOException {
 
         // ---------------------TEST DAAT-----------------------------
