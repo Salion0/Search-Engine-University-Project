@@ -1,126 +1,166 @@
-
 package it.unipi.mircv.Query;
 
+import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.Index.Lexicon;
-import it.unipi.mircv.Index.LexiconEntry;
-import it.unipi.mircv.Index.PostingList;
-import it.unipi.mircv.Index.PostingListBlock;
+import it.unipi.mircv.Index.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
-import static it.unipi.mircv.Index.Config.*;
+
+import static it.unipi.mircv.Config.*;
 
 public class QueryProcessor {
 
+    //------------------FILE HANDLER-------------------------------------------//
+    private final InvertedIndexHandler invertedIndexHandler;
+    private final LexiconHandler lexiconHandler;
+    private final DocumentIndexHandler documentIndexHandler;
     //------------------------------------------------------------------------//
-    private int collectionSize;
-
+    private  int collectionSize;
+    private  float avgDocLen;
+    private  int  numTermQuery;
     //------------------------------------------------------------------------//
-    private int[] docIDRetrieved;  //list of docIDs retrieved sorted by ranking
-
-    private int[] docsScore; //list of score related to docIDs
-
-    //------------------------------------------------------------------------//
-    private int[] query_tf;  //list of term frequencies in the queries
+    private boolean[] endOfPostingListBlockFlag;
+    private int [] numBlockRead;  //counter for keeping info on how many blocks for each posting list
     private boolean[] endOfPostingListFlag;
     private String[] queryTerms;//query terms
     private int[] docFreqs; //doc frequencies of query terms
     private int[] collectionFreqs; // collection frequencies of query terms
     private int[] offsets; // offsets of the posting list of query terms
-
+    private ArrayList<PostingListBlock> postingListBlocks;
 
     //------------------------------------------------------------------------//
-    public QueryProcessor(String query, int collectionSize) throws IOException {
+
+    public QueryProcessor(String query) throws IOException {
+
+        //---------------INITIALIZE ARRAYS---------------------------
         this.queryTerms = query.split("\\s");
-        this.query_tf = new int[queryTerms.length];
-        this.collectionSize = collectionSize;
+        this.numTermQuery = queryTerms.length;
+        this.numBlockRead = new int[numTermQuery];
+        this.docFreqs =  new int[numTermQuery];
+        this.collectionFreqs = new int[numTermQuery];
+        this.offsets = new int[numTermQuery];
+        this.endOfPostingListBlockFlag = new boolean[numTermQuery];
+        this.endOfPostingListFlag = new boolean[numTermQuery];
+        //-----------------------------------------------------------
 
-        this.docFreqs =  new int[queryTerms.length];
-        this.collectionFreqs = new int[queryTerms.length];
-        this.offsets = new int[queryTerms.length];
+        //-------------INITIALIZE FILE HANDLER ----------------------
+        this.lexiconHandler = new LexiconHandler();
+        this.documentIndexHandler = new DocumentIndexHandler();
+        this.invertedIndexHandler = new InvertedIndexHandler();
+        //-----------------------------------------------------------
 
-        LexiconHandler lexiconHandler = new LexiconHandler(LEXICON_FILE);
-        for (int i = 0; i < queryTerms.length; i++) {
-                ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
-                docFreqs[i] = lexiconHandler.getDf(entryBuffer);
-                collectionFreqs[i] = lexiconHandler.getCf(entryBuffer);
-                offsets[i] = lexiconHandler.getOffset(entryBuffer);
+        //-------------INITIALIZE COLLECTION STATISTICS -------------
+        this.collectionSize = documentIndexHandler.collectionSize();
+        this.avgDocLen = documentIndexHandler.readAvgDocLen();
+        //-----------------------------------------------------------
+
+        //-------------INITIALIZE TERM STATISTICS---------------------
+        for (int i = 0; i < numTermQuery; i++) {
+                ByteBuffer entryBuffer = this.lexiconHandler.findTermEntry(queryTerms[i]);
+                docFreqs[i] = this.lexiconHandler.getDf(entryBuffer);
+                collectionFreqs[i] = this.lexiconHandler.getCf(entryBuffer);
+                offsets[i] = this.lexiconHandler.getOffset(entryBuffer);
         }
-
+        initializePostingListBlocks();
 
     }
-
-    public QueryProcessor(String[] query, int collectionSize) {
-        this.queryTerms = query;
-        this.collectionSize = collectionSize;
+    private void initializePostingListBlocks() throws IOException {
+        this.postingListBlocks = new ArrayList<>(numTermQuery);
+        for(int i=0; i<numTermQuery; i++){
+            if(POSTING_LIST_BLOCK_LENGTH>docFreqs[i]){ //if posting list length is less than the block size
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+            }
+            else{                                     //else posting list length is greather than block size
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+            }
+            numBlockRead[i]++;
+        }
     }
 
-    //TODO
-    private void posUpdate() {
-        //increment the position in each posting list of the term query
-    }
+    //------------------------------------------------------------------------//
 
-
-    private int getMinDocId(Lexicon lexicon) {
-
+    private int getMinDocId() {
         int minDocId = this.collectionSize;  //valore che indica che le posting list sono state raggiunte
-        //TODO
-        PostingList term_pl;
-        for (String term : this.queryTerms) {
-            term_pl = lexicon.getPostingList(term);
-            int current_doc_id = term_pl.currentDocId();  //return the current doc id pointed
-            if (current_doc_id < minDocId) {
-                minDocId = current_doc_id;
+        //condizione che dice che hon finito di leggere tutte le posting list del termine
+
+        //find the current min doc id in the posting lists of the query terms
+        for (int i = 0; i < numTermQuery; i++){
+            if (endOfPostingListFlag[i]) continue;
+            int currentDocId = postingListBlocks.get(i).getCurrentDocId();
+            if(currentDocId<minDocId){
+                minDocId = currentDocId;
             }
         }
+
         return minDocId;
     }
-
-    private float termScore() {
-        float termscore = 0;
+    private int docPartialScore(int currentTf) {
         //TODO
+        return currentTf;
+    }
+    private void updatePostingListBlocks() throws IOException {
+        for(int i=0; i<numTermQuery; i++){
+            if(endOfPostingListBlockFlag[i]){ //if one block is completely processed then load the subsequent if exists
+                // read the subsequent block
+                int elementToRead = docFreqs[i] - POSTING_LIST_BLOCK_LENGTH*numBlockRead[i];
 
-        return termscore;
+                //check if exist a subsequent block using the docFreqs which is equal to the length of the posting list
+                if (elementToRead > 0) {
+                    if(elementToRead > POSTING_LIST_BLOCK_LENGTH ) {
+                        elementToRead = POSTING_LIST_BLOCK_LENGTH;
+                    }
+                    postingListBlocks.add(
+                            this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                                    elementToRead));
+                }
+            }
+        }
     }
 
-    public int[] DAAT() {
+    //------------------------------------------------------------------------//
+
+    public ArrayList<Integer> DAAT() throws IOException {
         //Process the query using Document At A Time
         //TODO
 
-        int minDocId;
-        float score = 0;
-        while ((minDocId = getMinDocId(lexicon)) != this.collectionSize) {
+        MinHeapScores heapScores = new MinHeapScores();
+            int minDocId;
+            float docScore = 0;
+            while ((minDocId = getMinDocId()) != this.collectionSize) {
 
-            int i = 0;
-            int currentTf = 0;
-            for (String term : queryTerms) {
-                PostingListBlock termPl = (PostingListBlock) lexicon.getPostingList(term);
-                if (termPl.currentDocId() == minDocId) {
-                    currentTf = termPl.currentTf();
-                    termPl.next();  //increment the position in the posting list
-                    score += termScore();
+                //-----------------------COMPUTE THE SCORE-------------------------------------------------------
+                int currentTf;
+                for (int i =0; i<numTermQuery;i++) {
+                    PostingListBlock postingListBlock = postingListBlocks.get(i);
+                    if (postingListBlock.getCurrentDocId() == minDocId) {
+
+                        currentTf = postingListBlock.getCurrentTf();
+                        docScore += docPartialScore(currentTf);
+
+                        //increment the position in the posting list
+                        if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag
+                            endOfPostingListBlockFlag[i] = true;
+                        }
+                    }
                 }
-                //TODO check if the score is correct
+                heapScores.insertIntoPriorityQueue(docScore,minDocId);
+                updatePostingListBlocks();
             }
-
-
-        }
-        //TODO sort docIDRetrieved
-
-        return this.docIDRetrieved;
+            
+        return heapScores.getTopDocIdReversed();
     }
-
 
     public int[] TAAT(){
         //Process the query using Document At A Time
         //TODO
 
 
-        return this.docIDRetrieved;
+        return null;
     }
 
     public String[] getQuery() {
@@ -131,4 +171,3 @@ public class QueryProcessor {
         this.collectionSize = collectionSize;
     }
 }
-

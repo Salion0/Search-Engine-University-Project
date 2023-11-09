@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import static it.unipi.mircv.Index.Config.*;
+import static it.unipi.mircv.Config.*;
 
 
 public class BlockMerger {

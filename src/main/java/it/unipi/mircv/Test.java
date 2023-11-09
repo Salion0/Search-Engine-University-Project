@@ -2,10 +2,12 @@ package it.unipi.mircv;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingList;
+import it.unipi.mircv.Query.QueryProcessor;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
@@ -25,6 +27,27 @@ import java.util.RandomAccess;
 
 public class Test{
     public static void main(String[] args) throws IOException {
+
+        // ---------------------TEST DAAT-----------------------------
+        String query = "your bbe break";
+        QueryProcessor queryProcessor = new QueryProcessor(query);
+        ArrayList<Integer> docId = queryProcessor.DAAT();
+        System.out.println("Doc Id retrieved: ");
+        System.out.println(docId);
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //---------------------------------------------------------------
 
         /*
         //Test per leggere senza unzippare
@@ -121,6 +144,7 @@ public class Test{
             System.out.println("TermFreq :"+pe.getTf());
         }
 */
+        /*
         int length = 10;
         LexiconHandler le = new LexiconHandler();
         ByteBuffer dataBuffer = le.findTermEntry("your");
@@ -134,7 +158,7 @@ public class Test{
         for(int i=1;i<length+1;i++) {
             System.out.println(data.getInt());
         }
-
+       */
 
 
 
