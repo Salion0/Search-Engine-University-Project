@@ -107,15 +107,19 @@ public class QueryProcessor {
             if(endOfPostingListBlockFlag[i]){ //if one block is completely processed then load the subsequent if exists
                 // read the subsequent block
                 int elementToRead = docFreqs[i] - POSTING_LIST_BLOCK_LENGTH*numBlockRead[i];
+                //System.out.println(elementToRead); //DEBUG
 
                 //check if exist a subsequent block using the docFreqs which is equal to the length of the posting list
                 if (elementToRead > 0) {
                     if(elementToRead > POSTING_LIST_BLOCK_LENGTH ) {
                         elementToRead = POSTING_LIST_BLOCK_LENGTH;
                     }
-                    postingListBlocks.add(
+                    postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
                             this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
                                     elementToRead));
+                    //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
+                    endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
+                    numBlockRead[i]++; // ho letto un altro blocco quindi aumento il campo
                 }
                 else{
                     endOfPostingListFlag[i]=true;
@@ -127,6 +131,7 @@ public class QueryProcessor {
     //------------------------------------------------------------------------//
 
     public ArrayList<Integer> DAAT() throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         MinHeapScores heapScores = new MinHeapScores();
         float docScore;
         int minDocId;
@@ -137,12 +142,14 @@ public class QueryProcessor {
             System.out.println("minDocId: " + minDocId);
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
+            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
             for (int i =0; i<numTermQuery;i++) {
                 PostingListBlock postingListBlock = postingListBlocks.get(i);
                 if (postingListBlock.getCurrentDocId() == minDocId) {
 
                     currentTf = postingListBlock.getCurrentTf();
-                    docScore += docPartialScore(currentTf);
+                    //docScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
+                    docScore += computeBM25(currentTf,documentLength,docFreqs[i]);
 
                     //increment the position in the posting list
                     if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag
@@ -153,10 +160,10 @@ public class QueryProcessor {
             heapScores.insertIntoPriorityQueue(docScore, minDocId);
             updatePostingListBlocks();
 
-            System.out.println("Print postingListBlocks");
 
             if(count == 0) { //DEBUG
                 for(PostingListBlock plb: postingListBlocks){
+                    System.out.print("Print postingListBlocks");
                     System.out.println(plb);
                 }
             }
@@ -164,5 +171,19 @@ public class QueryProcessor {
         }
             
         return heapScores.getTopDocIdReversed();
+    }
+
+    public float computeBM25(int termFrequency, int documentLength, int documentFrequency) {
+        return (float) (( termFrequency / (termFrequency + 1.5 * ((1 - 0.75) + 0.75*(documentLength / avgDocLen))) )
+                * (float) Math.log10(collectionSize/documentFrequency));
+
+    }
+
+    public float computeIDF(int documentFrequency) {
+        return (float) Math.log10(documentFrequency/collectionSize);
+    }
+
+    public float computeTFIDF(int termFrequency,int documentFrequency) {
+        return (float) ((1 + Math.log10(termFrequency)) * Math.log10(documentFrequency/collectionSize));
     }
 }

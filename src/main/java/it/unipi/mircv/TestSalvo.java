@@ -33,7 +33,7 @@ public class TestSalvo{
 
 
         // ---------------------TEST DAAT-----------------------------
-        String query = "break your";
+        String query = "biofeedback scenar continues solis";
         QueryProcessor queryProcessor = new QueryProcessor(query);
         ArrayList<Integer> docId = queryProcessor.DAAT();
         System.out.println("Doc Id retrieved: ");
