@@ -229,7 +229,7 @@ public class QueryProcessor {
             if (minDocIdInAllPostingLists == true)
                 heapScores.insertIntoPriorityQueue(docScore, minDocId);
             updatePostingListBlocks();
-            minDocIdInAllPostingLists = false;
+            minDocIdInAllPostingLists = true;
         }
 
         return heapScores.getTopDocIdReversed();
