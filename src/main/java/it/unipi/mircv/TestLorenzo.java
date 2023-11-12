@@ -1,14 +1,22 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.Query.QueryProcessor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class TestLorenzo {
-    /*
-    public float computeBM25(int termFrequency, int documentLength, int documentFrequency) {
-        return (float) (( termFrequency / (termFrequency + 1.5 * ((1 - 0.75) + 0.75*(documentLength / avgDocLen))) ) * (float) Math.log10(documentFrequency/collectionSize));
-    }
+    public static void main(String[] args) throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        System.out.println(documentIndexHandler.readAvgDocLen());
 
-    public float computeIDF(int documentFrequency) {
-        return (float) Math.log10(documentFrequency/collectionSize);
-    }
 
-     */
+        // ---------------------TEST DAAT-----------------------------
+        String query = "railroad workers";
+        QueryProcessor queryProcessor = new QueryProcessor(query);
+        ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
+        System.out.println("Doc Id retrieved: ");
+        System.out.println(docId);
+    }
 }

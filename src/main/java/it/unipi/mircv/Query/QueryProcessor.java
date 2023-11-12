@@ -127,31 +127,6 @@ public class QueryProcessor {
         }
     }
 
-    private void updatePostingListBlocksConjunctive() throws IOException {
-        for(int i=0; i<numTermQuery; i++){
-            if(endOfPostingListBlockFlag[i]){ //if one block is completely processed then load the subsequent if exists
-                // read the subsequent block
-                int elementToRead = docFreqs[i] - POSTING_LIST_BLOCK_LENGTH*numBlockRead[i];
-
-                //check if exist a subsequent block using the docFreqs which is equal to the length of the posting list
-                if (elementToRead > 0) {
-                    if(elementToRead > POSTING_LIST_BLOCK_LENGTH )
-                        elementToRead = POSTING_LIST_BLOCK_LENGTH;
-
-                    postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
-                            this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
-                                    elementToRead));
-
-                    endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
-                    numBlockRead[i]++; // ho letto un altro blocco quindi aumento il campo
-                }
-                else{
-                    endOfPostingListFlag[i]=true;
-                }
-            }
-        }
-    }
-
     //------------------------------------------------------------------------//
 
     public ArrayList<Integer> DAAT() throws IOException {
@@ -217,10 +192,12 @@ public class QueryProcessor {
                     minDocIdInAllPostingLists = false;
                 else
                 {
-                    currentTf = postingListBlock.getCurrentTf();
-                    //docScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
-                    docScore += computeBM25(currentTf, documentLength, docFreqs[i]);
-
+                    if (minDocIdInAllPostingLists == true)
+                    {
+                        currentTf = postingListBlock.getCurrentTf();
+                        //docScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
+                        docScore += computeBM25(currentTf, documentLength, docFreqs[i]);
+                    }
                     //increment the position in the posting list
                     if (postingListBlock.next() == -1)         //increment position and if end of block reached then set the flag
                         endOfPostingListBlockFlag[i] = true;
