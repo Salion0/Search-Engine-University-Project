@@ -9,15 +9,17 @@ import java.util.ArrayList;
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        System.out.println(documentIndexHandler.readAvgDocLen());
-
 
         // ---------------------TEST DAAT-----------------------------
-        String query = "solis";
+        String query = "solis biofeedback";
         QueryProcessor queryProcessor = new QueryProcessor(query);
-        //ArrayList<Integer> docId = queryProcessor.DAAT();
+        System.out.println("**************** DAAT ******************");
+        ArrayList<Integer> docId = queryProcessor.DAAT();
+        //queryProcessor.conjunctiveDAAT();
+        System.out.println("Doc Id retrieved: ");
+        System.out.println(docId);
+        System.out.println("**************** TAAT ******************");
+        queryProcessor = new QueryProcessor(query);
         queryProcessor.TAAT();
-        //System.out.println("Doc Id retrieved: ");
-        //System.out.println(docId);
     }
 }

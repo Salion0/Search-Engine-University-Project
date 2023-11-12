@@ -33,9 +33,9 @@ public class TestSalvo{
 
 
         // ---------------------TEST DAAT-----------------------------
-        String query = "railroad workers";
+        String query = "solis";
         QueryProcessor queryProcessor = new QueryProcessor(query);
-        ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
+        ArrayList<Integer> docId = queryProcessor.DAAT();
         System.out.println("Doc Id retrieved: ");
         System.out.println(docId);
 

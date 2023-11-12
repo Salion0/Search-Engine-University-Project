@@ -195,7 +195,8 @@ public class QueryProcessor {
             }
             count++; //DEBUG
         }
-            
+
+        //System.out.println("DEBUGGG --> " + heapScores.getDocId((float) 3.1066878)); //DEBUG
         return heapScores.getTopDocIdReversed();
     }
 
