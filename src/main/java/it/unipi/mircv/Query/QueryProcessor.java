@@ -7,8 +7,7 @@ import it.unipi.mircv.Index.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 
 import static it.unipi.mircv.Config.*;
@@ -240,9 +239,9 @@ public class QueryProcessor {
         return heapScores.getTopDocIdReversed();
     }
 
-    public ArrayList<Integer> TAAT() throws IOException {
+    public void TAAT() throws IOException {
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        MinHeapScores heapScores = new MinHeapScores();
+        HashMap<Integer,Float> mapIdWithScoreTAAT = new HashMap<>();
         int currentDocId;
         int currentTf;
         int documentLength;
@@ -251,28 +250,37 @@ public class QueryProcessor {
         for (int i =0; i<numTermQuery;i++)
         {
             PostingListBlock postingListBlock = postingListBlocks.get(i);
-            while(true)
+            while(endOfPostingListFlag[i] == false)
             {
                 currentDocId = postingListBlock.getCurrentDocId();
                 documentLength = documentIndexHandler.readDocumentLength(currentDocId);
                 currentTf = postingListBlock.getCurrentTf();
                 score = computeBM25(currentTf, documentLength, docFreqs[i]);
-                heapScores.insertIntoHashmapTAAT(score,currentDocId);
 
                 if (mapIdWithScoreTAAT.get(currentDocId) == null)
                     mapIdWithScoreTAAT.put(currentDocId,score);
-
                 else
-                    mapIdWithScoreTAAT.put(currentDocId,mapIdWithScoreTAAT.get(currentDocId)
-                            + score);
+                    mapIdWithScoreTAAT.put(currentDocId,mapIdWithScoreTAAT.get(currentDocId) + score);
 
                 //increment the position in the posting list
-                if (postingListBlock.next() == -1)  //increment position and if end of block reached then set the flag
-                    updatePostingListBlocks();
+                if (postingListBlock.next() == -1) { //increment position and if end of block reached then set the flag
+                    endOfPostingListBlockFlag[i] = true;
+                    updatePostingListBlock(i);
+                }
             }
         }
 
-        return heapScores.getTopDocIdReversed();
+        // Convert HashMap entries to a List
+        List<Map.Entry<Integer, Float>> list = new ArrayList<>(mapIdWithScoreTAAT.entrySet());
+
+        // Sort the list based on values using Collections.sort() and a custom comparator
+        Collections.sort(list, Map.Entry.comparingByValue());
+
+        // Print the sorted entries
+        for (Map.Entry<Integer, Float> entry : list)
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+
+
     }
 
     public float computeBM25(int termFrequency, int documentLength, int documentFrequency) {

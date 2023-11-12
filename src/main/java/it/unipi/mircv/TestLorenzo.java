@@ -13,10 +13,11 @@ public class TestLorenzo {
 
 
         // ---------------------TEST DAAT-----------------------------
-        String query = "holy spirit";
+        String query = "solis";
         QueryProcessor queryProcessor = new QueryProcessor(query);
-        ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
-        System.out.println("Doc Id retrieved: ");
-        System.out.println(docId);
+        //ArrayList<Integer> docId = queryProcessor.DAAT();
+        queryProcessor.TAAT();
+        //System.out.println("Doc Id retrieved: ");
+        //System.out.println(docId);
     }
 }
