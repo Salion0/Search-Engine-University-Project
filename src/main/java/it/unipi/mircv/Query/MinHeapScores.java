@@ -11,6 +11,8 @@ public class MinHeapScores {
     private final HashMap<Float, ArrayList<Integer>> score2DocIdMap;  //list of docIDs retrieved sorted by ranking
     private final PriorityQueue<Float> topScores;
     private int topDocCount; //counter for keep track of how many document have been inserted in the min-heap
+    private HashMap<Integer,Float> mapIdWithScoreTAAT = new HashMap<>();
+
     public MinHeapScores(){
         score2DocIdMap = new HashMap<>();
         topScores = new PriorityQueue<>();
@@ -58,7 +60,24 @@ public class MinHeapScores {
                 removeDocIdFromMap(topScores.peek());
                 insertDocIdInMap(docScore,minDocId);
             }
+        }
+    }
 
+    public void insertIntoHashmapTAAT(float docScore, int currentDocId){
+        if (topDocCount < MAX_NUM_DOC_RETRIEVED) //There less than k documents in the priority queue
+        {
+            topDocCount++;
+            System.out.println("Entra nell' if insertPriorityQueue"); //DEBUG
+            topScores.add(docScore);
+            mapIdWithScoreTAAT.put(currentDocId,docScore);
+        }
+        else  //there are more than k documents in the priority queue
+        {
+            if(docScore > topScores.peek())   //need to check if minDocId should be inserted
+            {
+                topScores.remove(topScores.peek());
+                topScores.add(docScore);
+            }
         }
     }
     public int getTopDocCount(){return topDocCount; }
