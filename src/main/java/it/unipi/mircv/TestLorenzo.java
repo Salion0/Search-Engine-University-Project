@@ -13,7 +13,7 @@ public class TestLorenzo {
 
 
         // ---------------------TEST DAAT-----------------------------
-        String query = "railroad workers";
+        String query = "holy spirit";
         QueryProcessor queryProcessor = new QueryProcessor(query);
         ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
         System.out.println("Doc Id retrieved: ");
