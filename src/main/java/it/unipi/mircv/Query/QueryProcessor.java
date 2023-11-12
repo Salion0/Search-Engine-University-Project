@@ -212,10 +212,37 @@ public class QueryProcessor {
         return heapScores.getTopDocIdReversed();
     }
 
+    public ArrayList<Integer> TAAT() throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        MinHeapScores heapScores = new MinHeapScores();
+        float docScore;
+        int currentDocId;
+        int currentTf;
+        int documentLength;
+
+        for (int i =0; i<numTermQuery;i++)
+        {
+            PostingListBlock postingListBlock = postingListBlocks.get(i);
+            while(true)
+            {
+                currentDocId = postingListBlock.getCurrentDocId();
+                documentLength = documentIndexHandler.readDocumentLength(currentDocId);
+                currentTf = postingListBlock.getCurrentTf();
+                //docScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
+                heapScores.insertIntoPriorityQueue(computeBM25(currentTf, documentLength, docFreqs[i]), currentDocId);
+
+                //increment the position in the posting list
+                if (postingListBlock.next() == -1)  //increment position and if end of block reached then set the flag
+                    updatePostingListBlocks();
+            }
+        }
+
+        return heapScores.getTopDocIdReversed();
+    }
+
     public float computeBM25(int termFrequency, int documentLength, int documentFrequency) {
         return (float) (( termFrequency / (termFrequency + 1.5 * ((1 - 0.75) + 0.75*(documentLength / avgDocLen))) )
                 * (float) Math.log10(collectionSize/documentFrequency));
-
     }
 
     public float computeIDF(int documentFrequency) {
