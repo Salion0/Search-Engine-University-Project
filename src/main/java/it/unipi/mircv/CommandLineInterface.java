@@ -1,10 +1,14 @@
 package it.unipi.mircv;
 import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.Index.BlockMerger;
+import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Query.QueryProcessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import static it.unipi.mircv.Config.COLLECTION_FILE;
 
 public class CommandLineInterface {
 
@@ -46,6 +50,10 @@ public class CommandLineInterface {
                         long startTime = System.currentTimeMillis();
 
                         //TODO add indexing
+                        Index index = new Index(COLLECTION_FILE);
+                        int numberOfBlocks = index.getNumberOfBlocks();
+                        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
+                        blockMerger.mergeBlocks();
 
                         long endTime = System.currentTimeMillis();
                         long elapsedTime = endTime - startTime;
@@ -63,7 +71,7 @@ public class CommandLineInterface {
                     //TODO add query processing
 
                     // ---------------------TEST DAAT-----------------------------
-                    String query = "break your";
+                    String query = "solis";
                     QueryProcessor queryProcessor = new QueryProcessor(query);
                     ArrayList<Integer> docId = queryProcessor.DAAT();
                     System.out.println("Doc Id retrieved: ");
