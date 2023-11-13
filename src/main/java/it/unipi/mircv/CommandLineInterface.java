@@ -63,7 +63,7 @@ public class CommandLineInterface {
                     //TODO add query processing
 
                     // ---------------------TEST DAAT-----------------------------
-                    String query = "break your";
+                    String query = "solis";
                     QueryProcessor queryProcessor = new QueryProcessor(query);
                     ArrayList<Integer> docId = queryProcessor.DAAT();
                     System.out.println("Doc Id retrieved: ");
