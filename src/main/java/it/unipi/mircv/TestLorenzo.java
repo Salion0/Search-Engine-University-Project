@@ -22,4 +22,33 @@ public class TestLorenzo {
         queryProcessor = new QueryProcessor(query);
         queryProcessor.TAAT();
     }
+
+    /*
+        //Test per leggere senza unzippare
+        String tarFilePath = "collection.tar.gz";
+
+        try {
+            FileInputStream fis = new FileInputStream(tarFilePath);
+            GZIPInputStream gzis = new GZIPInputStream(fis);
+            InputStreamReader reader = new InputStreamReader(gzis);
+            BufferedReader br = new BufferedReader(reader);
+
+            String line;
+            br.readLine(); // la prima riga contiene metadati quindi la salto
+            int count = 0;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+                count++;
+                if (count == 5) break; //DEBUG
+            }
+
+            br.close();
+            reader.close();
+            gzis.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+     */
 }

@@ -1,18 +1,24 @@
 package it.unipi.mircv.Index;
 
 import ca.rmen.porterstemmer.PorterStemmer;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+
+import static it.unipi.mircv.Config.*;
 
 public class Index {
-    DocumentIndex documentIndex;
-    PorterStemmer stemmer = new PorterStemmer();
+    private DocumentIndex documentIndex;
+    private PorterStemmer stemmer = new PorterStemmer();
     int count = 0; //DEBUG
     private int numberOfBlocks;
     private int currentDocId;
@@ -20,12 +26,19 @@ public class Index {
     public Index(String fileCollectionPath) throws IOException {
         //this method remove precedent files
         cleanFolder("data");
-        documentIndex = new DocumentIndex();
+        loadStopWordList();
 
+        FileInputStream fis = new FileInputStream("collection.tar.gz");
+        GZIPInputStream gzis = new GZIPInputStream(fis);
+        InputStreamReader inputStreamReader = new InputStreamReader(gzis);
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+
+        System.out.println(reader.readLine());
+        documentIndex = new DocumentIndex();
         currentDocId = 0;
         int blockID = 0;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
+            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
             while(reader!=null){
                 System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack
@@ -39,6 +52,22 @@ public class Index {
         }
         documentIndex.addAverageDocumentLength();
     }
+
+    public void loadStopWordList() {  // load in memory the lists of stop words from the json file
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            File file = new File("stop_words_english.json");
+            stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
+
+            for (String obj : stopWords)
+                System.out.println(obj);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
         String path = "./data/";
         String fileLexicon = "lexicon" + blockID + ".dat";
@@ -91,7 +120,7 @@ public class Index {
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
             //DEBUG
-            //if (count == 5) break; //DEBUG
+            if (count == 10000) break; //DEBUG
         }
 
         writeLexiconToBlock(lexicon, blockID);
@@ -101,12 +130,14 @@ public class Index {
     private int processDocument(Lexicon lexicon, String[] tokens) {
         HashMap<String, Integer> wordCountDocument = new HashMap<>();
         int tokenCount = 0;
+
         //Count all occurrence of all terms in a document
         for (String token : tokens) {  //map with frequencies only
-
-           // token = stemmer.stemWord(token);
-            //TODO stopWordRemoval
-            //token = stopWordRemoval (token);
+            if (stopWords.contains(token)) // stopWordRemoval
+                continue;
+            token = stemmer.stemWord(token); // stemming
+            if (token.length() > TERM_BYTES_LENGTH) // il token è più lungo di 64 byte quindi lo scartiamo
+                continue;
             if (token != null){
                 tokenCount++;
                 if (wordCountDocument.get(token) == null)

@@ -1,6 +1,9 @@
 package it.unipi.mircv;
 
+import java.util.List;
+
 public class Config {
+    public static List<String> stopWords;
     public static final int TERM_BYTES_LENGTH = 64;
     public static final int DOC_ID_LENGTH = 4;
     public static final int TERM_FREQ_LENGTH = 4;
@@ -16,7 +19,6 @@ public class Config {
     public static final String LEXICON_FILE = "data/lexicon.dat";
     public static final String TERM_FREQ_FILE = "data/termFreq.dat";
     public static final String DOC_ID_FILE = "data/docIds.dat";
-
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
 
 }

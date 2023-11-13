@@ -1,10 +1,14 @@
 package it.unipi.mircv.Query;
 
+import ca.rmen.porterstemmer.PorterStemmer;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.Index.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -31,18 +35,15 @@ public class QueryProcessor {
     private int[] collectionFreqs; // collection frequencies of query terms
     private int[] offsets; // offsets of the posting list of query terms
     private ArrayList<PostingListBlock> postingListBlocks;
+    private PorterStemmer stemmer = new PorterStemmer();
 
     //------------------------------------------------------------------------//
 
-    // ******* TAAT *******
-    private ArrayList<Integer> topDocIdsTAAT;
-    private ArrayList<Float> topScoresTAAT;
-    // ******* TAAT *******
-
     public QueryProcessor(String query) throws IOException {
 
+        loadStopWordList();
         //---------------INITIALIZE ARRAYS---------------------------
-        this.queryTerms = query.split(" ");
+        this.queryTerms = doStopWordRemovalAndStemming(query.split(" "));
         this.numTermQuery = queryTerms.length;
         this.numBlockRead = new int[numTermQuery];
         this.docFreqs =  new int[numTermQuery];
@@ -73,6 +74,40 @@ public class QueryProcessor {
         initializePostingListBlocks();
 
     }
+
+    public void loadStopWordList() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            File file = new File("stop_words_english.json");
+            stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
+
+            for (String obj : stopWords)
+                System.out.println(obj);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String[] doStopWordRemovalAndStemming(String[] initialQueryTerms) {  // remove stop words and do stemming on query terms
+
+        ArrayList<String> currentQueryTerms = new ArrayList<>();
+        for (String token: initialQueryTerms) {
+            if (stopWords.contains(token)) // stopWordRemoval
+                continue;
+            token = stemmer.stemWord(token); // stemming
+            if (token.length() > TERM_BYTES_LENGTH) // il token è più lungo di 64 byte quindi lo scartiamo
+                continue;
+            currentQueryTerms.add(token);
+        }
+
+        String[] finalQueryTerms = new String[currentQueryTerms.size()];
+        for (int i = 0; i < currentQueryTerms.size(); i++)
+            finalQueryTerms[i] = currentQueryTerms.get(i);
+
+        return finalQueryTerms;
+    }
+
     private void initializePostingListBlocks() throws IOException {
         this.postingListBlocks = new ArrayList<>(numTermQuery);
         for(int i=0; i<numTermQuery; i++){
@@ -223,7 +258,6 @@ public class QueryProcessor {
                     if (minDocIdInAllPostingLists == true)
                     {
                         currentTf = postingListBlock.getCurrentTf();
-                        //docScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
                         docScore += computeBM25(currentTf, documentLength, docFreqs[i]);
                     }
                     //increment the position in the posting list
@@ -280,8 +314,6 @@ public class QueryProcessor {
         // Print the sorted entries
         for (Map.Entry<Integer, Float> entry : list)
             System.out.println(entry.getKey() + ": " + entry.getValue());
-
-
     }
 
     public float computeBM25(int termFrequency, int documentLength, int documentFrequency) {
