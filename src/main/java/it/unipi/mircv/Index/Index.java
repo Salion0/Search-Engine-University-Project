@@ -31,14 +31,15 @@ public class Index {
         FileInputStream fis = new FileInputStream("collection.tar.gz");
         GZIPInputStream gzis = new GZIPInputStream(fis);
         InputStreamReader inputStreamReader = new InputStreamReader(gzis);
-        BufferedReader reader = new BufferedReader(inputStreamReader);
+        BufferedReader readerZIP = new BufferedReader(inputStreamReader);
 
-        System.out.println(reader.readLine());
+        //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
+        test(readerZIP);
         documentIndex = new DocumentIndex();
         currentDocId = 0;
         int blockID = 0;
         try {
-            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
+            BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
             while(reader!=null){
                 System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack
@@ -53,14 +54,15 @@ public class Index {
         documentIndex.addAverageDocumentLength();
     }
 
+    public void test(BufferedReader reader) throws IOException {
+        System.out.println(reader.readLine());
+    }
+
     public void loadStopWordList() {  // load in memory the lists of stop words from the json file
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             File file = new File("stop_words_english.json");
             stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
-
-            for (String obj : stopWords)
-                System.out.println(obj);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -135,7 +137,7 @@ public class Index {
         for (String token : tokens) {  //map with frequencies only
             if (stopWords.contains(token)) // stopWordRemoval
                 continue;
-            token = stemmer.stemWord(token); // stemming
+            //token = stemmer.stemWord(token); // stemming
             if (token.length() > TERM_BYTES_LENGTH) // il token è più lungo di 64 byte quindi lo scartiamo
                 continue;
             if (token != null){

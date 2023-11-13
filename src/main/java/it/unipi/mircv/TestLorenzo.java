@@ -11,16 +11,15 @@ public class TestLorenzo {
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
 
         // ---------------------TEST DAAT-----------------------------
-        String query = "solis biofeedback";
+        String query = "railroad workers";
         QueryProcessor queryProcessor = new QueryProcessor(query);
         System.out.println("**************** DAAT ******************");
-        ArrayList<Integer> docId = queryProcessor.DAAT();
-        //queryProcessor.conjunctiveDAAT();
+        ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
         System.out.println("Doc Id retrieved: ");
         System.out.println(docId);
         System.out.println("**************** TAAT ******************");
         queryProcessor = new QueryProcessor(query);
-        queryProcessor.TAAT();
+        //queryProcessor.TAAT();
     }
 
     /*

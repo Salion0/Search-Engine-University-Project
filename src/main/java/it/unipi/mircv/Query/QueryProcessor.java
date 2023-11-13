@@ -81,9 +81,6 @@ public class QueryProcessor {
             File file = new File("stop_words_english.json");
             stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
 
-            for (String obj : stopWords)
-                System.out.println(obj);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -95,7 +92,7 @@ public class QueryProcessor {
         for (String token: initialQueryTerms) {
             if (stopWords.contains(token)) // stopWordRemoval
                 continue;
-            token = stemmer.stemWord(token); // stemming
+            //token = stemmer.stemWord(token); // stemming
             if (token.length() > TERM_BYTES_LENGTH) // il token è più lungo di 64 byte quindi lo scartiamo
                 continue;
             currentQueryTerms.add(token);
@@ -136,6 +133,21 @@ public class QueryProcessor {
         }
 
         return minDocId;
+    }
+
+    private int getMaxDocId() {
+        int maxDocId = -2;  //valore che indica che le posting list sono state raggiunte
+
+        //find the current min doc id in the posting lists of the query terms
+        for (int i = 0; i < numTermQuery; i++){
+            if (endOfPostingListFlag[i]) return -2;
+            int currentDocId = postingListBlocks.get(i).getCurrentDocId();
+            if(currentDocId > maxDocId){
+                maxDocId = currentDocId;
+            }
+        }
+
+        return maxDocId;
     }
 
     private void updatePostingListBlocks() throws IOException {
@@ -239,36 +251,42 @@ public class QueryProcessor {
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         MinHeapScores heapScores = new MinHeapScores();
         float docScore;
-        int minDocId;
-        boolean minDocIdInAllPostingLists = true;
+        int maxDocId;
+        boolean maxDocIdInAllPostingLists;
 
-        while ((minDocId = getMinDocId()) != this.collectionSize) {
+        while ((maxDocId = getMaxDocId()) != -2) {
             docScore = 0;
-            System.out.println("minDocId: " + minDocId);
+            System.out.println("maxDocId: " + maxDocId);
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
-            int currentTf;
-            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+
+            maxDocIdInAllPostingLists = true;
             for (int i =0; i<numTermQuery;i++)
             {
                 PostingListBlock postingListBlock = postingListBlocks.get(i);
-                if (postingListBlock.getCurrentDocId() != minDocId)
-                    minDocIdInAllPostingLists = false;
-                else
+                if (postingListBlock.getCurrentDocId() != maxDocId)
                 {
-                    if (minDocIdInAllPostingLists == true)
-                    {
-                        currentTf = postingListBlock.getCurrentTf();
-                        docScore += computeBM25(currentTf, documentLength, docFreqs[i]);
-                    }
+                    maxDocIdInAllPostingLists = false;
                     //increment the position in the posting list
                     if (postingListBlock.next() == -1)         //increment position and if end of block reached then set the flag
                         endOfPostingListBlockFlag[i] = true;
                 }
             }
-            if (minDocIdInAllPostingLists == true)
-                heapScores.insertIntoPriorityQueue(docScore, minDocId);
+
+            if (maxDocIdInAllPostingLists == true) {
+                System.out.println("gabriele marino");
+                int currentTf;
+                int documentLength = documentIndexHandler.readDocumentLength(maxDocId);
+                for (int i =0; i<numTermQuery;i++)
+                {
+                    PostingListBlock postingListBlock = postingListBlocks.get(i);
+                    currentTf = postingListBlock.getCurrentTf();
+                    docScore += computeBM25(currentTf, documentLength, docFreqs[i]);
+                    if (postingListBlock.next() == -1)         //increment position and if end of block reached then set the flag
+                        endOfPostingListBlockFlag[i] = true;
+                }
+                heapScores.insertIntoPriorityQueue(docScore, maxDocId);
+            }
             updatePostingListBlocks();
-            minDocIdInAllPostingLists = true;
         }
 
         return heapScores.getTopDocIdReversed();
