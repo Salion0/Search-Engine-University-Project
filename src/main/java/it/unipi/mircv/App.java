@@ -4,13 +4,12 @@ import it.unipi.mircv.Index.Index;
 
 import java.io.*;
 
+import static it.unipi.mircv.Config.*;
 
 public class App
 {
-
-
     public static void main( String[] args ) throws IOException {
-        Index index = new Index("test_collection.tsv");
+        Index index = new Index(COLLECTION_FILE);
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks();
