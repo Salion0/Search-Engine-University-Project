@@ -31,15 +31,21 @@ public class Index {
         FileInputStream fis = new FileInputStream("collection.tar.gz");
         GZIPInputStream gzis = new GZIPInputStream(fis);
         InputStreamReader inputStreamReader = new InputStreamReader(gzis);
-        BufferedReader readerZIP = new BufferedReader(inputStreamReader);
+        BufferedReader reader = new BufferedReader(inputStreamReader);
 
         //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
-        test(readerZIP);
+        //test(readerZIP);
+        reader.mark(0);
+        String[] values = reader.readLine().split("\t");
+        reader.reset();
+        reader.skip(values[0].length()-1);
+        System.out.println(reader.readLine());
+
         documentIndex = new DocumentIndex();
         currentDocId = 0;
         int blockID = 0;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
+            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
             while(reader!=null){
                 System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack
@@ -55,7 +61,15 @@ public class Index {
     }
 
     public void test(BufferedReader reader) throws IOException {
+        String[] values = reader.readLine().split("\t");
+        reader.close();
+        //reader = new BufferedReader(inputStreamReader);
+        reader.skip(values[0].length()-1);
         System.out.println(reader.readLine());
+        String[] tokens = Index.tokenization(values[values.length-1].split("\t")[1]);  //take tokens from the text
+        String docNo = values[values.length-1].split("\t")[0];
+        //int docLength = processDocument(lexicon, tokens);
+        //documentIndex.add(docNo, docLength);
     }
 
     public void loadStopWordList() {  // load in memory the lists of stop words from the json file
