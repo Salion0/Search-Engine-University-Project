@@ -39,7 +39,7 @@ public class Index {
         //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
         reader.mark(1024); // 1024 è quanti byte può leggere prima che il mark diventi non più valido
         String[] values = reader.readLine().split("\t"); //per vedere alla prima linea quanto sono lunghi i metadati
-        reader.reset();
+        reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
         reader.skip(values[0].length()-1); // skip metadata
 
         documentIndex = new DocumentIndex();
