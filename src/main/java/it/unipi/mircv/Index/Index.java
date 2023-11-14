@@ -37,13 +37,11 @@ public class Index {
         BufferedReader reader = new BufferedReader(inputStreamReader);
 
         //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
-        if (test() == 0) return;
-        //String[] values = reader.readLine().split("\t");
-        //reader = new BufferedReader(inputStreamReader);
-        //reader.skip(values[0].length()-1);
-        //System.out.println(values[0].length()-1);
-        //reader.skip(417);
-        //System.out.println(reader.readLine());
+        reader.mark(1024); // 1024 è quanti byte può leggere prima che il mark diventi non più valido
+        String[] values = reader.readLine().split("\t"); //per vedere alla prima linea quanto sono lunghi i metadati
+        reader.reset();
+        reader.skip(values[0].length()-1); // skip metadata
+
         documentIndex = new DocumentIndex();
         currentDocId = 0;
         int blockID = 0;
@@ -61,65 +59,6 @@ public class Index {
             System.err.println("Error reading the file: " + e.getMessage());
         }
         documentIndex.addAverageDocumentLength();
-    }
-
-    public int test() throws IOException {
-
-        String tarGzFilePath = "collection.tar.gz";
-
-        try (FileInputStream fis = new FileInputStream(tarGzFilePath);
-             BufferedInputStream bis = new BufferedInputStream(fis);
-             GzipCompressorInputStream gzis = new GzipCompressorInputStream(bis);
-             TarArchiveInputStream tarIn = new TarArchiveInputStream(gzis)) {
-
-            TarArchiveEntry entry;
-            while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-                // Assuming there's only one TSV file in the tar.gz, adjust this if necessary
-                if (entry.getName().endsWith(".tsv")) {
-                    // Read the TSV file into a memory-based buffer
-                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                    byte[] fileBuffer = new byte[1024];
-                    int bytesRead;
-
-                    tarIn.read(fileBuffer);
-                    buffer.write(fileBuffer);
-                    /*
-                    while ((bytesRead = tarIn.read(fileBuffer)) != -1) {
-                        buffer.write(fileBuffer, 0, bytesRead);
-                    }*/
-
-                    // Convert the buffer to a string (assuming the TSV is text-based)
-                    String tsvContent = buffer.toString("UTF-8");
-
-                    // Now you can process the TSV content as needed
-                    System.out.println(tsvContent);
-
-                    // Close the buffer if necessary
-                    buffer.close();
-
-                    // Break out of the loop assuming there's only one TSV file
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        return 0;
-
-        /*
-        String[] values = reader.readLine().split("\t");
-        reader.close();
-        //reader = new BufferedReader(inputStreamReader);
-        reader.skip(values[0].length()-1);
-        System.out.println(reader.readLine());
-        String[] tokens = Index.tokenization(values[values.length-1].split("\t")[1]);  //take tokens from the text
-        String docNo = values[values.length-1].split("\t")[0];
-        //int docLength = processDocument(lexicon, tokens);
-        //documentIndex.add(docNo, docLength);
-
-         */
     }
 
     public void loadStopWordList() {  // load in memory the lists of stop words from the json file
