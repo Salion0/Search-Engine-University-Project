@@ -44,7 +44,7 @@ public class BlockMerger {
         this.numberOfBlocks = numberOfBlocks;
 
         for (int i = 0; i < numberOfBlocks; i++) {
-            BlockReader blockReader = new BlockReader("data/", "lexicon", "docIds", "termFreq", i);
+            BlockReader blockReader = new BlockReader("data./", "lexicon", "docIds", "termFreq", i);
             minTermFoundInBlock.add(true); // initialize arrayList
             blockFinished.add(false); // initialize arrayList
             blocks.add(i, blockReader);
