@@ -2,7 +2,6 @@ package it.unipi.mircv.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.PriorityQueue;
 import static it.unipi.mircv.Config.*;
 public class MinHeapScores {
@@ -11,6 +10,7 @@ public class MinHeapScores {
     private final HashMap<Float, ArrayList<Integer>> score2DocIdMap;  //list of docIDs retrieved sorted by ranking
     private final PriorityQueue<Float> topScores;
     private int topDocCount; //counter for keep track of how many document have been inserted in the min-heap
+
     public MinHeapScores(){
         score2DocIdMap = new HashMap<>();
         topScores = new PriorityQueue<>();
@@ -60,10 +60,10 @@ public class MinHeapScores {
                 removeDocIdFromMap(topScores.peek());
                 insertDocIdInMap(docScore,minDocId);
             }
-
         }
     }
-    public int getTopDocCount(){return topDocCount; }
+
+    public PriorityQueue<Float> getTopScores(){return topScores; }
     public ArrayList<Integer> getDocId(float scores){return this.score2DocIdMap.get(scores);}
 
     public ArrayList<Integer> getTopDocIdReversed() {
