@@ -102,11 +102,11 @@ public class Index {
                 break;
             }
             //DEBUG per creare più di un blocco
-            if (count == 3000 || count == 6000){
+  /*          if (count == 3000 || count == 6000){
                 readerToReturn = reader;
                 System.out.println("blocco finito per debug");
                 break;
-            }
+            }*/
             String line = reader.readLine();
             if(line == null){
                 //we reached the end of the file -> close file reader and break
