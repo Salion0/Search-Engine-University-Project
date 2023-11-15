@@ -273,7 +273,6 @@ public class QueryProcessor {
             }
 
             if (maxDocIdInAllPostingLists == true) {
-                System.out.println("gabriele marino");
                 int currentTf;
                 int documentLength = documentIndexHandler.readDocumentLength(maxDocId);
                 for (int i =0; i<numTermQuery;i++)
