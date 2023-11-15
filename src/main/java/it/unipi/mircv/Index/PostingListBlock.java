@@ -5,10 +5,11 @@ public class PostingListBlock extends PostingList
     private int currentPosition;
     private int length;
     private int maxDocID;
-    public void setFields(int length){
-        currentPosition = 0;
+    public PostingListBlock(int length){
+        super();
+        this.currentPosition = 0;
         this.length = length;
-        maxDocID = getDocId(length - 1);
+        this.maxDocID = getDocId(length - 1);
     }
     public int getPosition(){
         return this.currentPosition;
