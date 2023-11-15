@@ -46,7 +46,7 @@ public class Index {
         currentDocId = 0;
         int blockID = 0;
         try {
-            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath));
+            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
             while(reader!=null){
                 System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack

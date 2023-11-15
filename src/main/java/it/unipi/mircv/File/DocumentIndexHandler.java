@@ -82,4 +82,6 @@ public class DocumentIndexHandler{
         randomAccessFile.close();
         fileChannel.close();
     }
+
+
 }
