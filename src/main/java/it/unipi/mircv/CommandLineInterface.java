@@ -39,7 +39,7 @@ public class CommandLineInterface {
                             long elapsedTime = endTime - startTime;
                             System.out.println("indexing with compression finished in " + (float)elapsedTime/1000 +"sec");
                             break;
-                        } //else don't break
+                        }
 
                     } else {
                         System.out.println("indexing...");
