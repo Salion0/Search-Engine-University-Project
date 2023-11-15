@@ -16,7 +16,6 @@ public class App
     }
 
 
-    /*
     public void testWord() throws FileNotFoundException {
 
         int[] buffer = new int[64];
@@ -33,7 +32,8 @@ public class App
 
         String termTest = new String(buffer,StandardCharsets.UTF_8);
         System.out.println(termTest.charAt(10));
-    }*/
+    }
+
 }
 
 
