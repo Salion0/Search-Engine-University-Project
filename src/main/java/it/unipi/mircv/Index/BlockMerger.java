@@ -1,5 +1,7 @@
 package it.unipi.mircv.Index;
 
+import it.unipi.mircv.File.DocumentIndexHandler;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import static it.unipi.mircv.Index.Config.*;
+import static it.unipi.mircv.Config.*;
 
 
 public class BlockMerger {
@@ -124,14 +126,28 @@ public class BlockMerger {
         fosDocId.close();
         fosTermFreq.close();
 
+        // ********** TERM UPPER BOUND ************
+        //computeTermUpperBound();
+
         //DEBUG ------printing the whole merged lexicon-------
         /*
         for (int i = 0; i < terms.size(); i++) {
             System.out.println(terms.get(i) + " --->> " + postingLists.get(i));
         }*/
-        System.out.println(terms.size());
         //DEBUG ---------------------------------------
     }
+
+    /*private void computeTermUpperBound(String term,PostingList postingList) throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        int avgDocLength = documentIndexHandler.readAvgDocLen();
+        float maxScore = -1;
+
+        for (PostingElement postingElement: postingList.getPostingList()) {
+
+            if (postingElement.ge)
+        }
+
+    }*/
 
     //TODO da vedere se funziona
     private void writeToDisk(String term, int offset, int docFreq, int collFreq, PostingList postingList) throws IOException {
@@ -156,4 +172,10 @@ public class BlockMerger {
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
     }
+
+    /*
+    private float computeBM25(int termFrequency, int documentLength, int documentFrequency) {
+        return (float) (( termFrequency / (termFrequency + 1.5 * ((1 - 0.75) + 0.75*(documentLength / avgDocLen))) )
+                * (float) Math.log10(collectionSize/documentFrequency));
+    }*/
 }

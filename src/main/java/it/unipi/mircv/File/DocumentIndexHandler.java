@@ -6,7 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import static it.unipi.mircv.Index.Config.*;
+import static it.unipi.mircv.Config.*;
 
 public class DocumentIndexHandler{
     private final FileChannel fileChannel;
@@ -47,7 +47,9 @@ public class DocumentIndexHandler{
     public void writeAverageDocumentLength(float averageDocumentLength, int numberOfDocuments) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
         byteBuffer.putFloat(averageDocumentLength);
+        byteBuffer.position(AVGDOCLENGHT_BYTES_LENGTH);
         byteBuffer.putInt(numberOfDocuments);
+        byteBuffer.rewind();
         fileChannel.position(0);
         fileChannel.write(byteBuffer);
     }
@@ -59,8 +61,27 @@ public class DocumentIndexHandler{
         buffer.position(0);
         return buffer.getInt();
     }
+
+    public int readAvgDocLen() throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH);
+        fileChannel.position(0);
+        fileChannel.read(buffer);
+        buffer.position(0);
+        return buffer.getInt();
+    }
+
+    public int collectionSize() throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(NUM_DOC_BYTES_LENGTH);
+        fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH);
+        fileChannel.read(buffer);
+        buffer.position(0);
+        return buffer.getInt();
+    }
+
     public void closeFileChannel() throws IOException {
         randomAccessFile.close();
         fileChannel.close();
     }
+
+
 }

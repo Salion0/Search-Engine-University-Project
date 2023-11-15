@@ -1,134 +1,352 @@
-/*
 package it.unipi.mircv.Query;
 
+import ca.rmen.porterstemmer.PorterStemmer;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.Index.Lexicon;
-import it.unipi.mircv.Index.LexiconEntry;
-import it.unipi.mircv.Index.PostingList;
-import it.unipi.mircv.Index.PostingListBlock;
+import it.unipi.mircv.Index.*;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.*;
 
-import static it.unipi.mircv.Index.Config.*;
+
+import static it.unipi.mircv.Config.*;
 
 public class QueryProcessor {
 
+    //------------------FILE HANDLER-------------------------------------------//
+    private final InvertedIndexHandler invertedIndexHandler;
+    private final LexiconHandler lexiconHandler;
+    private final DocumentIndexHandler documentIndexHandler;
     //------------------------------------------------------------------------//
     private int collectionSize;
-
+    private float avgDocLen;
+    private int  numTermQuery;
     //------------------------------------------------------------------------//
-    private int[] docIDRetrieved;  //list of docIDs retrieved sorted by ranking
-
-    private int[] docsScore; //list of score related to docIDs
-
-    //------------------------------------------------------------------------//
-    private int[] query_tf;  //list of term frequencies in the queries
+    private boolean[] endOfPostingListBlockFlag;
+    private int [] numBlockRead;  //counter for keeping info on how many blocks for each posting list
     private boolean[] endOfPostingListFlag;
     private String[] queryTerms;//query terms
     private int[] docFreqs; //doc frequencies of query terms
     private int[] collectionFreqs; // collection frequencies of query terms
     private int[] offsets; // offsets of the posting list of query terms
-
+    private ArrayList<PostingListBlock> postingListBlocks;
+    private PorterStemmer stemmer = new PorterStemmer();
 
     //------------------------------------------------------------------------//
-    public QueryProcessor(String query, int collectionSize) throws IOException {
-        this.queryTerms = query.split("\\s");
-        this.query_tf = new int[queryTerms.length];
-        this.collectionSize = collectionSize;
 
-        this.docFreqs =  new int[queryTerms.length];
-        this.collectionFreqs = new int[queryTerms.length];
-        this.offsets = new int[queryTerms.length];
+    public QueryProcessor(String query) throws IOException {
 
-        LexiconHandler lexiconHandler = new LexiconHandler(LEXICON_FILE);
-        for (int i = 0; i < queryTerms.length; i++) {
-                ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
-                docFreqs[i] = lexiconHandler.getDf(entryBuffer);
-                collectionFreqs[i] = lexiconHandler.getCf(entryBuffer);
-                offsets[i] = lexiconHandler.getOffset(entryBuffer);
+        loadStopWordList();
+        //---------------INITIALIZE ARRAYS---------------------------
+        this.queryTerms = doStopWordRemovalAndStemming(query.split(" "));
+        this.numTermQuery = queryTerms.length;
+        this.numBlockRead = new int[numTermQuery];
+        this.docFreqs =  new int[numTermQuery];
+        this.collectionFreqs = new int[numTermQuery];
+        this.offsets = new int[numTermQuery];
+        this.endOfPostingListBlockFlag = new boolean[numTermQuery];
+        this.endOfPostingListFlag = new boolean[numTermQuery];
+        //-----------------------------------------------------------
+
+        //-------------INITIALIZE FILE HANDLER ----------------------
+        this.lexiconHandler = new LexiconHandler();
+        this.documentIndexHandler = new DocumentIndexHandler();
+        this.invertedIndexHandler = new InvertedIndexHandler();
+        //-----------------------------------------------------------
+
+        //-------------INITIALIZE COLLECTION STATISTICS -------------
+        this.collectionSize = documentIndexHandler.collectionSize();
+        this.avgDocLen = documentIndexHandler.readAvgDocLen();
+        //-----------------------------------------------------------
+
+        //-------------INITIALIZE TERM STATISTICS---------------------
+        for (int i = 0; i < numTermQuery; i++) {
+                ByteBuffer entryBuffer = this.lexiconHandler.findTermEntry(queryTerms[i]);
+                docFreqs[i] = this.lexiconHandler.getDf(entryBuffer);
+                collectionFreqs[i] = this.lexiconHandler.getCf(entryBuffer);
+                offsets[i] = this.lexiconHandler.getOffset(entryBuffer);
+        }
+        initializePostingListBlocks();
+
+    }
+
+    public void loadStopWordList() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            File file = new File("stop_words_english.json");
+            stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String[] doStopWordRemovalAndStemming(String[] initialQueryTerms) {  // remove stop words and do stemming on query terms
+
+        ArrayList<String> currentQueryTerms = new ArrayList<>();
+        for (String token: initialQueryTerms) {
+            if (stopWords.contains(token)) // stopWordRemoval
+                continue;
+            //token = stemmer.stemWord(token); // stemming
+            if (token.length() > TERM_BYTES_LENGTH) // il token è più lungo di 64 byte quindi lo scartiamo
+                continue;
+            currentQueryTerms.add(token);
         }
 
+        String[] finalQueryTerms = new String[currentQueryTerms.size()];
+        for (int i = 0; i < currentQueryTerms.size(); i++)
+            finalQueryTerms[i] = currentQueryTerms.get(i);
 
+        return finalQueryTerms;
     }
 
-    public QueryProcessor(String[] query, int collectionSize) {
-        this.queryTerms = query;
-        this.collectionSize = collectionSize;
+    private void initializePostingListBlocks() throws IOException {
+        this.postingListBlocks = new ArrayList<>(numTermQuery);
+        for(int i=0; i<numTermQuery; i++){
+            if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+            }
+            else{                                     //else posting list length is greather than block size
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+            }
+            numBlockRead[i]++;
+        }
     }
 
-    //TODO
-    private void posUpdate() {
-        //increment the position in each posting list of the term query
-    }
+    //------------------------------------------------------------------------//
 
-
-    private int getMinDocId(Lexicon lexicon) {
-
+    private int getMinDocId() {
         int minDocId = this.collectionSize;  //valore che indica che le posting list sono state raggiunte
-        //TODO
-        PostingList term_pl;
-        for (String term : this.queryTerms) {
-            term_pl = lexicon.getPostingList(term);
-            int current_doc_id = term_pl.currentDocId();  //return the current doc id pointed
-            if (current_doc_id < minDocId) {
-                minDocId = current_doc_id;
+
+        //find the current min doc id in the posting lists of the query terms
+        for (int i = 0; i < numTermQuery; i++){
+            if (endOfPostingListFlag[i]) continue;
+            int currentDocId = postingListBlocks.get(i).getCurrentDocId();
+            if(currentDocId<minDocId){
+                minDocId = currentDocId;
             }
         }
+
         return minDocId;
     }
 
-    private float termScore() {
-        float termscore = 0;
-        //TODO
+    private int getMaxDocId() {
+        int maxDocId = -2;  //valore che indica che le posting list sono state raggiunte
 
-        return termscore;
+        //find the current min doc id in the posting lists of the query terms
+        for (int i = 0; i < numTermQuery; i++){
+            if (endOfPostingListFlag[i]) return -2;
+            int currentDocId = postingListBlocks.get(i).getCurrentDocId();
+            if(currentDocId > maxDocId){
+                maxDocId = currentDocId;
+            }
+        }
+
+        return maxDocId;
     }
 
-    public int[] DAAT() {
-        //Process the query using Document At A Time
-        //TODO
+    private void updatePostingListBlocks() throws IOException {
+        for(int i=0; i<numTermQuery; i++){
+            if(endOfPostingListBlockFlag[i]){ //if one block is completely processed then load the subsequent if exists
+                // read the subsequent block
+                int elementToRead = docFreqs[i] - POSTING_LIST_BLOCK_LENGTH*numBlockRead[i];
+                //System.out.println(elementToRead); //DEBUG
 
-        int minDocId;
-        float score = 0;
-        while ((minDocId = getMinDocId(lexicon)) != this.collectionSize) {
-
-            int i = 0;
-            int currentTf = 0;
-            for (String term : queryTerms) {
-                PostingListBlock termPl = (PostingListBlock) lexicon.getPostingList(term);
-                if (termPl.currentDocId() == minDocId) {
-                    currentTf = termPl.currentTf();
-                    termPl.next();  //increment the position in the posting list
-                    score += termScore();
+                //check if exist a subsequent block using the docFreqs which is equal to the length of the posting list
+                if (elementToRead > 0) {
+                    if(elementToRead > POSTING_LIST_BLOCK_LENGTH ) {
+                        elementToRead = POSTING_LIST_BLOCK_LENGTH;
+                    }
+                    postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
+                            this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                                    elementToRead));
+                    //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
+                    endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
+                    numBlockRead[i]++; // ho letto un altro blocco quindi aumento il campo
                 }
-                //TODO check if the score is correct
+                else{
+                    endOfPostingListFlag[i]=true;
+                }
+            }
+        }
+    }
+
+    private void updatePostingListBlock(int i) throws IOException {
+        if(endOfPostingListBlockFlag[i] == false)
+            return;
+        //if the is completely processed then load the subsequent if exists
+        //read the subsequent block
+        int elementToRead = docFreqs[i] - POSTING_LIST_BLOCK_LENGTH*numBlockRead[i];
+
+        //check if exist a subsequent block using the docFreqs which is equal to the length of the posting list
+        if (elementToRead > 0)
+        {
+            if(elementToRead > POSTING_LIST_BLOCK_LENGTH )
+                elementToRead = POSTING_LIST_BLOCK_LENGTH;
+
+            postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
+                    this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                            elementToRead));
+
+            endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
+            numBlockRead[i]++; // ho letto un altro blocco quindi aumento il campo
+        }
+        else
+            endOfPostingListFlag[i]=true;
+    }
+
+
+    //------------------------------------------------------------------------//
+
+    public ArrayList<Integer> DAAT() throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        MinHeapScores heapScores = new MinHeapScores();
+        float docScore;
+        int minDocId;
+
+        int count = 0;//DEBUG
+        while ((minDocId = getMinDocId()) != this.collectionSize) {
+            docScore = 0;
+            System.out.println("minDocId: " + minDocId);
+            //-----------------------COMPUTE THE SCORE-------------------------------------------------------
+            int currentTf;
+            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            for (int i =0; i<numTermQuery;i++) {
+                PostingListBlock postingListBlock = postingListBlocks.get(i);
+                if (postingListBlock.getCurrentDocId() == minDocId) {
+
+                    currentTf = postingListBlock.getCurrentTf();
+                    //docScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
+                    docScore += computeBM25(currentTf,documentLength,docFreqs[i]);
+
+                    //increment the position in the posting list
+                    if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag
+                        endOfPostingListBlockFlag[i] = true;
+                    }
+                }
+            }
+            heapScores.insertIntoPriorityQueue(docScore, minDocId);
+            updatePostingListBlocks();
+
+
+            if(count == 0) { //DEBUG
+                for(PostingListBlock plb: postingListBlocks){
+                    System.out.print("Print postingListBlocks");
+                    System.out.println(plb);
+                }
+            }
+            count++; //DEBUG
+        }
+
+        //System.out.println("DEBUGGG --> " + heapScores.getDocId((float) 3.1066878)); //DEBUG
+        return heapScores.getTopDocIdReversed();
+    }
+
+    public ArrayList<Integer> conjunctiveDAAT() throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        MinHeapScores heapScores = new MinHeapScores();
+        float docScore;
+        int maxDocId;
+        boolean maxDocIdInAllPostingLists;
+
+        while ((maxDocId = getMaxDocId()) != -2) {
+            docScore = 0;
+            System.out.println("maxDocId: " + maxDocId);
+            //-----------------------COMPUTE THE SCORE-------------------------------------------------------
+
+            maxDocIdInAllPostingLists = true;
+            for (int i =0; i<numTermQuery;i++)
+            {
+                PostingListBlock postingListBlock = postingListBlocks.get(i);
+                if (postingListBlock.getCurrentDocId() != maxDocId)
+                {
+                    maxDocIdInAllPostingLists = false;
+                    //increment the position in the posting list
+                    if (postingListBlock.next() == -1)         //increment position and if end of block reached then set the flag
+                        endOfPostingListBlockFlag[i] = true;
+                }
             }
 
-
+            if (maxDocIdInAllPostingLists == true) {
+                System.out.println("gabriele marino");
+                int currentTf;
+                int documentLength = documentIndexHandler.readDocumentLength(maxDocId);
+                for (int i =0; i<numTermQuery;i++)
+                {
+                    PostingListBlock postingListBlock = postingListBlocks.get(i);
+                    currentTf = postingListBlock.getCurrentTf();
+                    docScore += computeBM25(currentTf, documentLength, docFreqs[i]);
+                    if (postingListBlock.next() == -1)         //increment position and if end of block reached then set the flag
+                        endOfPostingListBlockFlag[i] = true;
+                }
+                heapScores.insertIntoPriorityQueue(docScore, maxDocId);
+            }
+            updatePostingListBlocks();
         }
-        //TODO sort docIDRetrieved
 
-        return this.docIDRetrieved;
+        return heapScores.getTopDocIdReversed();
     }
 
+    public void TAAT() throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        HashMap<Integer,Float> mapIdWithScoreTAAT = new HashMap<>();
+        int currentDocId;
+        int currentTf;
+        int documentLength;
+        float score;
 
-    public int[] TAAT(){
-        //Process the query using Document At A Time
-        //TODO
+        for (int i =0; i<numTermQuery;i++)
+        {
+            PostingListBlock postingListBlock = postingListBlocks.get(i);
+            while(endOfPostingListFlag[i] == false)
+            {
+                currentDocId = postingListBlock.getCurrentDocId();
+                documentLength = documentIndexHandler.readDocumentLength(currentDocId);
+                currentTf = postingListBlock.getCurrentTf();
+                score = computeBM25(currentTf, documentLength, docFreqs[i]);
 
+                if (mapIdWithScoreTAAT.get(currentDocId) == null)
+                    mapIdWithScoreTAAT.put(currentDocId,score);
+                else
+                    mapIdWithScoreTAAT.put(currentDocId,mapIdWithScoreTAAT.get(currentDocId) + score);
 
-        return this.docIDRetrieved;
+                //increment the position in the posting list
+                if (postingListBlock.next() == -1) { //increment position and if end of block reached then set the flag
+                    endOfPostingListBlockFlag[i] = true;
+                    updatePostingListBlock(i);
+                }
+            }
+        }
+
+        // Convert HashMap entries to a List
+        List<Map.Entry<Integer, Float>> list = new ArrayList<>(mapIdWithScoreTAAT.entrySet());
+
+        // Sort the list based on values using Collections.sort() and a custom comparator
+        Collections.sort(list, Map.Entry.comparingByValue());
+
+        // Print the sorted entries
+        for (Map.Entry<Integer, Float> entry : list)
+            System.out.println(entry.getKey() + ": " + entry.getValue());
     }
 
-    public String[] getQuery() {
-        return queryTerms;
+    private float computeBM25(int termFrequency, int documentLength, int documentFrequency) {
+        return (float) (( termFrequency / (termFrequency + 1.5 * ((1 - 0.75) + 0.75*(documentLength / avgDocLen))) )
+                * (float) Math.log10(collectionSize/documentFrequency));
     }
 
-    public void setCollectionSize(int collectionSize) {
-        this.collectionSize = collectionSize;
+    public float computeIDF(int documentFrequency) {
+        return (float) Math.log10(documentFrequency/collectionSize);
+    }
+
+    public float computeTFIDF(int termFrequency,int documentFrequency) {
+        if (termFrequency == 0)
+            return 0;
+        else
+            return (float) ((1 + Math.log10(termFrequency)) * Math.log10(documentFrequency/collectionSize));
     }
 }
-*/

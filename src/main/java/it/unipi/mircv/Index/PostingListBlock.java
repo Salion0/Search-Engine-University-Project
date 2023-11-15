@@ -1,39 +1,44 @@
 package it.unipi.mircv.Index;
 
-
-import static it.unipi.mircv.Index.Config.*;
-
 public class PostingListBlock extends PostingList
 {
-   public boolean endOfBlock;
-    public int blockLength = POSTING_LIST_BLOCK_LENGTH;
-    public int position;
-    public int maxDocID;
-
-    //TODO costruttore
-
+    private int currentPosition;
+    private int length;
+    private int maxDocID;
+    public void setFields(int length){
+        currentPosition = 0;
+        this.length = length;
+        maxDocID = getDocId(length - 1);
+    }
     public int getPosition(){
-        return this.position;
+        return this.currentPosition;
     }
 
     public int next(){
-        //TODO
-        return this.position;
+        if(currentPosition < length - 1) currentPosition += 1;
+        else return -1;
+        return currentPosition;
     }
 
-    public int  getMaxDocID(){
-        return this.getMaxDocID();
+    public int getMaxDocID(){
+        return maxDocID;
     }
-
-    public int getCurrentTf(){
-        int tf = 0;
-        //TODO
-        return tf;
+    public int getDocId(int position){
+        if(position >= 0)
+            return getPostingList().get(position).getDocId();
+        else
+            return -1;
+    }
+    public int getTf(int position){
+        if(position >= 0)
+            return getPostingList().get(position).getTermFreq();
+        else
+            return -1;
     }
     public int getCurrentDocId(){
-        int docID = 0;
-        //TODO
-        return docID;
+        return getDocId(currentPosition);
     }
-
+    public int getCurrentTf(){
+        return getTf(currentPosition);
+    }
 }

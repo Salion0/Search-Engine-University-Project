@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.TreeMap;
 
-import static it.unipi.mircv.Index.Config.*;
+import static it.unipi.mircv.Config.*;
 
 public class Lexicon {
 
@@ -67,7 +67,7 @@ public class Lexicon {
             int collectionFreq =0;
             PostingList pl = getPostingList(term);
             for(PostingElement pe: pl.getPostingList()){
-                collectionFreq += pe.getTf();
+                collectionFreq += pe.getTermFreq();
             }
             termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
 
