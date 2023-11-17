@@ -12,13 +12,14 @@ public class TestMatteo {
 
 
         //testing PL Descriptor
+        /*
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
+        blockMerger.mergeBlocks(); */
 
         PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
-        ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 38);
+        ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 73);
         System.out.println(maxDocIds);
 
         // testing DAAT

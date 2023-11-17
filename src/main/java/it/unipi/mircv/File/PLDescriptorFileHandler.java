@@ -48,7 +48,7 @@ public class PLDescriptorFileHandler {
             byteBuffer.putInt(maxDocId);
         }
         byteBuffer.rewind();
-        fileChannel.position(offset);
+        fileChannel.position((long) offset * DOC_ID_LENGTH);
         fileChannel.write(byteBuffer);
 
     }
