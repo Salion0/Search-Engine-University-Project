@@ -1,33 +1,35 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.Index.Lexicon;
-import it.unipi.mircv.Index.PostingList;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Query.QueryProcessor;
-import it.unipi.mircv.compression.ByteManipulator;
-import it.unipi.mircv.compression.Unary;
-import it.unipi.mircv.compression.VariableByte;
-import it.unipi.mircv.compression.Utils;
+import it.unipi.mircv.File.PLDescriptorFileHandler;
+import it.unipi.mircv.Index.BlockMerger;
+import it.unipi.mircv.Index.Index;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
 
-        // testing DAAT
+        //testing PL Descriptor
+        Index index = new Index("test_collection.tsv");
+        int numberOfBlocks = index.getNumberOfBlocks();
+        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
+        blockMerger.mergeBlocks();
 
+        PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
+        ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 38);
+        System.out.println(maxDocIds);
+
+        // testing DAAT
+        /*
         String query = "continues homeostasis biofeedback scenar";
         QueryProcessor queryProcessor = new QueryProcessor(query);
         ArrayList<Integer> docId = queryProcessor.DAAT();
         System.out.println("Doc Id retrieved: ");
         System.out.println(docId);
+
+         */
 
         /*
         //testing inverted index handler

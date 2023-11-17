@@ -1,6 +1,6 @@
 package it.unipi.mircv.Index;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.PLDescriptorFileHandler;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,12 +11,12 @@ import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
 
-
 public class BlockMerger {
     private final int numberOfBlocks;
     private int offsetToWrite;
     private int docFreqSum;
     private int collFreqSum;
+    private int offsetForPLDescriptor;
     private final ArrayList<BlockReader> blocks = new ArrayList<>();
 
     //TODO questi due in realtà dovranno sparire nella verisione finale, perché già li scriviamo su file
@@ -37,6 +37,7 @@ public class BlockMerger {
     public BlockMerger(int numberOfBlocks) throws FileNotFoundException {
         offsetToWrite = 0;
         docFreqSum = 0;
+        offsetForPLDescriptor = 0;
         fosLexicon = new FileOutputStream("./data/lexicon.dat",true);
         fosDocId = new FileOutputStream("./data/docIds.dat",true);
         fosTermFreq = new FileOutputStream("./data/termFreq.dat",true);
@@ -171,6 +172,27 @@ public class BlockMerger {
 
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
+
+        ///SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU////
+
+        int postingListSize = postingList.getSize();
+        if (postingListSize > 1000){
+            System.out.println("va bene broski ti splitto: " + term);
+            System.out.println("sei fortissimo hai un sacco di docId: " + postingListSize);
+            ArrayList<Integer> maxDocIds = new ArrayList<>();
+            int postingListSizeBlock = (int) Math.sqrt(postingListSize);
+
+            for (int i = postingListSizeBlock; i < postingListSize; i += postingListSizeBlock){
+                maxDocIds.add(postingList.getPostingList().get(i-1).getDocId());
+            }
+            if(postingListSize%postingListSizeBlock != 0){
+                maxDocIds.add(postingList.getPostingList().get(postingListSize-1).getDocId());
+            }
+            PLDescriptorFileHandler PLDescriptorFileHandler = new PLDescriptorFileHandler();
+            PLDescriptorFileHandler.writeMaxDocIds(offsetForPLDescriptor, maxDocIds);
+            offsetForPLDescriptor += maxDocIds.size();
+        }
+
     }
 
     /*

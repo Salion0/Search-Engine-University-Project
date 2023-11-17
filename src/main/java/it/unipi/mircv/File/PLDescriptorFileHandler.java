@@ -1,7 +1,6 @@
 package it.unipi.mircv.File;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -10,11 +9,11 @@ import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
 
-public class PostingListDescriptorFileHandler {
+public class PLDescriptorFileHandler {
     private final RandomAccessFile randomAccessFile;
     private final FileChannel fileChannel;
 
-    public PostingListDescriptorFileHandler() throws IOException {
+    public PLDescriptorFileHandler() throws IOException {
         File file = new File(POSTING_LIST_DESC_FILE);
         if (file.exists()) {
             System.out.println("Posting List Descriptor file founded");
@@ -43,14 +42,15 @@ public class PostingListDescriptorFileHandler {
         return maxDocIds;
     }
 
-    public void writeMaxDocIds(ArrayList<Integer> maxDocIds, int offset) throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(maxDocIds.size());
+    public void writeMaxDocIds(int offset, ArrayList<Integer> maxDocIds) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(maxDocIds.size() * DOC_ID_LENGTH);
         for (int maxDocId: maxDocIds) {
             byteBuffer.putInt(maxDocId);
         }
         byteBuffer.rewind();
         fileChannel.position(offset);
         fileChannel.write(byteBuffer);
+
     }
 
     public void closeFileChannel() throws IOException {
