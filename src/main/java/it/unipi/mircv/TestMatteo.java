@@ -21,6 +21,8 @@ public class TestMatteo {
         PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
         ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 73);
         System.out.println(maxDocIds);
+        maxDocIds = plDescriptorFileHandler.getMaxDocIds(39, 20);
+        System.out.println(maxDocIds);
 
         // testing DAAT
         /*
