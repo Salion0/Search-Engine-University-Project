@@ -1,15 +1,12 @@
 package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.mircv.Config;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.Index.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -61,7 +58,7 @@ public class QueryProcessor {
         //-----------------------------------------------------------
 
         //-------------INITIALIZE COLLECTION STATISTICS -------------
-        this.collectionSize = documentIndexHandler.collectionSize();
+        this.collectionSize = documentIndexHandler.readCollectionSize();
         this.avgDocLen = documentIndexHandler.readAvgDocLen();
         //-----------------------------------------------------------
 
@@ -108,8 +105,6 @@ public class QueryProcessor {
         }
     }
 
-    //------------------------------------------------------------------------//
-
     private int getMinDocId() {
         int minDocId = this.collectionSize;  //valore che indica che le posting list sono state raggiunte
 
@@ -121,7 +116,6 @@ public class QueryProcessor {
                 minDocId = currentDocId;
             }
         }
-
         return minDocId;
     }
 
@@ -212,7 +206,7 @@ public class QueryProcessor {
 
                     currentTf = postingListBlock.getCurrentTf();
                     //currentDocScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
-                    currentDocScore += computeBM25(currentTf,documentLength,docFreqs[i]);
+                    currentDocScore += computeBM25(currentTf, documentLength, docFreqs[i]);
 
                     //increment the position in the posting list
                     if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag

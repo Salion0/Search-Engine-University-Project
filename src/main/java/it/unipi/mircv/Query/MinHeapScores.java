@@ -52,10 +52,11 @@ public class MinHeapScores {
 
         }else{      //there are more than k documents in the priority queue
 
-            if(docScore > topScores.peek()) { //need to check if minDocId should be inserted
-                topScores.remove(topScores.peek());
+            float peek = topScores.peek();
+            if(docScore > peek) { //need to check if minDocId should be inserted
+                topScores.remove(peek);
                 topScores.add(docScore);
-                removeDocIdFromMap(topScores.peek());
+                removeDocIdFromMap(peek);
                 insertDocIdInMap(docScore,minDocId);
             }
         }
@@ -71,6 +72,7 @@ public class MinHeapScores {
         Float prevScore = 0f;
 
         System.out.println(topScores);
+        System.out.println(score2DocIdMap);
         while((score = topScores.poll()) != null){
             if(score.equals(prevScore)) continue;
             prevScore = score;
@@ -78,7 +80,6 @@ public class MinHeapScores {
                 topDocId.add(docId);
             }
         }
-
         return topDocId;
     }
 }

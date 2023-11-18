@@ -70,7 +70,7 @@ public class DocumentIndexHandler{
         return buffer.getFloat();
     }
 
-    public int collectionSize() throws IOException {
+    public int readCollectionSize() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(NUM_DOC_BYTES_LENGTH);
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH);
         fileChannel.read(buffer);

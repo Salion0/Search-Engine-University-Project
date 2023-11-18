@@ -1,6 +1,5 @@
 package it.unipi.mircv.Query;
 
-import it.unipi.mircv.Config;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
@@ -10,44 +9,60 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
+import static it.unipi.mircv.Config.collectionSize;
+
 public class DisjunctiveDAAT {
-    private final String[] queryTerms;
     private final int numTermQuery;
     private final DocumentIndexHandler documentIndexHandler;
     private final InvertedIndexHandler invertedIndexHandler;
-    private final int collectionSize;
-    private final float avgDocLen;
+    private ArrayList<PostingListBlock> postingListBlocks;
+    private final int[] numBlockRead;
+    private final int[] docFreqs;
+    private final int[] offsets;
+    private final boolean[] endOfPostingListBlockFlag;
+    private final boolean[] endOfPostingListFlag;
 
     public DisjunctiveDAAT(String[] queryTerms) throws IOException {
         documentIndexHandler = new DocumentIndexHandler();
         LexiconHandler lexiconHandler = new LexiconHandler();
         invertedIndexHandler = new InvertedIndexHandler();
-        //---------------INITIALIZE ARRAYS---------------------------
-        this.queryTerms = queryTerms;
+
+        //--------------------DEFINE ARRAYS------------------------//
         numTermQuery = queryTerms.length;
-        this.numBlockRead = new int[numTermQuery];
-        this.docFreqs =  new int[numTermQuery];
-        this.collectionFreqs = new int[numTermQuery];
-        this.offsets = new int[numTermQuery];
-        this.endOfPostingListBlockFlag = new boolean[numTermQuery];
-        this.endOfPostingListFlag = new boolean[numTermQuery];
+        numBlockRead = new int[numTermQuery];
 
-        //-------------INITIALIZE COLLECTION STATISTICS -------------
-        collectionSize = documentIndexHandler.collectionSize();
-        avgDocLen = documentIndexHandler.readAvgDocLen();
+        docFreqs =  new int[numTermQuery];
+        offsets = new int[numTermQuery];
+
+        endOfPostingListBlockFlag = new boolean[numTermQuery];
+        endOfPostingListFlag = new boolean[numTermQuery];
 
 
-        //-------------INITIALIZE TERM STATISTICS---------------------
+        //-------------INITIALIZE TERM STATISTICS------------------//
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
-            collectionFreqs[i] = lexiconHandler.getCf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
         }
         initializePostingListBlocks();
 
     }
-    public ArrayList<Integer> process() throws IOException {
+    private int getMinDocId() {
+        int minDocId = collectionSize;  //valore che indica che le posting list sono state raggiunte
+
+        //find the current min doc id in the posting lists of the query terms
+        for (int i = 0; i < numTermQuery; i++){
+            if (endOfPostingListFlag[i]) continue;
+            int currentDocId = postingListBlocks.get(i).getCurrentDocId();
+            if(currentDocId<minDocId){
+                minDocId = currentDocId;
+            }
+        }
+        return minDocId;
+    }
+
+    public ArrayList<Integer> processQuery() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
@@ -65,7 +80,7 @@ public class DisjunctiveDAAT {
 
                     currentTf = postingListBlock.getCurrentTf();
                     //currentDocScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
-                    currentDocScore += computeBM25(currentTf,documentLength,docFreqs[i]);
+                    currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
 
                     //increment the position in the posting list
                     if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag
@@ -73,7 +88,8 @@ public class DisjunctiveDAAT {
                     }
                 }
             }
-            heapScores.insertIntoPriorityQueue(currentDocScore, minDocId);
+            heapScores.insertIntoPriorityQueue(currentDocScore , minDocId);
+            //heapScores.insertIntoPriorityQueue((int) (currentDocScore * 10000), minDocId);
             updatePostingListBlocks();
 
 
@@ -89,18 +105,42 @@ public class DisjunctiveDAAT {
         //System.out.println("DEBUGGG --> " + heapScores.getDocId((float) 3.1066878)); //DEBUG
         return heapScores.getTopDocIdReversed();
     }
-    private int getMinDocId() {
-        int minDocId = collectionSize;  //valore che indica che le posting list sono state raggiunte
+    private void initializePostingListBlocks() throws IOException {
+        postingListBlocks = new ArrayList<>(numTermQuery);
+        for(int i=0; i<numTermQuery; i++){
+            if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+            }
+            else{                                     //else posting list length is greather than block size
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+            }
+            numBlockRead[i]++;
+        }
+    }
 
-        //find the current min doc id in the posting lists of the query terms
-        for (int i = 0; i < numTermQuery; i++){
-            if (endOfPostingListFlag[i]) continue;
-            int currentDocId = postingListBlocks.get(i).getCurrentDocId();
-            if(currentDocId<minDocId){
-                minDocId = currentDocId;
+    private void updatePostingListBlocks() throws IOException {
+        for(int i=0; i<numTermQuery; i++){
+            if(endOfPostingListBlockFlag[i]){ //if one block is completely processed then load the subsequent if exists
+                // read the subsequent block
+                int elementToRead = docFreqs[i] - POSTING_LIST_BLOCK_LENGTH*numBlockRead[i];
+                //System.out.println(elementToRead); //DEBUG
+
+                //check if exist a subsequent block using the docFreqs which is equal to the length of the posting list
+                if (elementToRead > 0) {
+                    if(elementToRead > POSTING_LIST_BLOCK_LENGTH ) {
+                        elementToRead = POSTING_LIST_BLOCK_LENGTH;
+                    }
+                    postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
+                            this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                                    elementToRead));
+                    //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
+                    endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
+                    numBlockRead[i]++; // ho letto un altro blocco quindi aumento il campo
+                }
+                else{
+                    endOfPostingListFlag[i]=true;
+                }
             }
         }
-
-        return minDocId;
     }
 }

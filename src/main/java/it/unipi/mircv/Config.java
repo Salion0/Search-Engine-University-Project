@@ -9,6 +9,8 @@ import java.util.List;
 
 public class Config {
     public static List<String> stopWords;
+    public static int collectionSize;
+    public static float avgDocLen;
     public static final int TERM_BYTES_LENGTH = 64;
     public static final int DOC_ID_LENGTH = 4;
     public static final int TERM_FREQ_LENGTH = 4;
@@ -38,4 +40,5 @@ public class Config {
             e.printStackTrace();
         }
     }
+
 }

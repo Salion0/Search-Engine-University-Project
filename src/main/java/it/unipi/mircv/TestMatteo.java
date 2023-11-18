@@ -1,9 +1,11 @@
 package it.unipi.mircv;
 
 import ca.rmen.porterstemmer.PorterStemmer;
+import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.PLDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
+import it.unipi.mircv.Query.DisjunctiveDAAT;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,16 +14,19 @@ public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
         // Testing DAAT
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         PorterStemmer stemmer = new PorterStemmer();
-        TokenProcessing.doStopWordRemovalAndStemming(stemmer, "pipoo, fedd".split(" "));
+        //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
+        String[] queryTerms= "holy spirit".split(" ");
+        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
+        disjunctiveDAAT.processQuery();
 
         //testing PL Descriptor
-        /*
-        Index index = new Index("test_collection.tsv");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks(); */
+
+
         /*
 
         PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
@@ -47,29 +52,6 @@ public class TestMatteo {
         PostingList postingList = invertedIndexHandler.getPostingList(1345, 10);
         System.out.println(postingList);
 
-        // testing lexicon handler
-
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        ByteBuffer dataBuffer = lexiconHandler.findTermEntry("your");
-
-        int df = lexiconHandler.getDf(dataBuffer);
-        int offset = lexiconHandler.getOffset(dataBuffer);
-        System.out.println("term: " + lexiconHandler.getTerm(dataBuffer));
-        System.out.println("offset: " + offset);
-        System.out.println("df: " + df);
-        System.out.println("cf: " + lexiconHandler.getCf(dataBuffer));
-
-        //posting list block
-        PostingListBlock plTerm = invertedIndexHandler.getPostingList(offset, df);
-        System.out.println("pl position: " + plTerm.getPosition());
-        System.out.println("pl current DocId: " + plTerm.getCurrentDocId());
-        System.out.println("pl current Tf: " + plTerm.getCurrentTf());
-
-        System.out.println("pl.next(): " + plTerm.next());
-        System.out.println("pl position: " + plTerm.getPosition());
-        System.out.println("pl current DocId: " + plTerm.getCurrentDocId());
-        System.out.println("pl current Tf: " + plTerm.getCurrentTf());
-
         int count = 2;
         while(plTerm.next() > 0){
             count +=1;
@@ -80,19 +62,6 @@ public class TestMatteo {
         System.out.println("next(): " + plTerm.next());
         System.out.println("last DocId con getSize(): " + plTerm.getDocId(plTerm.getSize()-1));
         System.out.println("getMaxId(): " + plTerm.getMaxDocID());
-
-        */
-        /*
-        //test DocumentIndexHandler
-        Index index = new Index("test_collection.tsv");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
-
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        System.out.println("document length: " + documentIndexHandler.readDocumentLength(3));
-        documentIndexHandler.closeFileChannel();
-        */
 
         /*
         // test Variable Byte compression
