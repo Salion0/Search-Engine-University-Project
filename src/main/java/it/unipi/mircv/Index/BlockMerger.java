@@ -1,6 +1,6 @@
 package it.unipi.mircv.Index;
 
-import it.unipi.mircv.File.PLDescriptorFileHandler;
+import it.unipi.mircv.File.SkipDescriptorFileHandler;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -16,7 +16,7 @@ public class BlockMerger {
     private int offsetToWrite;
     private int docFreqSum;
     private int collFreqSum;
-    private int offsetForPLDescriptor;
+    private int offsetSkipDescriptor;
     private final ArrayList<BlockReader> blocks = new ArrayList<>();
 
     //TODO questi due in realtà dovranno sparire nella verisione finale, perché già li scriviamo su file
@@ -37,7 +37,7 @@ public class BlockMerger {
     public BlockMerger(int numberOfBlocks) throws FileNotFoundException {
         offsetToWrite = 0;
         docFreqSum = 0;
-        offsetForPLDescriptor = 0;
+        offsetSkipDescriptor = 0;
         fosLexicon = new FileOutputStream("./data/lexicon.dat",true);
         fosDocId = new FileOutputStream("./data/docIds.dat",true);
         fosTermFreq = new FileOutputStream("./data/termFreq.dat",true);
@@ -179,20 +179,24 @@ public class BlockMerger {
         if (postingListSize > 1000){
             System.out.println("va bene broski ti splitto: " + term);
             System.out.println("sei fortissimo hai un sacco di docId: " + postingListSize);
-            ArrayList<Integer> maxDocIds = new ArrayList<>();
+            SkipDescriptorFileHandler SkipDescriptorFileHandler = new SkipDescriptorFileHandler();
+            SkipDescriptor skipDescriptor = new SkipDescriptor();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
             for (int i = postingListSizeBlock; i < postingListSize; i += postingListSizeBlock){
-                maxDocIds.add(postingList.getPostingList().get(i-1).getDocId());
+                int maxDocId = postingList.getPostingList().get(i-1).getDocId();
+                int offsetMaxDocId = offsetToWrite + i - 1;
+                skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
             if(postingListSize%postingListSizeBlock != 0){
-                maxDocIds.add(postingList.getPostingList().get(postingListSize-1).getDocId());
+                int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
+                int offsetMaxDocId = offsetToWrite + postingListSize - 1;
+                skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
-            PLDescriptorFileHandler PLDescriptorFileHandler = new PLDescriptorFileHandler();
-            PLDescriptorFileHandler.writeMaxDocIds(offsetForPLDescriptor, maxDocIds);
-            offsetForPLDescriptor += maxDocIds.size();
+            System.out.println(skipDescriptor);
+            SkipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
+            offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
         }
-
     }
 
     /*

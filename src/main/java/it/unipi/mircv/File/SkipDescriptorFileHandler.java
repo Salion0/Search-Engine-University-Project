@@ -1,5 +1,7 @@
 package it.unipi.mircv.File;
 
+import it.unipi.mircv.Index.SkipDescriptor;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -9,11 +11,11 @@ import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
 
-public class PLDescriptorFileHandler {
+public class SkipDescriptorFileHandler {
     private final RandomAccessFile randomAccessFile;
     private final FileChannel fileChannel;
 
-    public PLDescriptorFileHandler() throws IOException {
+    public SkipDescriptorFileHandler() throws IOException {
         File file = new File(POSTING_LIST_DESC_FILE);
         if (file.exists()) {
             System.out.println("Posting List Descriptor file founded");
@@ -31,26 +33,32 @@ public class PLDescriptorFileHandler {
     }
 
     //this method will be called for each term in the conjunctive query in order to perform nextGEQ()
-    public ArrayList<Integer> getMaxDocIds(int offset, int length) throws IOException {
-        ArrayList<Integer> maxDocIds = new ArrayList<>();
-        ByteBuffer maxDocIdsBuffer = ByteBuffer.allocate(length * DOC_ID_LENGTH);
-        fileChannel.read(maxDocIdsBuffer, (long) offset * DOC_ID_LENGTH);
+    public SkipDescriptor readSkipDescriptor(int offset, int length) throws IOException {
+        //la length sarà la radice quadrata della posting list castata ad int + 1
+        //offset è quello logico
+        SkipDescriptor skipDescriptor = new SkipDescriptor();
+        ByteBuffer skipDescriptorBuffer = ByteBuffer.allocate(length * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
+        fileChannel.read(skipDescriptorBuffer, (long) offset * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
         for (int i = 0; i < length; i++){
-            maxDocIdsBuffer.position(i * DOC_ID_LENGTH);
-            maxDocIds.add(maxDocIdsBuffer.getInt());
+            skipDescriptorBuffer.position(i * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
+            skipDescriptor.add(skipDescriptorBuffer.getInt(), skipDescriptorBuffer.getInt());
         }
-        return maxDocIds;
+        return skipDescriptor;
     }
 
-    public void writeMaxDocIds(int offset, ArrayList<Integer> maxDocIds) throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(maxDocIds.size() * DOC_ID_LENGTH);
-        for (int maxDocId: maxDocIds) {
-            byteBuffer.putInt(maxDocId);
+    public void writeSkipDescriptor(int offset, SkipDescriptor skipDescriptor) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(skipDescriptor.size() * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
+        ArrayList<Integer> maxDocIds = skipDescriptor.getMaxDocIds();
+        ArrayList<Integer> offsetMaxDocIds = skipDescriptor.getOffsetMaxDocIds();
+
+        for (int i = 0; i < skipDescriptor.size(); i++){
+            byteBuffer.putInt(maxDocIds.get(i));
+            byteBuffer.putInt(offsetMaxDocIds.get(i));
         }
+
         byteBuffer.rewind();
         fileChannel.position((long) offset * DOC_ID_LENGTH);
         fileChannel.write(byteBuffer);
-
     }
 
     public void closeFileChannel() throws IOException {

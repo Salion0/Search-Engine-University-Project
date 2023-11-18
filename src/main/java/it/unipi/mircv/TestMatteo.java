@@ -2,9 +2,10 @@ package it.unipi.mircv;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.PLDescriptorFileHandler;
+import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
+import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.DisjunctiveDAAT;
 
 import java.io.IOException;
@@ -13,23 +14,37 @@ import java.util.ArrayList;
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
+
+        long startTime = System.currentTimeMillis();
+        Index index = new Index("test_collection.tsv");
+        int numberOfBlocks = index.getNumberOfBlocks();
+        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
+        blockMerger.mergeBlocks();
+
+        SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
+        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 100);
+        System.out.println(skipDescriptor);
+
         // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         PorterStemmer stemmer = new PorterStemmer();
+
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
-        String[] queryTerms= "holy spirit".split(" ");
+
+        String[] queryTerms= "cat sleep".split(" ");
         DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
-        disjunctiveDAAT.processQuery();
+        ArrayList<Integer> results = disjunctiveDAAT.processQuery();
+        System.out.println(results);
 
         //testing PL Descriptor
 
 
         /*
 
-        PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
+        SkipDescriptorFileHandler plDescriptorFileHandler = new SkipDescriptorFileHandler();
         ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 73);
         System.out.println(maxDocIds);
         maxDocIds = plDescriptorFileHandler.getMaxDocIds(39, 20);
@@ -96,6 +111,8 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
         */
-
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("indexing finished in " + (float)elapsedTime/1000 +"sec");
     }
 }
