@@ -62,15 +62,15 @@ public class DocumentIndexHandler{
         return buffer.getInt();
     }
 
-    public int readAvgDocLen() throws IOException {
+    public float readAvgDocLen() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH);
         fileChannel.position(0);
         fileChannel.read(buffer);
         buffer.position(0);
-        return buffer.getInt();
+        return buffer.getFloat();
     }
 
-    public int collectionSize() throws IOException {
+    public int readCollectionSize() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(NUM_DOC_BYTES_LENGTH);
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH);
         fileChannel.read(buffer);

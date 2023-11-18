@@ -1,14 +1,12 @@
 package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unipi.mircv.Config;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.Index.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -41,7 +39,7 @@ public class QueryProcessor {
 
     public QueryProcessor(String query) throws IOException {
 
-        loadStopWordList();
+        Config.loadStopWordList();
         //---------------INITIALIZE ARRAYS---------------------------
         this.queryTerms = doStopWordRemovalAndStemming(query.split(" "));
         this.numTermQuery = queryTerms.length;
@@ -60,7 +58,7 @@ public class QueryProcessor {
         //-----------------------------------------------------------
 
         //-------------INITIALIZE COLLECTION STATISTICS -------------
-        this.collectionSize = documentIndexHandler.collectionSize();
+        this.collectionSize = documentIndexHandler.readCollectionSize();
         this.avgDocLen = documentIndexHandler.readAvgDocLen();
         //-----------------------------------------------------------
 
@@ -73,17 +71,6 @@ public class QueryProcessor {
         }
         initializePostingListBlocks();
 
-    }
-
-    public void loadStopWordList() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            File file = new File("stop_words_english.json");
-            stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private String[] doStopWordRemovalAndStemming(String[] initialQueryTerms) {  // remove stop words and do stemming on query terms
@@ -118,8 +105,6 @@ public class QueryProcessor {
         }
     }
 
-    //------------------------------------------------------------------------//
-
     private int getMinDocId() {
         int minDocId = this.collectionSize;  //valore che indica che le posting list sono state raggiunte
 
@@ -131,7 +116,6 @@ public class QueryProcessor {
                 minDocId = currentDocId;
             }
         }
-
         return minDocId;
     }
 
@@ -206,12 +190,12 @@ public class QueryProcessor {
     public ArrayList<Integer> DAAT() throws IOException {
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         MinHeapScores heapScores = new MinHeapScores();
-        float docScore;
+        float currentDocScore;
         int minDocId;
 
         int count = 0;//DEBUG
         while ((minDocId = getMinDocId()) != this.collectionSize) {
-            docScore = 0;
+            currentDocScore = 0;
             System.out.println("minDocId: " + minDocId);
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
@@ -221,8 +205,8 @@ public class QueryProcessor {
                 if (postingListBlock.getCurrentDocId() == minDocId) {
 
                     currentTf = postingListBlock.getCurrentTf();
-                    //docScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
-                    docScore += computeBM25(currentTf,documentLength,docFreqs[i]);
+                    //currentDocScore += docPartialScore(currentTf); //questa era la versione originale dove usavamo le frequency per lo score
+                    currentDocScore += computeBM25(currentTf, documentLength, docFreqs[i]);
 
                     //increment the position in the posting list
                     if(postingListBlock.next() == -1){         //increment position and if end of block reached then set the flag
@@ -230,7 +214,7 @@ public class QueryProcessor {
                     }
                 }
             }
-            heapScores.insertIntoPriorityQueue(docScore, minDocId);
+            heapScores.insertIntoPriorityQueue(currentDocScore, minDocId);
             updatePostingListBlocks();
 
 

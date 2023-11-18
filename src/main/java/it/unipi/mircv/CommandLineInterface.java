@@ -11,7 +11,7 @@ public class CommandLineInterface {
     public static void main( String[] args ) throws IOException {
 
         String commandList = "command list: \n" +
-                "list --> print this command list\n" +
+                "help --> print this command list\n" +
                 "index (c) --> perform indexing with compression or not\n" +
                 "query --> (hopefully) return most N relevant docIds\n" +
                 "quit";
@@ -75,7 +75,7 @@ public class CommandLineInterface {
                     break;
                 }
 
-                case "list":
+                case "help":
                     System.out.println(commandList);
                     break;
 

@@ -1,62 +1,56 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.Index.Lexicon;
-import it.unipi.mircv.Index.PostingList;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Query.QueryProcessor;
-import it.unipi.mircv.compression.ByteManipulator;
-import it.unipi.mircv.compression.Unary;
-import it.unipi.mircv.compression.VariableByte;
-import it.unipi.mircv.compression.Utils;
+import ca.rmen.porterstemmer.PorterStemmer;
+import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.PLDescriptorFileHandler;
+import it.unipi.mircv.Index.BlockMerger;
+import it.unipi.mircv.Index.Index;
+import it.unipi.mircv.Query.DisjunctiveDAAT;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
+        // Testing DAAT
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        Config.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        PorterStemmer stemmer = new PorterStemmer();
+        //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
+        String[] queryTerms= "holy spirit".split(" ");
+        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
+        disjunctiveDAAT.processQuery();
+
+        //testing PL Descriptor
+
+
+        /*
+
+        PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
+        ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 73);
+        System.out.println(maxDocIds);
+        maxDocIds = plDescriptorFileHandler.getMaxDocIds(39, 20);
+        System.out.println(maxDocIds);
+        */
 
         // testing DAAT
-
+        /*
         String query = "continues homeostasis biofeedback scenar";
         QueryProcessor queryProcessor = new QueryProcessor(query);
         ArrayList<Integer> docId = queryProcessor.DAAT();
         System.out.println("Doc Id retrieved: ");
         System.out.println(docId);
 
+         */
+
         /*
         //testing inverted index handler
         InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
         PostingList postingList = invertedIndexHandler.getPostingList(1345, 10);
         System.out.println(postingList);
-
-        // testing lexicon handler
-
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        ByteBuffer dataBuffer = lexiconHandler.findTermEntry("your");
-
-        int df = lexiconHandler.getDf(dataBuffer);
-        int offset = lexiconHandler.getOffset(dataBuffer);
-        System.out.println("term: " + lexiconHandler.getTerm(dataBuffer));
-        System.out.println("offset: " + offset);
-        System.out.println("df: " + df);
-        System.out.println("cf: " + lexiconHandler.getCf(dataBuffer));
-
-        //posting list block
-        PostingListBlock plTerm = invertedIndexHandler.getPostingList(offset, df);
-        System.out.println("pl position: " + plTerm.getPosition());
-        System.out.println("pl current DocId: " + plTerm.getCurrentDocId());
-        System.out.println("pl current Tf: " + plTerm.getCurrentTf());
-
-        System.out.println("pl.next(): " + plTerm.next());
-        System.out.println("pl position: " + plTerm.getPosition());
-        System.out.println("pl current DocId: " + plTerm.getCurrentDocId());
-        System.out.println("pl current Tf: " + plTerm.getCurrentTf());
 
         int count = 2;
         while(plTerm.next() > 0){
@@ -68,19 +62,6 @@ public class TestMatteo {
         System.out.println("next(): " + plTerm.next());
         System.out.println("last DocId con getSize(): " + plTerm.getDocId(plTerm.getSize()-1));
         System.out.println("getMaxId(): " + plTerm.getMaxDocID());
-
-        */
-        /*
-        //test DocumentIndexHandler
-        Index index = new Index("test_collection.tsv");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
-
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        System.out.println("document length: " + documentIndexHandler.readDocumentLength(3));
-        documentIndexHandler.closeFileChannel();
-        */
 
         /*
         // test Variable Byte compression

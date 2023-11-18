@@ -30,7 +30,7 @@ public class Index {
         //this method remove precedent files
         cleanFolder("data");
         loadStopWordList();
-
+        /*
         FileInputStream fis = new FileInputStream("collection.tar.gz");
         GZIPInputStream gzis = new GZIPInputStream(fis);
         InputStreamReader inputStreamReader = new InputStreamReader(gzis);
@@ -41,12 +41,14 @@ public class Index {
         String[] values = reader.readLine().split("\t"); //per vedere alla prima linea quanto sono lunghi i metadati
         reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
         reader.skip(values[0].length()-1); // skip metadata
+        */
+
 
         documentIndex = new DocumentIndex();
         currentDocId = 0;
         int blockID = 0;
         try {
-            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
+            BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
             while(reader!=null){
                 System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack
