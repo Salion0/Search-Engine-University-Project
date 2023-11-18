@@ -1,5 +1,6 @@
 package it.unipi.mircv;
 
+import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.PLDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
@@ -10,6 +11,10 @@ import java.util.ArrayList;
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
+        // Testing DAAT
+        Config.loadStopWordList();
+        PorterStemmer stemmer = new PorterStemmer();
+        TokenProcessing.doStopWordRemovalAndStemming(stemmer, "pipoo, fedd".split(" "));
 
         //testing PL Descriptor
         /*
@@ -17,12 +22,14 @@ public class TestMatteo {
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks(); */
+        /*
 
         PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
         ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 73);
         System.out.println(maxDocIds);
         maxDocIds = plDescriptorFileHandler.getMaxDocIds(39, 20);
         System.out.println(maxDocIds);
+        */
 
         // testing DAAT
         /*

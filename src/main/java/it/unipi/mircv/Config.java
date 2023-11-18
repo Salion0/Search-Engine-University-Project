@@ -1,5 +1,10 @@
 package it.unipi.mircv;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class Config {
@@ -23,4 +28,14 @@ public class Config {
     public static final String POSTING_LIST_DESC_FILE = "data/postingListDesc.dat";
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
 
+    public static void loadStopWordList() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            File file = new File("stop_words_english.json");
+            stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
