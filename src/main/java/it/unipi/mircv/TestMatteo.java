@@ -22,7 +22,7 @@ public class TestMatteo {
         blockMerger.mergeBlocks();
 
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
-        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 100);
+        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 73);
         System.out.println(skipDescriptor);
 
         // Testing DAAT

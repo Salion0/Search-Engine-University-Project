@@ -173,7 +173,7 @@ public class BlockMerger {
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
 
-        ///SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU////
+        ///SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU
 
         int postingListSize = postingList.getSize();
         if (postingListSize > 1000){
@@ -184,13 +184,13 @@ public class BlockMerger {
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
             for (int i = postingListSizeBlock; i < postingListSize; i += postingListSizeBlock){
-                int maxDocId = postingList.getPostingList().get(i-1).getDocId();
-                int offsetMaxDocId = offsetToWrite + i - 1;
+                int maxDocId = postingList.getPostingList().get(i - 1).getDocId();
+                int offsetMaxDocId = offsetToWrite + i;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
             if(postingListSize%postingListSizeBlock != 0){
                 int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
-                int offsetMaxDocId = offsetToWrite + postingListSize - 1;
+                int offsetMaxDocId = offsetToWrite + postingListSize;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
             System.out.println(skipDescriptor);

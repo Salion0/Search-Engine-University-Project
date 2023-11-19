@@ -57,7 +57,7 @@ public class SkipDescriptorFileHandler {
         }
 
         byteBuffer.rewind();
-        fileChannel.position((long) offset * DOC_ID_LENGTH);
+        fileChannel.position((long) offset * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
         fileChannel.write(byteBuffer);
     }
 
