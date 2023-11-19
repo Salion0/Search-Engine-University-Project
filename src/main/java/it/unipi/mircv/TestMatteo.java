@@ -6,6 +6,7 @@ import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.DisjunctiveDAAT;
 
 import java.io.IOException;
@@ -16,6 +17,8 @@ public class TestMatteo {
 
 
         long startTime = System.currentTimeMillis();
+
+        /*
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
@@ -25,6 +28,7 @@ public class TestMatteo {
         SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 73);
         System.out.println(skipDescriptor);
 
+         */
         // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
@@ -34,9 +38,9 @@ public class TestMatteo {
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
 
-        String[] queryTerms= "cat sleep".split(" ");
-        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = disjunctiveDAAT.processQuery();
+        String[] queryTerms= "sleep cat railroad".split(" ");
+        ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
 
         //testing PL Descriptor
