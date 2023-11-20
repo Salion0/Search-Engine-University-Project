@@ -18,7 +18,7 @@ public class TestMatteo {
 
         long startTime = System.currentTimeMillis();
 
-
+        /*
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);

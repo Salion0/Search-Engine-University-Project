@@ -176,24 +176,23 @@ public class BlockMerger {
         ///SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU
 
         int postingListSize = postingList.getSize();
-        if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
+        if (postingListSize > 1000){
+            System.out.println("va bene broski ti splitto: " + term);
+            System.out.println("sei fortissimo hai un sacco di docId: " + postingListSize);
             SkipDescriptorFileHandler SkipDescriptorFileHandler = new SkipDescriptorFileHandler();
             SkipDescriptor skipDescriptor = new SkipDescriptor();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
-            for (int i = 0; i <= postingListSize - postingListSizeBlock; i += postingListSizeBlock){
-                int maxDocId = postingList.getPostingList().get(i + postingListSizeBlock - 1).getDocId();
+            for (int i = postingListSizeBlock; i < postingListSize; i += postingListSizeBlock){
+                int maxDocId = postingList.getPostingList().get(i - 1).getDocId();
                 int offsetMaxDocId = offsetToWrite + i;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
-
-            //the last offset will be written here
-            if (postingListSize%postingListSizeBlock != 0) {
+            if(postingListSize%postingListSizeBlock != 0){
                 int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
-                int offsetMaxDocId = offsetToWrite + postingListSizeBlock*postingListSizeBlock;
+                int offsetMaxDocId = offsetToWrite + postingListSize;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
-
             System.out.println(skipDescriptor);
             SkipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
             offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
