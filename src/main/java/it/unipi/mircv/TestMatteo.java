@@ -18,7 +18,7 @@ public class TestMatteo {
 
         long startTime = System.currentTimeMillis();
 
-        /*
+
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
@@ -28,7 +28,7 @@ public class TestMatteo {
         SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 73);
         System.out.println(skipDescriptor);
 
-         */
+        /*
         // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();

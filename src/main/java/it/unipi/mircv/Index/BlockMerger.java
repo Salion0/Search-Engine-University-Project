@@ -45,7 +45,7 @@ public class BlockMerger {
         this.numberOfBlocks = numberOfBlocks;
 
         for (int i = 0; i < numberOfBlocks; i++) {
-            BlockReader blockReader = new BlockReader("data./", "lexicon", "docIds", "termFreq", i);
+            BlockReader blockReader = new BlockReader("data/", "lexicon", "docIds", "termFreq", i);
             minTermFoundInBlock.add(true); // initialize arrayList
             blockFinished.add(false); // initialize arrayList
             blocks.add(i, blockReader);
@@ -176,23 +176,32 @@ public class BlockMerger {
         ///SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU///////SUUUUUUUUU
 
         int postingListSize = postingList.getSize();
-        if (postingListSize > 1000){
+        if (postingListSize == 225){
+
             System.out.println("va bene broski ti splitto: " + term);
             System.out.println("sei fortissimo hai un sacco di docId: " + postingListSize);
             SkipDescriptorFileHandler SkipDescriptorFileHandler = new SkipDescriptorFileHandler();
             SkipDescriptor skipDescriptor = new SkipDescriptor();
-            int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
-            for (int i = postingListSizeBlock; i < postingListSize; i += postingListSizeBlock){
-                int maxDocId = postingList.getPostingList().get(i - 1).getDocId();
-                int offsetMaxDocId = offsetToWrite + i;
+            int postingListSizeBlock = (int) Math.sqrt(postingListSize);
+            int plBlockToRead = postingListSize/postingListSizeBlock;
+            //arrotondo per eccesso se plBlockToRead non è un intero
+            if( postingListSize%postingListSizeBlock != 0) {
+                plBlockToRead++;
+            }
+
+            //leggo tutti i blocchi tranne l'ultimo
+            for (int i = 1; i < plBlockToRead; i ++){
+                int maxDocId = postingList.getPostingList().get(i*postingListSizeBlock - 1).getDocId();
+                int offsetMaxDocId = offsetToWrite + (i-1)*(postingListSizeBlock);
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
-            if(postingListSize%postingListSizeBlock != 0){
-                int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
-                int offsetMaxDocId = offsetToWrite + postingListSize;
-                skipDescriptor.add(maxDocId, offsetMaxDocId);
-            }
+
+            //leggo l'ultimo blocco prendendo solamente l' ultimo elemento della posting list
+            int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
+            int offsetMaxDocId = offsetToWrite + postingListSizeBlock*(plBlockToRead-1);
+            skipDescriptor.add(maxDocId, offsetMaxDocId);
+
             System.out.println(skipDescriptor);
             SkipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
             offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
