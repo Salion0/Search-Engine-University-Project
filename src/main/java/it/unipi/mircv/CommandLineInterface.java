@@ -51,8 +51,7 @@ public class CommandLineInterface {
 
                         //TODO add indexing
                         Index index = new Index(COLLECTION_FILE);
-                        int numberOfBlocks = index.getNumberOfBlocks();
-                        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
+                        BlockMerger blockMerger = new BlockMerger();
                         blockMerger.mergeBlocks();
 
                         long endTime = System.currentTimeMillis();

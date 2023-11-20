@@ -3,7 +3,6 @@ package it.unipi.mircv.File;
 import it.unipi.mircv.Config;
 import it.unipi.mircv.Index.LexiconEntry;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -69,7 +68,7 @@ public class LexiconHandler{
         System.out.println(); //DEBUG
         return dataBuffer;
     }
-    public LexiconEntry nextTermLexiconFile() throws IOException {    // reading the next term with his offset
+    public LexiconEntry nextEntryLexiconFile() throws IOException {    // reading the next term with his offset
 
         if(this.lexiconPos > numEntry)
             return null;
@@ -87,8 +86,14 @@ public class LexiconHandler{
     }
 
 
-    public String getTerm(ByteBuffer dataBuffer) {
+/*    public String getTerm(ByteBuffer dataBuffer) {
         return new String(Arrays.copyOfRange(dataBuffer.array(), 0, Config.TERM_BYTES_LENGTH), StandardCharsets.UTF_8);
+    }*/
+    public String getTerm(ByteBuffer dataBuffer) {
+        byte[] termBuffer = new byte[Config.TERM_BYTES_LENGTH];
+        dataBuffer.position(0);
+        dataBuffer.get(termBuffer);
+        return new String(termBuffer, StandardCharsets.UTF_8);
     }
     public int getOffset(ByteBuffer dataBuffer) {
         return dataBuffer.position(Config.TERM_BYTES_LENGTH).getInt();

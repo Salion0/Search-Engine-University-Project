@@ -19,9 +19,16 @@ public class InvertedIndexHandler {
         RandomAccessFile rafTermFreq = new RandomAccessFile(TERM_FREQ_FILE, "rw");
         this.termFreqChannel = rafTermFreq.getChannel();
     }
+    public InvertedIndexHandler(String docIdPath,String termFreqPath) throws IOException {
+        RandomAccessFile rafDocId = new RandomAccessFile(DOC_ID_FILE, "rw");
+        this.docIdChannel = rafDocId.getChannel();
+
+        RandomAccessFile rafTermFreq = new RandomAccessFile(TERM_FREQ_FILE, "rw");
+        this.termFreqChannel = rafTermFreq.getChannel();
+    }
 
     public PostingListBlock getPostingList(int offset, int length) throws IOException {
-        PostingListBlock postingListBlock = new PostingListBlock();
+        PostingListBlock postingListBlock = new PostingListBlock(length);
         ByteBuffer docIdBuffer = ByteBuffer.allocate(DOC_ID_LENGTH*length);
         ByteBuffer termFreqBuffer = ByteBuffer.allocate(TERM_FREQ_LENGTH*length);
 
@@ -35,7 +42,6 @@ public class InvertedIndexHandler {
             int termFreq = termFreqBuffer.getInt();
             postingListBlock.addPostingElement(new PostingElement(docID, termFreq));
         }
-        postingListBlock.setFields(length);
         return postingListBlock;
     }
 }

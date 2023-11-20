@@ -1,6 +1,7 @@
 package it.unipi.mircv;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
+import it.unipi.mircv.Index.Lexicon;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingList;
 import it.unipi.mircv.Query.QueryProcessor;
@@ -35,13 +36,7 @@ public class TestSalvo{
     }
     public static void main(String[] args) throws IOException {
 
-
-
-
-
-
-
-
+    LexiconHandler lexiconHandler = new LexiconHandler();
 /*        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         System.out.println(documentIndexHandler.readAvgDocLen());*/
 
@@ -79,18 +74,6 @@ public class TestSalvo{
         ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
         System.out.println("Doc Id retrieved: ");
         System.out.println(docId);*/
-
-
-
-
-
-
-
-
-
-
-
-
 
         //---------------------------------------------------------------
 

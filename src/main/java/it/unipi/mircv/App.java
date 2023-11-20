@@ -3,20 +3,27 @@ import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 
 import static it.unipi.mircv.Config.*;
 
 public class App
 {
-    public static void main( String[] args ) throws IOException {
-        Index index = new Index(COLLECTION_FILE);
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
+    public static void main( String[] args )  {
+        try{
+            //Index index = new Index(COLLECTION_FILE);
+            BlockMerger blockMerger = new BlockMerger();
+            blockMerger.mergeBlocks();
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+
+
     }
 
 
-    public void testWord() throws FileNotFoundException {
+
+/*    public void testWord() throws FileNotFoundException {
 
         int[] buffer = new int[64];
 
@@ -32,7 +39,7 @@ public class App
 
         String termTest = new String(buffer,StandardCharsets.UTF_8);
         System.out.println(termTest.charAt(10));
-    }
+    }*/
 
 }
 

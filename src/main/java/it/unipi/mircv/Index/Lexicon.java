@@ -55,13 +55,12 @@ public class Lexicon {
             //Write Lexicon on file using ByteBuffer
             byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
 
-
             if (termBytes.length > TERM_BYTES_LENGTH)
                 continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
-            ByteBuffer termBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
+            ByteBuffer termBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH);
             termBuffer.put(termBytes);
-            termBuffer.position(TERM_BYTES_LENGTH);
 
+            termBuffer.position(TERM_BYTES_LENGTH);
             termBuffer.putInt(offset);
 
             int collectionFreq =0;
@@ -70,11 +69,15 @@ public class Lexicon {
                 collectionFreq += pe.getTermFreq();
             }
             termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
-
             termBuffer.putInt(collectionFreq);
 
+            int nextOffset = getPostingList(term).getSize();
+            int documentFreq = nextOffset-offset;
+            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH);
+            termBuffer.putInt(documentFreq);
+
             //update the offset to write in the lexicon for the next term (next iteration)
-            offset += getPostingList(term).getSize();
+            offset += nextOffset;
             fosLexicon.write(termBuffer.array());
 
             //Write posting list in two different files: docIds file and termFreq file
