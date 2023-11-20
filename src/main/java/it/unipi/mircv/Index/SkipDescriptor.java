@@ -23,6 +23,14 @@ public class SkipDescriptor {
         return offsetMaxDocIds;
     }
 
+    //TODO ricerca binaria
+    public int nextGEQ(int docId){
+        for(int i = 0; i < maxDocIds.size(); i++){
+            if(maxDocIds.get(i) > docId) return offsetMaxDocIds.get(i);
+        }
+        return -1;
+    }
+
     @Override
     public String toString(){
         String stringToReturn = "";

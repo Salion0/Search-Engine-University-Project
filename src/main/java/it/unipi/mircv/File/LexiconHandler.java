@@ -78,6 +78,9 @@ public class LexiconHandler{
     public int getCf(ByteBuffer dataBuffer) {
         return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH).getInt();
     }
+    public int getOffsetSkipDesc(ByteBuffer dataBuffer){
+        return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH).getInt();
+    }
 
 }
 

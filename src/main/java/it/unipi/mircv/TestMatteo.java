@@ -18,7 +18,7 @@ public class TestMatteo {
 
         long startTime = System.currentTimeMillis();
 
-        /*
+
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
@@ -28,7 +28,7 @@ public class TestMatteo {
         SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 73);
         System.out.println(skipDescriptor);
 
-         */
+
         // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
@@ -37,7 +37,7 @@ public class TestMatteo {
         PorterStemmer stemmer = new PorterStemmer();
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
-
+        System.out.println("-----------------------------------------------------------");
         String[] queryTerms= "sleep cat railroad".split(" ");
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
