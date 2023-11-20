@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import static it.unipi.mircv.Config.MIN_NUM_POSTING_TO_SKIP;
 import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
 
 public class ConjunctiveDAAT {
@@ -23,13 +24,12 @@ public class ConjunctiveDAAT {
     private final SkipDescriptor[] skipDescriptors;
     private final DocumentIndexHandler documentIndexHandler;
     private final InvertedIndexHandler invertedIndexHandler;
-    private final SkipDescriptorFileHandler skipDescriptorFileHandler;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
         LexiconHandler lexiconHandler = new LexiconHandler();
         documentIndexHandler = new DocumentIndexHandler();
         invertedIndexHandler = new InvertedIndexHandler();
-        skipDescriptorFileHandler = new SkipDescriptorFileHandler();
+        SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
         numTermQuery = queryTerms.length;
 
@@ -41,15 +41,19 @@ public class ConjunctiveDAAT {
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
 
-            skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
-                    lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
+            if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
+                skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
+                        lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
+            }else skipDescriptors[i] = null;
+
         }
         sortArraysByArray(docFreqs, offsets, skipDescriptors);
 
         postingListBlocks = new PostingListBlock[numTermQuery];
+
         for (int i = 1; i < numTermQuery; i++){
             // break se non trovo il currentDocId in una delle altre posting list
-            System.out.println(skipDescriptors[i]);
+            System.out.println("skipDescriptors" + i + skipDescriptors[i]);
         }
     }
 
@@ -59,6 +63,7 @@ public class ConjunctiveDAAT {
 
         int countPosting = 0;
         int currentDocId;
+        int offsetNextGEQ;
         while(countPosting < docFreqs[0]){
             //Upload the posting list block
             if (docFreqs[0] - countPosting < POSTING_LIST_BLOCK_LENGTH) {
@@ -73,9 +78,26 @@ public class ConjunctiveDAAT {
             do{
                 currentDocId = postingListBlocks[0].getCurrentDocId();
                 countPosting ++;
+                System.out.println("currentDocID: " + currentDocId);
                 for (int i = 1; i < numTermQuery; i++){
                     // break se non trovo il currentDocId in una delle altre posting list
 
+                    offsetNextGEQ = skipDescriptors[i].nextGEQ(currentDocId);
+                    System.out.println("offsetNextGEQ: " + offsetNextGEQ);
+                    if(offsetNextGEQ == -1){
+                        System.out.println("break");
+                        break;
+                    }else {
+                        int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]);
+                        if (docFreqs[i] - (offsetNextGEQ - offsets[i]) < postingListSkipBlockSize){
+                            postingListBlocks[i] = invertedIndexHandler.getPostingList(offsetNextGEQ, docFreqs[i] - (offsetNextGEQ - offsets[i]));
+                        }else{
+                            postingListBlocks[i] = invertedIndexHandler.getPostingList(offsetNextGEQ, postingListSkipBlockSize);
+                        }
+
+                        System.out.println(postingListBlocks[i]);
+                        //calcolo lo score
+                    }
                 }
             }while(postingListBlocks[0].next() != -1);
 
