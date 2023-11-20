@@ -3,7 +3,6 @@ import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,25 +13,22 @@ import static it.unipi.mircv.Config.*;
 
 public class BlockMerger {
     private static int numberOfBlocks;
-    private static String path = "./data/";
     private static int offsetToWrite = 0;
     private static final ArrayList<LexiconHandler> lexiconBlocks = new ArrayList<>();
     private static ArrayList<InvertedIndexHandler> postingListBlocks = new ArrayList<>();
-    private static ArrayList<Boolean> blockFinished = new ArrayList<>();
     private static ArrayList<LexiconEntry> currentBlockEntry = new ArrayList<>();
     private static ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
 
     private static int postingListOffset = 0;  //offset to write in the final lexicon file for each term
     private String getMinTerm() throws IOException {
         String minTerm = null;
-
         for (int i = 0; i < numberOfBlocks; i++) {      // cerco il term minore dal punto di vista lessicografico
 
             if (currentBlockEntry.get(i) == null) continue;  //skip iteration
 
             //If at the previous iteration the block i-th contains the minTerm => we have to read the next element (term) of the Lexicon of that block
             if (minTermFoundInBlock.get(i)) {
-                currentBlockEntry.set(i, lexiconBlocks.get(i).nextTermLexiconFile());
+                currentBlockEntry.set(i, lexiconBlocks.get(i).nextEntryLexiconFile());
             }
             else{
                 if (minTerm == null) {  //Need to set minTerm at the first element of the Lexicon in the first iteration
@@ -49,14 +45,16 @@ public class BlockMerger {
     public void mergeBlocks() throws IOException {
 
         //TODO inserire conteggio dei blocchi calcolando il numero dei file in automatico da
-        int numberOfBlocks = 0;
-
-
+        String path = "./data/";
+        File directory=new File(path);
+        int numberOfBlocks = (directory.list().length-1)/3;
+        this.numberOfBlocks = numberOfBlocks;
         //---------------------------------FILE HANDLER---------------------------------------------------------------------------------------------------
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             minTermFoundInBlock.add(true); // initialize arrayList
-            blockFinished.add(false); // initialize arrayList
+            currentBlockEntry.add(blockIndex, new LexiconEntry()); // initialize arrayList
 
+            // initialize the handlers for each block
             LexiconHandler lexiconHandler = new LexiconHandler(path+"lexicon"+blockIndex+".dat");
             InvertedIndexHandler plHandler = new InvertedIndexHandler(path+"docIds"+blockIndex+".dat",path+"termFreq"+blockIndex+".dat");
             lexiconBlocks.add(blockIndex,lexiconHandler);
@@ -73,6 +71,7 @@ public class BlockMerger {
             //at each iteration a new term is handled. The minTerm will be the first term in lexicographical increasing order
             //TODO ottimizzare la scelta del minTerm salvando il secondo minTerm, valutare se abbia senso in realtà
             minTerm = getMinTerm();
+            System.out.println("Min term:"+minTerm);
             if(minTerm == null)
                 break;
 
@@ -81,16 +80,13 @@ public class BlockMerger {
             int docFreqSum = 0;
             int collFreqSum = 0;
             for (int i = 0; i < numberOfBlocks; i++) {  //for each block merge the corresponding entry with the min term
-
                 if (currentBlockEntry.get(i) == null) continue;  //skip iteration if block is completed
-
                 if (minTerm.compareTo(currentBlockEntry.get(i).getTerm()) == 0) {
                     postingList.addPostingList(postingListBlocks.get(i).getPostingList(
                             currentBlockEntry.get(i).getOffset(),
                             currentBlockEntry.get(i).getDf()
                             )
                     );
-
                     docFreqSum += currentBlockEntry.get(i).getDf();
                     collFreqSum += currentBlockEntry.get(i).getCf();
                     minTermFoundInBlock.set(i, true);
@@ -115,8 +111,9 @@ public class BlockMerger {
         fosLexicon.close();
         fosDocId.close();
         fosTermFreq.close();
-        /*//DEBUG ------printing the whole merged lexicon-------
-        for (int i = 0; i < terms.size(); i++) {
+
+        //DEBUG ------printing the whole merged lexicon-------
+        /*for (int i = 0; i < terms.size(); i++) {
             System.out.println(terms.get(i) + " --->> " + postingLists.get(i));
         }
         */
