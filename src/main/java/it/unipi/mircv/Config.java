@@ -24,7 +24,7 @@ public class Config {
     public static final int COLLECTIONFREQ_BYTES_LENGTH = 4;
     public static final int OFFSET_SKIP_DESC_BYTES_LENGTH = 4;
     public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH+OFFSET_SKIP_DESC_BYTES_LENGTH;
-    public static final int POSTING_LIST_BLOCK_LENGTH = 64; //Expressed in element
+    public static final int POSTING_LIST_BLOCK_LENGTH = 10; //Expressed in element
     public static final int POSTING_LIST_BLOCK_LENGTH_BYTE = 4000; //Expressed in byte
     public static final String LEXICON_FILE = "data/lexicon.dat";
     public static final String TERM_FREQ_FILE = "data/termFreq.dat";

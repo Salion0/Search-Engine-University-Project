@@ -62,23 +62,24 @@ public class ConjunctiveDAAT {
         while(countPosting < docFreqs[0]){
             //Upload the posting list block
             if (docFreqs[0] - countPosting < POSTING_LIST_BLOCK_LENGTH) {
-                postingListBlocks[0] = invertedIndexHandler.getPostingList(offsets[0] + countPosting, POSTING_LIST_BLOCK_LENGTH);
-            }
-            else {
                 postingListBlocks[0] = invertedIndexHandler.getPostingList(offsets[0] + countPosting,
                         docFreqs[0] - countPosting);
             }
+            else {
+                postingListBlocks[0] = invertedIndexHandler.getPostingList(offsets[0] + countPosting, POSTING_LIST_BLOCK_LENGTH);
+            }
+            System.out.println(postingListBlocks[0]);
 
-            while(postingListBlocks[0].next() != -1){
+            do{
                 currentDocId = postingListBlocks[0].getCurrentDocId();
-
+                countPosting ++;
                 for (int i = 1; i < numTermQuery; i++){
                     // break se non trovo il currentDocId in una delle altre posting list
 
                 }
-            }
+            }while(postingListBlocks[0].next() != -1);
 
-            countPosting += POSTING_LIST_BLOCK_LENGTH;
+
         }
 
         return heapScores.getTopDocIdReversed();
