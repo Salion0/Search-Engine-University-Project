@@ -2,7 +2,6 @@ package it.unipi.mircv.Index;
 
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,7 +31,7 @@ public class BlockMerger {
     private final FileOutputStream fosDocId;
     private final FileOutputStream fosTermFreq;
     int postingListOffset;  //offset to write in the final lexicon file for each term
-    SkipDescriptorFileHandler SkipDescriptorFileHandler;
+    SkipDescriptorFileHandler skipDescriptorFileHandler;
 
 
     public BlockMerger(int numberOfBlocks) throws IOException {
@@ -43,7 +42,7 @@ public class BlockMerger {
         fosDocId = new FileOutputStream("./data/docIds.dat",true);
         fosTermFreq = new FileOutputStream("./data/termFreq.dat",true);
 
-        SkipDescriptorFileHandler = new SkipDescriptorFileHandler();
+        skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
         this.numberOfBlocks = numberOfBlocks;
 
@@ -179,7 +178,6 @@ public class BlockMerger {
 
         int postingListSize = postingList.getSize();
         if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
-            if(postingListSize == 222) System.out.println(term);
             SkipDescriptor skipDescriptor = new SkipDescriptor();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
@@ -195,16 +193,13 @@ public class BlockMerger {
                 int offsetMaxDocId = offsetToWrite + postingListSizeBlock*postingListSizeBlock;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
-            if(postingListSize == 222) System.out.println(skipDescriptor);
 
-            SkipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
+            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
+            termBuffer.putInt(offsetSkipDescriptor);
+
+            skipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
             offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
-
-            if(postingListSize == 222) System.out.println(offsetSkipDescriptor);
         }
-
-        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
-        termBuffer.putInt(offsetSkipDescriptor);
         fosLexicon.write(termBuffer.array());
     }
 

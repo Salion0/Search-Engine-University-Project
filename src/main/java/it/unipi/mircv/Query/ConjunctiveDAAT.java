@@ -59,14 +59,14 @@ public class ConjunctiveDAAT {
 
         for (int i = 0; i < numTermQuery; i++){
             // break se non trovo il currentDocId in una delle altre posting list
-            System.out.println("queryTerm: " + queryTerms[i]);
+            System.out.println("queryTerm: " + queryTerms[i] + " docFreq: " + docFreqs[i]);
         }
         //sort arrays for posting list Length
         sortArraysByArray(docFreqs, offsets, skipDescriptors, postingListBlocks);
 
         for (int i = 0; i < numTermQuery; i++){
             // break se non trovo il currentDocId in una delle altre posting list
-            System.out.println("queryTerm: " + queryTerms[i] + " docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
+            System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
         }
     }
     public ArrayList<Integer> processQuery() throws IOException {
@@ -108,18 +108,18 @@ public class ConjunctiveDAAT {
                         // get the nextGEQ of the current posting list
                         offsetNextGEQ = skipDescriptors[i].nextGEQ(currentDocId);
 
-                        //DEBUG
-                        System.out.println(skipDescriptors[i]);
                         // if the currentDocId is not in the posting list, break
                         //otherwise search for it
                         if(offsetNextGEQ == -1){
                             System.out.println("break"); //DEBUG
                             //break with current doc id score equal to zero
+                            continueWhile = true;
                             break;
                         }
                         else{
                             //calculate the skip size by the square root of the posting list length
                             int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]);
+                            //TODO update va fatto solo se offsetNextGEQ non è uguale a quello di prima
                             uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                         }
 
@@ -146,7 +146,7 @@ public class ConjunctiveDAAT {
 
     private boolean currentDocIdInPostingList(int indexTerm, int currentDocId){
 
-        System.out.println("pppppppppppppppppppppppppppppppppppporcodio");
+        System.out.println("entrato in currentDocIdInPostingList----------------------------------");
         do{
             System.out.println("currentDocId: " + currentDocId + " getCurrentDocId(): " + postingListBlocks[indexTerm].getCurrentDocId());
             if(postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
@@ -154,18 +154,6 @@ public class ConjunctiveDAAT {
 
         }while(postingListBlocks[indexTerm].next() != -1);
         return false;
-        /*
-        boolean currentDocIdIsInPostingList = true;
-        while(postingListBlocks[indexTerm].getCurrentDocId() != currentDocId){
-            if(postingListBlocks[indexTerm].next() == -1){
-                //break with current doc id score equal to zero
-                currentDocIdIsInPostingList = false;
-                break;
-            }
-        }
-        return currentDocIdIsInPostingList;
-
-         */
     }
     private void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
         //Upload the posting list block
@@ -182,8 +170,6 @@ public class ConjunctiveDAAT {
                     offsets[indexTerm] + readElement,
                     blockSize);
         }
-
-
         if (docFreqs[indexTerm] - readElement < blockSize) {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
                     offsets[indexTerm] + readElement,
@@ -198,17 +184,14 @@ public class ConjunctiveDAAT {
         }
     }
     public static void sortArraysByArray(int[] arrayToSort, int[] otherArray, SkipDescriptor[] otherOtherArray, PostingListBlock[] otherOtherOtherArray){
-    // Sort all the input arrays according to the elements of the first array
-
+        // Sort all the input arrays according to the elements of the first array
         // Initialize an array of indexes to keep track of the original positions of the elements
         Integer[] indexes = new Integer[arrayToSort.length];
         for (int i = 0; i < indexes.length; i++) {
             indexes[i] = i;
         }
-
         // Sort the indexes array according to the elements of the array to sort
         Arrays.sort(indexes, Comparator.comparingInt(i -> arrayToSort[i]));
-
         // Apply the same permutation to the other arrays
         for (int i = 0; i < arrayToSort.length; i++) {
             if (indexes[i] != i) {

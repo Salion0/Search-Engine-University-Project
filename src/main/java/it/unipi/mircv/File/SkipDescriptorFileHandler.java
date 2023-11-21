@@ -34,7 +34,7 @@ public class SkipDescriptorFileHandler {
 
     //this method will be called for each term in the conjunctive query in order to perform nextGEQ()
     public SkipDescriptor readSkipDescriptor(int offset, int length) throws IOException {
-        //la length sarà la radice quadrata della posting list castata ad int + 1
+        //la length sarà la radice quadrata della posting list approssimata per eccesso
         //offset è quello logico
         SkipDescriptor skipDescriptor = new SkipDescriptor();
         ByteBuffer skipDescriptorBuffer = ByteBuffer.allocate(length * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));

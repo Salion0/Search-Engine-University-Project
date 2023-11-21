@@ -2,6 +2,8 @@ package it.unipi.mircv;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.InvertedIndexHandler;
+import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
@@ -9,6 +11,7 @@ import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.ConjunctiveDAAT;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.stopWords;
@@ -27,13 +30,18 @@ public class TestMatteo {
     public static void main(String[] args) throws IOException {
         long startTime = System.currentTimeMillis();
 
+        /*
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks();
+        */
+
+        LexiconHandler lexiconHandler = new LexiconHandler();
+
 
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
-        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(620, 15);
+        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(57, 1);
         System.out.println(skipDescriptor);
 
         // Testing DAAT
@@ -45,7 +53,7 @@ public class TestMatteo {
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
         System.out.println("-----------------------------------------------------------");
-        String[] queryTerms= "detox diet blood".split(" ");
+        String[] queryTerms= "10 100".split(" ");
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);

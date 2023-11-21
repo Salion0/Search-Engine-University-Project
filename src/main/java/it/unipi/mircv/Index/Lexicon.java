@@ -42,58 +42,58 @@ public class Lexicon {
         }
     }
 
-    public void toDisk(String path, String  fileLexicon, String fileDocId, String fileTermFreq) throws IOException {
-        FileOutputStream fosLexicon = new FileOutputStream(path+fileLexicon,true);
-        FileOutputStream fosDocId = new FileOutputStream(path+fileDocId,true);
-        FileOutputStream fosTermFreq = new FileOutputStream(path+fileTermFreq,true);
-        //offset to save in lexicon
+        public void toDisk(String path, String  fileLexicon, String fileDocId, String fileTermFreq) throws IOException {
+            FileOutputStream fosLexicon = new FileOutputStream(path+fileLexicon,true);
+            FileOutputStream fosDocId = new FileOutputStream(path+fileDocId,true);
+            FileOutputStream fosTermFreq = new FileOutputStream(path+fileTermFreq,true);
+            //offset to save in lexicon
 
-        int offset = 0;
-        //int count = 0; //DEBUG
+            int offset = 0;
+            //int count = 0; //DEBUG
 
-        for(String term: treeMap.keySet()) {
-            //Write Lexicon on file using ByteBuffer
-            byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
+            for(String term: treeMap.keySet()) {
+                //Write Lexicon on file using ByteBuffer
+                byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
 
 
-            if (termBytes.length > TERM_BYTES_LENGTH)
-                continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
-            ByteBuffer termBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
-            termBuffer.put(termBytes);
-            termBuffer.position(TERM_BYTES_LENGTH);
+                if (termBytes.length > TERM_BYTES_LENGTH)
+                    continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
+                ByteBuffer termBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
+                termBuffer.put(termBytes);
+                termBuffer.position(TERM_BYTES_LENGTH);
 
-            termBuffer.putInt(offset);
+                termBuffer.putInt(offset);
 
-            int collectionFreq =0;
-            PostingList pl = getPostingList(term);
-            for(PostingElement pe: pl.getPostingList()){
-                collectionFreq += pe.getTermFreq();
+                int collectionFreq =0;
+                PostingList pl = getPostingList(term);
+                for(PostingElement pe: pl.getPostingList()){
+                    collectionFreq += pe.getTermFreq();
+                }
+                termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
+
+                termBuffer.putInt(collectionFreq);
+
+                //update the offset to write in the lexicon for the next term (next iteration)
+                offset += getPostingList(term).getSize();
+                fosLexicon.write(termBuffer.array());
+
+                //Write posting list in two different files: docIds file and termFreq file
+                byte[][] bytePostingList = pl.getBytes();
+                fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
+                fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
+
+                //System.out.print(offset); //DEBUG
+                //count++; //DEBUG
+                //DEBUG
+                /*
+                int c = 0;
+                for (Byte b : termBuffer.array()) {
+                    System.out.println("Byte " + c + "-" + b);
+                    c++;
+                }*/
             }
-            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
-
-            termBuffer.putInt(collectionFreq);
-
-            //update the offset to write in the lexicon for the next term (next iteration)
-            offset += getPostingList(term).getSize();
-            fosLexicon.write(termBuffer.array());
-
-            //Write posting list in two different files: docIds file and termFreq file
-            byte[][] bytePostingList = pl.getBytes();
-            fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
-            fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-
-            //System.out.print(offset); //DEBUG
-            //count++; //DEBUG
-            //DEBUG
-            /*
-            int c = 0;
-            for (Byte b : termBuffer.array()) {
-                System.out.println("Byte " + c + "-" + b);
-                c++;
-            }*/
-        }
-        fosLexicon.close();
-        fosDocId.close();
-        fosTermFreq.close();
+            fosLexicon.close();
+            fosDocId.close();
+            fosTermFreq.close();
         }
     }
