@@ -36,7 +36,6 @@ public class LexiconHandler{
         ByteBuffer termBuffer = ByteBuffer.allocate(TERM_BYTES_LENGTH);     //it changes at every iteration
 
         long fileSize = lexiconFile.size();  // size
-        System.out.println("File size:"+fileSize); //DEBUG
 
         long left = 0;
         long numTerm = (fileSize/LEXICON_ENTRY_LENGTH);

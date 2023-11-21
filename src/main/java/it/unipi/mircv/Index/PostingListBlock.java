@@ -13,6 +13,9 @@ public class PostingListBlock extends PostingList
     public int getPosition(){
         return this.currentPosition;
     }
+    public void setPositionMinusOne(){
+        currentPosition = currentPosition - 1;
+    }
 
     public int next(){
         if(currentPosition < length - 1) currentPosition += 1;

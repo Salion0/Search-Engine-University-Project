@@ -32,15 +32,18 @@ public class BlockMerger {
     private final FileOutputStream fosDocId;
     private final FileOutputStream fosTermFreq;
     int postingListOffset;  //offset to write in the final lexicon file for each term
+    SkipDescriptorFileHandler SkipDescriptorFileHandler;
 
 
-    public BlockMerger(int numberOfBlocks) throws FileNotFoundException {
+    public BlockMerger(int numberOfBlocks) throws IOException {
         offsetToWrite = 0;
         docFreqSum = 0;
         offsetSkipDescriptor = 0;
         fosLexicon = new FileOutputStream("./data/lexicon.dat",true);
         fosDocId = new FileOutputStream("./data/docIds.dat",true);
         fosTermFreq = new FileOutputStream("./data/termFreq.dat",true);
+
+        SkipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
         this.numberOfBlocks = numberOfBlocks;
 
@@ -165,7 +168,6 @@ public class BlockMerger {
 
         //update the offset to write in the lexicon for the next term (next iteration)
         postingListOffset += postingList.getSize();
-        fosLexicon.write(termBuffer.array());
 
         //Write posting list in docIds and termFreq files
         byte[][] bytePostingList = postingList.getBytes();
@@ -177,7 +179,7 @@ public class BlockMerger {
 
         int postingListSize = postingList.getSize();
         if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
-            SkipDescriptorFileHandler SkipDescriptorFileHandler = new SkipDescriptorFileHandler();
+            if(postingListSize == 222) System.out.println(term);
             SkipDescriptor skipDescriptor = new SkipDescriptor();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
@@ -193,11 +195,17 @@ public class BlockMerger {
                 int offsetMaxDocId = offsetToWrite + postingListSizeBlock*postingListSizeBlock;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
+            if(postingListSize == 222) System.out.println(skipDescriptor);
 
-            System.out.println(skipDescriptor);
             SkipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
             offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
+
+            if(postingListSize == 222) System.out.println(offsetSkipDescriptor);
         }
+
+        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
+        termBuffer.putInt(offsetSkipDescriptor);
+        fosLexicon.write(termBuffer.array());
     }
 
     /*

@@ -7,17 +7,25 @@ import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.DisjunctiveDAAT;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static it.unipi.mircv.Config.stopWords;
+
 public class TestMatteo {
+
+    public static String[] removeStopWords(String[] queryTerms) {
+        ArrayList<String> filteredTerms = new ArrayList<>();
+        for (String term : queryTerms) {
+            if (!stopWords.contains(term)) {
+                filteredTerms.add(term);
+            }
+        }
+        return filteredTerms.toArray(new String[0]);
+    }
     public static void main(String[] args) throws IOException {
-
-
         long startTime = System.currentTimeMillis();
-
 
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
@@ -25,7 +33,7 @@ public class TestMatteo {
         blockMerger.mergeBlocks();
 
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
-        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 73);
+        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(620, 15);
         System.out.println(skipDescriptor);
 
         // Testing DAAT
@@ -37,7 +45,9 @@ public class TestMatteo {
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
         System.out.println("-----------------------------------------------------------");
-        String[] queryTerms= "railroad break".split(" ");
+        String[] queryTerms= "detox diet blood".split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
