@@ -18,7 +18,7 @@ public class TestMatteo {
 
         long startTime = System.currentTimeMillis();
 
-        /*
+
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
@@ -27,7 +27,6 @@ public class TestMatteo {
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(0, 73);
         System.out.println(skipDescriptor);
-        */
 
         // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
@@ -38,7 +37,7 @@ public class TestMatteo {
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
         System.out.println("-----------------------------------------------------------");
-        String[] queryTerms= "sleep cat railroad".split(" ");
+        String[] queryTerms= "railroad break".split(" ");
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
@@ -95,7 +94,8 @@ public class TestMatteo {
         */
 
         //test Unary compression
-        /*int[] values1 = {1,1,2,1,3,1};
+        /*
+        int[] values1 = {1,1,2,1,3,1};
         int[] values2 = {2,3,4,1,1,2,5};
         int[] values3 = {2,1,2};
         int[] values4 = {2,1,2,9,9,9};

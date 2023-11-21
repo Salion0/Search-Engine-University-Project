@@ -32,7 +32,7 @@ public class Config {
     public static final String POSTING_LIST_DESC_FILE = "data/postingListDesc.dat";
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
     public static final int MIN_NUM_POSTING_TO_SKIP = 10;
-
+    public static final int MEMORY_THRESHOLD = 8; //Expressed in percentage
     public static void loadStopWordList() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
