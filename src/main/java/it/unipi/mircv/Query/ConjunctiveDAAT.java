@@ -227,7 +227,7 @@ public class ConjunctiveDAAT {
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
-        System.out.println("documentUpperBounds[0] = " + documentUpperBounds[0]);
+        int[] numElementsRead = new int[postingListBlocks.length];
         float minScoreInHeap = 0;
         int pivot = 0;
         int minCurrentDocId;
@@ -236,12 +236,14 @@ public class ConjunctiveDAAT {
         for (int i = 1; i < postingListBlocks.length; i++)
             documentUpperBounds[i] = documentUpperBounds[i - 1] + upperBoundScores[i];
 
-        for (int i = 0; i < postingListBlocks.length; i++)
-            uploadPostingListBlock(i, 0, (int) Math.sqrt(docFreqs[i]));
+        for (int i = 0; i < postingListBlocks.length; i++) {
+            numElementsRead[i] += POSTING_LIST_BLOCK_LENGTH;
+            uploadPostingListBlock(i, 0, POSTING_LIST_BLOCK_LENGTH);
+        }
 
         minCurrentDocId = getMinCurrentDocId();
 
-        while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE)
+        while ((pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) || minCurrentDocId == 9982 || minCurrentDocId == 9065) // DEBUG
         {
             float score = 0;
             int next = Integer.MAX_VALUE;
@@ -249,13 +251,16 @@ public class ConjunctiveDAAT {
             // ESSENTIAL LISTS
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
-                System.out.println(postingListBlocks[i]);
+                //System.out.println(postingListBlocks[i]);
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
                             documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId()), docFreqs[i]);
 
-                    postingListBlocks[i].next();
+                    if (postingListBlocks[i].next() == - 1)
+                        uploadPostingListBlock(i, numElementsRead[i], (int) Math.sqrt(docFreqs[i]));
+                    else
+                        numElementsRead[i]++;
                 }
 
                 if (postingListBlocks[i].getCurrentDocId() < next)
@@ -269,13 +274,16 @@ public class ConjunctiveDAAT {
                     break;
 
                 int offsetNextGEQ = skipDescriptors[i].nextGEQ(minCurrentDocId); // get the nextGEQ of the current posting list
-                postingListBlocks[i].setPosition(offsetNextGEQ);
+                if (offsetNextGEQ != -1) {
+                    numElementsRead[i] = offsetNextGEQ - offsets[i];
+                    uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), (int) Math.sqrt(docFreqs[i]));
+                }
+
+                System.out.println("currentDocId = " + postingListBlocks[i].getCurrentDocId());
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
                             documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId()), docFreqs[i]);
-                    int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
-                    uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                 }
             }
 
@@ -289,7 +297,7 @@ public class ConjunctiveDAAT {
             }
 
             minCurrentDocId = next;
-            System.out.print("pivot = " + pivot + ", minCurrentDocId = " + minCurrentDocId + "\n");
+            System.out.print("next = " + next + ", minCurrentDocId = " + minCurrentDocId + "\n");
         }
 
         return heapScores.getTopDocIdReversed();
