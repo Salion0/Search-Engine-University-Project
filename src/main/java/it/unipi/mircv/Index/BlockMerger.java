@@ -3,6 +3,7 @@ package it.unipi.mircv.Index;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -119,8 +120,8 @@ public class BlockMerger {
                     minTermFoundInBlock.set(i, false);
             }
 
-            // ********** TERM UPPER BOUND ************
-            //float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList,avgDocLength);
+            // TODO ********** TERM UPPER BOUND ************
+            float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
             // TODO scrivere nel lexicon.dat il termUpperBoundScore
 
             //appending term and posting list in final files
@@ -148,18 +149,17 @@ public class BlockMerger {
     }
 
     private float computeTermUpperBound(DocumentIndexHandler documentIndexHandler,
-                                        PostingList postingList,int avgDocLength) throws IOException {
+                                        PostingList postingList) throws IOException {
         int documentFrequency = postingList.getSize();
         float maxScore = -1;
 
         for (PostingElement postingElement: postingList.getPostingList())
         {
-            float currentScore = computeBM25(postingElement.getTermFreq(),
-                    documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency,avgDocLength,1);
+            float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),
+                    documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
             if (currentScore > maxScore)
                 maxScore = currentScore;
         }
-
         return maxScore;
     }
 

@@ -50,7 +50,7 @@ public class ConjunctiveDAAT {
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
                 postingListBlocks[i] = new PostingListBlock();
-                postingListBlocks[i].setDummyFields();
+                postingListBlocks[i].setDummyFields(); // this to avoid using a boolean for the already read block optimization
             }
             else{
                 skipDescriptors[i] = null;
@@ -118,9 +118,9 @@ public class ConjunctiveDAAT {
                         else{
                             //calculate the skip size by the square root of the posting list length
                             int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]);
-                            //TODO update va fatto solo se offsetNextGEQ non è uguale a quello di prima
-                            if ((postingListBlocks[i].getMaxDocID() > currentDocId
-                                    && postingListBlocks[i].getMinDocID() < currentDocId) == false)
+                            //TODO controllare se va bene questa ottimizzazione
+                            if ((postingListBlocks[i].getMaxDocID() > currentDocId                  // controllo il range del currentDocId per vedere
+                                    && postingListBlocks[i].getMinDocID() < currentDocId) == false) // se siamo nello stesso blocco di prima
                                 uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                         }
 
