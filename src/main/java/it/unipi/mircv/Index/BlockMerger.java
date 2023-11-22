@@ -1,5 +1,6 @@
 package it.unipi.mircv.Index;
 
+import it.unipi.mircv.Config;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
@@ -66,7 +67,8 @@ public class BlockMerger {
         //DEBUG
         int iterations = 0;
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        //int avgDocLength = documentIndexHandler.readAvgDocLen();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
 
         while(true) {
@@ -122,6 +124,7 @@ public class BlockMerger {
 
             // TODO ********** TERM UPPER BOUND ************
             float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
+            //System.out.println("termUpperBoundScore = " + termUpperBoundScore);
             // TODO scrivere nel lexicon.dat il termUpperBoundScore
 
             //appending term and posting list in final files
@@ -155,6 +158,7 @@ public class BlockMerger {
 
         for (PostingElement postingElement: postingList.getPostingList())
         {
+            //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
             float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),
                     documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
             if (currentScore > maxScore)

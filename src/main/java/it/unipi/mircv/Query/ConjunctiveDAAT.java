@@ -50,6 +50,7 @@ public class ConjunctiveDAAT {
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
             upperBoundScores[i] = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+            System.out.println("upperBoundScores[i] = " + upperBoundScores[i]);
 
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)) {
                 System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
@@ -226,6 +227,7 @@ public class ConjunctiveDAAT {
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
+        System.out.println("documentUpperBounds[0] = " + documentUpperBounds[0]);
         float minScoreInHeap = 0;
         int pivot = 0;
         int minCurrentDocId;
@@ -281,11 +283,13 @@ public class ConjunctiveDAAT {
             if (heapScores.insertIntoPriorityQueue(score, minCurrentDocId) == true)
             {
                 minScoreInHeap = heapScores.getMinScore();
+                System.out.println("documentUpperBounds[pivot] = " + documentUpperBounds[pivot]);
                 while(pivot < postingListBlocks.length && documentUpperBounds[pivot] <= minScoreInHeap)
                     pivot++;
             }
 
             minCurrentDocId = next;
+            System.out.print("pivot = " + pivot + ", minCurrentDocId = " + minCurrentDocId + "\n");
         }
 
         return heapScores.getTopDocIdReversed();

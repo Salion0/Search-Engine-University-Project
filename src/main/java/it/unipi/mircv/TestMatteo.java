@@ -28,7 +28,7 @@ public class TestMatteo {
         return filteredTerms.toArray(new String[0]);
     }
     public static void main(String[] args) throws IOException {
-        /*
+
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
@@ -36,7 +36,6 @@ public class TestMatteo {
 
 
         LexiconHandler lexiconHandler = new LexiconHandler();
-        */
 
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(57, 1);
