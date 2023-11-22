@@ -37,13 +37,15 @@ public class MinHeapScores {
             score2DocIdMap.remove(score);
         }
     }
-    public void insertIntoPriorityQueue(float docScore, int minDocId){
+    public boolean insertIntoPriorityQueue(float docScore, int minDocId){
+        boolean result = false;
         if (topDocCount < MAX_NUM_DOC_RETRIEVED){  //There less than k documents in the priority queue
             topDocCount++;
             System.out.println("Entra nell' if insertPriorityQueue"); //DEBUG
             try {
                 topScores.add(docScore);
                 insertDocIdInMap(docScore,minDocId);
+                result = true;
 
             }catch(Exception e){
                 System.out.println("Errore Non posso inserire doc:"+minDocId);
@@ -54,13 +56,18 @@ public class MinHeapScores {
 
             float peek = topScores.peek();
             if(docScore > peek) { //need to check if minDocId should be inserted
-                topScores.remove(peek);
+                topScores.remove(peek); // in the peek there is the minScore
                 topScores.add(docScore);
                 removeDocIdFromMap(peek);
                 insertDocIdInMap(docScore,minDocId);
+                result = true;
             }
         }
+
+        return result;
     }
+
+    public Float getMinScore() {return topScores.peek();}
 
     public PriorityQueue<Float> getTopScores(){return topScores; }
     public ArrayList<Integer> getDocId(float scores){return this.score2DocIdMap.get(scores);}

@@ -10,7 +10,6 @@ public class PostingListBlock extends PostingList
         currentPosition = 0;
         this.length = length;
         maxDocID = getDocId(length - 1);
-        minDocID = getDocId(0);
     }
 
     public void setDummyFields() {
@@ -20,6 +19,8 @@ public class PostingListBlock extends PostingList
     public int getPosition(){
         return this.currentPosition;
     }
+
+    public void setPosition(int position) { currentPosition = position;}
     public void setPositionMinusOne(){
         currentPosition = currentPosition - 1;
     }

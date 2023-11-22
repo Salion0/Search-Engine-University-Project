@@ -23,7 +23,9 @@ public class Config {
     public static final int NUM_DOC_BYTES_LENGTH = 4;
     public static final int COLLECTIONFREQ_BYTES_LENGTH = 4;
     public static final int OFFSET_SKIP_DESC_BYTES_LENGTH = 4;
-    public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
+    public static final int UPPER_BOUND_SCORE_LENGTH = 4;
+    public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH
+            + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
     public static final int POSTING_LIST_BLOCK_LENGTH = 20; //Expressed in element
     public static final int POSTING_LIST_BLOCK_LENGTH_BYTE = 4000; //Expressed in byte
     public static final String LEXICON_FILE = "data/lexicon.dat";
