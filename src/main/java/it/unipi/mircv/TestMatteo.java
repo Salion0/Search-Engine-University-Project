@@ -28,17 +28,15 @@ public class TestMatteo {
         return filteredTerms.toArray(new String[0]);
     }
     public static void main(String[] args) throws IOException {
-        long startTime = System.currentTimeMillis();
-
         /*
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks();
-        */
+
 
         LexiconHandler lexiconHandler = new LexiconHandler();
-
+        */
 
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(57, 1);
@@ -49,10 +47,11 @@ public class TestMatteo {
         Config.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
-        PorterStemmer stemmer = new PorterStemmer();
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
         System.out.println("-----------------------------------------------------------");
+
+        long startTime = System.currentTimeMillis();
         String[] queryTerms= "10 100".split(" ");
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);

@@ -49,6 +49,8 @@ public class ConjunctiveDAAT {
                 System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
+                postingListBlocks[i] = new PostingListBlock();
+                postingListBlocks[i].setDummyFields();
             }
             else{
                 skipDescriptors[i] = null;
@@ -105,14 +107,11 @@ public class ConjunctiveDAAT {
 
                     if(skipDescriptors[i]!=null){
                         System.out.println("ho lo skip: " + i);
-                        // get the nextGEQ of the current posting list
-                        offsetNextGEQ = skipDescriptors[i].nextGEQ(currentDocId);
+                        offsetNextGEQ = skipDescriptors[i].nextGEQ(currentDocId); // get the nextGEQ of the current posting list
 
-                        // if the currentDocId is not in the posting list, break
-                        //otherwise search for it
+                        // if the currentDocId is not in the posting list then break, otherwise search for it
                         if(offsetNextGEQ == -1){
                             System.out.println("break"); //DEBUG
-                            //break with current doc id score equal to zero
                             continueWhile = true;
                             break;
                         }
@@ -120,7 +119,9 @@ public class ConjunctiveDAAT {
                             //calculate the skip size by the square root of the posting list length
                             int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]);
                             //TODO update va fatto solo se offsetNextGEQ non è uguale a quello di prima
-                            uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
+                            if ((postingListBlocks[i].getMaxDocID() > currentDocId
+                                    && postingListBlocks[i].getMinDocID() < currentDocId) == false)
+                                uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                         }
 
                     }

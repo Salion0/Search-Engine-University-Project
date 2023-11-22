@@ -65,7 +65,7 @@ public class BlockMerger {
         //DEBUG
         int iterations = 0;
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        int avgDocLength = documentIndexHandler.readAvgDocLen();
+        //int avgDocLength = documentIndexHandler.readAvgDocLen();
 
 
         while(true) {
@@ -120,7 +120,7 @@ public class BlockMerger {
             }
 
             // ********** TERM UPPER BOUND ************
-            float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList,avgDocLength);
+            //float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList,avgDocLength);
             // TODO scrivere nel lexicon.dat il termUpperBoundScore
 
             //appending term and posting list in final files
