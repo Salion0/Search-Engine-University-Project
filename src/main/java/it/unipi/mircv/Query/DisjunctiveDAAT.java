@@ -109,15 +109,16 @@ public class DisjunctiveDAAT {
         postingListBlocks = new ArrayList<>(numTermQuery);
         for(int i=0; i<numTermQuery; i++){
             if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+                postingListBlocks.set(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
             }
             else{                                     //else posting list length is greather than block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+                postingListBlocks.set(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
             }
             numBlockRead[i]++;
         }
     }
 
+    //TODO cambiare la logica di questo metodo con la stessa che c'è in conjunctive DAAT in processQuery
     private void updatePostingListBlocks() throws IOException {
         for(int i=0; i<numTermQuery; i++){
             if(endOfPostingListBlockFlag[i]){ //if one block is completely processed then load the subsequent if exists

@@ -97,7 +97,7 @@ public class Index {
         while (true) {
             count++; //DEBUG
 
-            if(freeMemoryPercentage() < 20){
+            if(freeMemoryPercentage() < MEMORY_THRESHOLD_PERC){
                 //poor memory qt available -> break
                 readerToReturn = reader;
                 System.out.println("Memory leak! Free memory: "+ freeMemoryPercentage()); //DEBUG - print the memory available

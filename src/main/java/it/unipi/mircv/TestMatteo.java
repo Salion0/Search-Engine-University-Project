@@ -2,16 +2,47 @@ package it.unipi.mircv;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.PLDescriptorFileHandler;
+import it.unipi.mircv.File.InvertedIndexHandler;
+import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
-import it.unipi.mircv.Query.DisjunctiveDAAT;
+import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.Query.ConjunctiveDAAT;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import static it.unipi.mircv.Config.stopWords;
+
 public class TestMatteo {
+
+    public static String[] removeStopWords(String[] queryTerms) {
+        ArrayList<String> filteredTerms = new ArrayList<>();
+        for (String term : queryTerms) {
+            if (!stopWords.contains(term)) {
+                filteredTerms.add(term);
+            }
+        }
+        return filteredTerms.toArray(new String[0]);
+    }
     public static void main(String[] args) throws IOException {
+        long startTime = System.currentTimeMillis();
+
+        /*
+        Index index = new Index("test_collection.tsv");
+        int numberOfBlocks = index.getNumberOfBlocks();
+        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
+        blockMerger.mergeBlocks();
+        */
+
+        LexiconHandler lexiconHandler = new LexiconHandler();
+
+
+        SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
+        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(57, 1);
+        System.out.println(skipDescriptor);
 
         // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
@@ -19,17 +50,22 @@ public class TestMatteo {
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         PorterStemmer stemmer = new PorterStemmer();
+
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
-        String[] queryTerms= "holy spirit".split(" ");
-        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
-        disjunctiveDAAT.processQuery();
+        System.out.println("-----------------------------------------------------------");
+        String[] queryTerms= "10 100".split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        System.out.println(queryTerms.length);
+        ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
+        System.out.println(results);
 
         //testing PL Descriptor
 
 
         /*
 
-        PLDescriptorFileHandler plDescriptorFileHandler = new PLDescriptorFileHandler();
+        SkipDescriptorFileHandler plDescriptorFileHandler = new SkipDescriptorFileHandler();
         ArrayList<Integer> maxDocIds = plDescriptorFileHandler.getMaxDocIds(0, 73);
         System.out.println(maxDocIds);
         maxDocIds = plDescriptorFileHandler.getMaxDocIds(39, 20);
@@ -76,7 +112,8 @@ public class TestMatteo {
         */
 
         //test Unary compression
-        /*int[] values1 = {1,1,2,1,3,1};
+        /*
+        int[] values1 = {1,1,2,1,3,1};
         int[] values2 = {2,3,4,1,1,2,5};
         int[] values3 = {2,1,2};
         int[] values4 = {2,1,2,9,9,9};
@@ -96,6 +133,8 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
         */
-
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("indexing finished in " + (float)elapsedTime/1000 +"sec");
     }
 }

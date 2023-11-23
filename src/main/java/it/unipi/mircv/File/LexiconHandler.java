@@ -36,7 +36,6 @@ public class LexiconHandler{
         ByteBuffer termBuffer = ByteBuffer.allocate(TERM_BYTES_LENGTH);     //it changes at every iteration
 
         long fileSize = lexiconFile.size();  // size
-        System.out.println("File size:"+fileSize); //DEBUG
 
         long left = 0;
         long numTerm = (fileSize/LEXICON_ENTRY_LENGTH);
@@ -77,6 +76,9 @@ public class LexiconHandler{
     }
     public int getCf(ByteBuffer dataBuffer) {
         return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH).getInt();
+    }
+    public int getOffsetSkipDesc(ByteBuffer dataBuffer){
+        return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH).getInt();
     }
 
 }
