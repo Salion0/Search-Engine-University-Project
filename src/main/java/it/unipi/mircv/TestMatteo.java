@@ -56,7 +56,7 @@ public class TestMatteo {
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = conjunctiveDAAT.computeMaxScore();
+        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
 
         //testing PL Descriptor
