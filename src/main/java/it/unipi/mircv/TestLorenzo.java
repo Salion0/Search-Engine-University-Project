@@ -30,20 +30,14 @@ public class TestLorenzo {
         queryProcessor = new QueryProcessor(query);
         //queryProcessor.TAAT();
     }
+
     */
-
-
+        /*
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks();
-
-
-        LexiconHandler lexiconHandler = new LexiconHandler();
-
-        SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
-        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(57, 1);
-        System.out.println(skipDescriptor);
+        */
 
         // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
@@ -58,9 +52,10 @@ public class TestLorenzo {
         String[] queryTerms = "10 100".split(" ");
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);
-        //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+        ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         MaxScore maxScore = new MaxScore(queryTerms);
         ArrayList<Integer> results = maxScore.computeMaxScore();
+        //ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
 
     /*

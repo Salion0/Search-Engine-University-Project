@@ -11,11 +11,15 @@ public class MinHeapScores {
     private final PriorityQueue<Float> topScores;
     private int topDocCount; //counter for keep track of how many document have been inserted in the min-heap
 
+    private int parameterForMaxScore; // DEBUG
+
     public MinHeapScores(){
         score2DocIdMap = new HashMap<>();
         topScores = new PriorityQueue<>();
-        topDocCount =0;
+        topDocCount = 0;
+        parameterForMaxScore = 0;
     }
+
     private void insertDocIdInMap(float score,int docId){
         if (score2DocIdMap.containsKey(score)) {  //if score is present in hashmap
             score2DocIdMap.get(score).add(docId); //add element to the arrayList of docId
@@ -37,15 +41,13 @@ public class MinHeapScores {
             score2DocIdMap.remove(score);
         }
     }
-    public boolean insertIntoPriorityQueue(float docScore, int minDocId){
-        boolean result = false;
+    public void insertIntoPriorityQueue(float docScore, int minDocId){
         if (topDocCount < MAX_NUM_DOC_RETRIEVED){  //There less than k documents in the priority queue
             topDocCount++;
             System.out.println("Entra nell' if insertPriorityQueue"); //DEBUG
             try {
                 topScores.add(docScore);
                 insertDocIdInMap(docScore,minDocId);
-                result = true;
 
             }catch(Exception e){
                 System.out.println("Errore Non posso inserire doc:"+minDocId);
@@ -60,11 +62,20 @@ public class MinHeapScores {
                 topScores.add(docScore);
                 removeDocIdFromMap(peek);
                 insertDocIdInMap(docScore,minDocId);
-                result = true;
             }
         }
+    }
 
-        return result;
+    public void insertIntoPriorityQueueMAXSCORE(float docScore, int minDocId){
+        float peek = topScores.peek();
+        if(docScore > peek) { //need to check if minDocId should be inserted
+            topScores.remove(peek); // in the peek there is the minScore
+            topScores.add(docScore);
+            if (parameterForMaxScore >= topDocCount)
+                removeDocIdFromMap(peek);
+            insertDocIdInMap(docScore,minDocId);
+            parameterForMaxScore++;
+        }
     }
 
     public Float getMinScore() {return topScores.peek();}
@@ -89,4 +100,10 @@ public class MinHeapScores {
         }
         return topDocId;
     }
+
+    public void setTopDocCount(int quantity) {
+        for (int i = 0; i < quantity; i++)
+            topScores.offer((float) 0);
+        topDocCount = quantity;
+    } // PER MAX-SCORE
 }

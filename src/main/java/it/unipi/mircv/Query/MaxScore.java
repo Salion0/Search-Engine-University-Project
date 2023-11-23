@@ -42,7 +42,6 @@ public class MaxScore {
         offsets = new int[numTermQuery];
         upperBoundScores = new float[numTermQuery];
         skipDescriptors = new SkipDescriptor[numTermQuery];
-        //TODO per MaxScore sorta in base agli upper bounds dei terms
 
         //search for the query terms in the lexicon
         for (int i = 0; i < numTermQuery; i++) {
@@ -50,7 +49,7 @@ public class MaxScore {
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
             upperBoundScores[i] = lexiconHandler.getTermUpperBoundScore(entryBuffer);
-            System.out.println("upperBoundScores[i] = " + upperBoundScores[i]);
+            //System.out.println("upperBoundScores[i] = " + upperBoundScores[i]);
 
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)) {
                 System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
@@ -69,8 +68,7 @@ public class MaxScore {
             // break se non trovo il currentDocId in una delle altre posting list
             System.out.println("queryTerm: " + queryTerms[i] + " docFreq: " + docFreqs[i]);
         }
-        //sort arrays for posting list Length
-        //sortArraysByArray(docFreqs, offsets, skipDescriptors, postingListBlocks);
+        //sort arrays for upper bound scores
         sortArraysByArray(upperBoundScores, docFreqs, offsets, skipDescriptors, postingListBlocks);
 
         for (int i = 0; i < numTermQuery; i++) {
@@ -151,11 +149,13 @@ public class MaxScore {
     // ************************  -- MAX SCORE --   ****************************************
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
+        heapScores.setTopDocCount(20);
         float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
         int[] numElementsRead = new int[postingListBlocks.length];
         float minScoreInHeap = 0;
         int pivot = 0;
         int minCurrentDocId;
+        boolean continueWhile;
 
         documentUpperBounds[0] = upperBoundScores[0];
         for (int i = 1; i < postingListBlocks.length; i++)
@@ -168,26 +168,34 @@ public class MaxScore {
 
         float score;
         int next;
+        int countCurrentDocIdInPostingLists;
         minCurrentDocId = getMinCurrentDocId();
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
             score = 0;
+            countCurrentDocIdInPostingLists = 0;
             next = Integer.MAX_VALUE;
+            continueWhile = false;
 
             // ESSENTIAL LISTS
-            //System.out.println(pivot);
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
                 //System.out.println("Entrato nel ESSENTIAL LISTS");
+                //System.out.println(minCurrentDocId);
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
                             documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId()), docFreqs[i]);
 
-                    if (postingListBlocks[i].next() == - 1)
-                        uploadPostingListBlock(i, numElementsRead[i], (int) Math.sqrt(docFreqs[i]));
-                    else
-                        numElementsRead[i]++;
+                    countCurrentDocIdInPostingLists++;
+                    if (postingListBlocks[i].next() == - 1) {
+                        System.out.println("i = " + i + " --> postingList = " + postingListBlocks[i].getPostingList().toString());
+                        System.out.println(numElementsRead[i]);
+                        uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH);
+                        numElementsRead[i] += POSTING_LIST_BLOCK_LENGTH;
+                    }
+                    //else
+                    //    numElementsRead[i]++;
                 }
 
                 if (postingListBlocks[i].getCurrentDocId() < next)
@@ -197,7 +205,7 @@ public class MaxScore {
             // NON-ESSENTIAL LISTS
             for (int i = pivot - 1; i >= 0; i--)
             {
-                //System.out.println("Entrato nel NON-ESSENTIAL LISTS");
+                System.out.println("Entrato nel NON-ESSENTIAL LISTS");
                 if (score + documentUpperBounds[i] <= minScoreInHeap)
                     break;
 
@@ -216,17 +224,19 @@ public class MaxScore {
             }
 
             // LIST PIVOT UPDATE
-            if (heapScores.insertIntoPriorityQueue(score, minCurrentDocId) == true)
+            if (countCurrentDocIdInPostingLists == postingListBlocks.length)
             {
-                System.out.println("Entrato nel LIST PIVOT UPDATE con score = " + score);
+                //System.out.println("Entrato nel LIST PIVOT UPDATE con score = " + score);
+                heapScores.insertIntoPriorityQueueMAXSCORE(score, minCurrentDocId);
                 minScoreInHeap = heapScores.getMinScore();
-                System.out.println("minScoreHeap = " + minScoreInHeap);
-                System.out.println("documentUpperBounds[pivot] = " + documentUpperBounds[pivot]);
+                //System.out.println("minScoreHeap = " + minScoreInHeap);
+                //System.out.println("documentUpperBounds[pivot] = " + documentUpperBounds[pivot]);
                 while(pivot < postingListBlocks.length && documentUpperBounds[pivot] <= minScoreInHeap)
                     pivot++;
             }
 
             minCurrentDocId = next;
+            if (minCurrentDocId == 9982) break;
             //System.out.print("next = " + next + ", minCurrentDocId = " + minCurrentDocId + "\n");
         }
 
