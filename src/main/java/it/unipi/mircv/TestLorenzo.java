@@ -1,7 +1,10 @@
 package it.unipi.mircv;
 
 import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
+import it.unipi.mircv.Index.BlockMerger;
+import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.MaxScore;
@@ -29,7 +32,7 @@ public class TestLorenzo {
     }
     */
 
-    /*
+
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
@@ -37,7 +40,7 @@ public class TestLorenzo {
 
 
         LexiconHandler lexiconHandler = new LexiconHandler();
-        */
+
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(57, 1);
         System.out.println(skipDescriptor);
@@ -55,7 +58,7 @@ public class TestLorenzo {
         String[] queryTerms = "10 100".split(" ");
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);
-        ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+        //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         MaxScore maxScore = new MaxScore(queryTerms);
         ArrayList<Integer> results = maxScore.computeMaxScore();
         System.out.println(results);

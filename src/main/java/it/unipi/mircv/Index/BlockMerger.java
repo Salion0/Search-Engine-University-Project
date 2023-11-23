@@ -4,6 +4,7 @@ import it.unipi.mircv.Config;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.Query.MaxScore;
 import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.FileOutputStream;
@@ -164,6 +165,8 @@ public class BlockMerger {
             if (currentScore > maxScore)
                 maxScore = currentScore;
         }
+
+        System.out.println(maxScore);
         return maxScore;
     }
 

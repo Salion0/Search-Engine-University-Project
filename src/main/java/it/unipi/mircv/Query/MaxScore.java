@@ -166,17 +166,19 @@ public class MaxScore {
             uploadPostingListBlock(i, 0, POSTING_LIST_BLOCK_LENGTH);
         }
 
+        float score;
+        int next;
         minCurrentDocId = getMinCurrentDocId();
-
-        while ((pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) || minCurrentDocId == 9982 || minCurrentDocId == 9065) // DEBUG
+        while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
-            float score = 0;
-            int next = Integer.MAX_VALUE;
+            score = 0;
+            next = Integer.MAX_VALUE;
 
             // ESSENTIAL LISTS
+            //System.out.println(pivot);
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
-                //System.out.println(postingListBlocks[i]);
+                //System.out.println("Entrato nel ESSENTIAL LISTS");
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
@@ -195,6 +197,7 @@ public class MaxScore {
             // NON-ESSENTIAL LISTS
             for (int i = pivot - 1; i >= 0; i--)
             {
+                //System.out.println("Entrato nel NON-ESSENTIAL LISTS");
                 if (score + documentUpperBounds[i] <= minScoreInHeap)
                     break;
 
@@ -204,7 +207,7 @@ public class MaxScore {
                     uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), (int) Math.sqrt(docFreqs[i]));
                 }
 
-                System.out.println("currentDocId = " + postingListBlocks[i].getCurrentDocId());
+                //System.out.println("currentDocId = " + postingListBlocks[i].getCurrentDocId());
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
@@ -215,14 +218,16 @@ public class MaxScore {
             // LIST PIVOT UPDATE
             if (heapScores.insertIntoPriorityQueue(score, minCurrentDocId) == true)
             {
+                System.out.println("Entrato nel LIST PIVOT UPDATE con score = " + score);
                 minScoreInHeap = heapScores.getMinScore();
+                System.out.println("minScoreHeap = " + minScoreInHeap);
                 System.out.println("documentUpperBounds[pivot] = " + documentUpperBounds[pivot]);
                 while(pivot < postingListBlocks.length && documentUpperBounds[pivot] <= minScoreInHeap)
                     pivot++;
             }
 
             minCurrentDocId = next;
-            System.out.print("next = " + next + ", minCurrentDocId = " + minCurrentDocId + "\n");
+            //System.out.print("next = " + next + ", minCurrentDocId = " + minCurrentDocId + "\n");
         }
 
         return heapScores.getTopDocIdReversed();
