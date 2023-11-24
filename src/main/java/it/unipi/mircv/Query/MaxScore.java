@@ -156,15 +156,20 @@ public class MaxScore {
         int pivot = 0;
         int minCurrentDocId;
         boolean continueWhile;
+        //System.out.println("daje roma = " + postingListBlocks[0]);
+        //System.out.println("daje lazio= " + postingListBlocks[1]);
 
         documentUpperBounds[0] = upperBoundScores[0];
         for (int i = 1; i < postingListBlocks.length; i++)
             documentUpperBounds[i] = documentUpperBounds[i - 1] + upperBoundScores[i];
 
-        for (int i = 0; i < postingListBlocks.length; i++) {
-            numElementsRead[i] += POSTING_LIST_BLOCK_LENGTH;
+        /*for (int i = 0; i < postingListBlocks.length; i++) {
+            numElementsRead[i] = POSTING_LIST_BLOCK_LENGTH;
             uploadPostingListBlock(i, 0, POSTING_LIST_BLOCK_LENGTH);
-        }
+        }*/
+
+        //System.out.println("daje roma = " + postingListBlocks[0]);
+        //System.out.println("daje lazio= " + postingListBlocks[1]);
 
         float score;
         int next;
@@ -180,8 +185,10 @@ public class MaxScore {
             // ESSENTIAL LISTS
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
-                //System.out.println("Entrato nel ESSENTIAL LISTS");
-                //System.out.println(minCurrentDocId);
+                System.out.println("Entrato nel ESSENTIAL LISTS");
+                //System.out.println("minCurrentDocId = " + minCurrentDocId);
+                //System.out.println("countCurrentDocIdInPostingLists = " + countCurrentDocIdInPostingLists);
+                //System.out.println("postingListBlocks[i].getCurrentDocId() = " + postingListBlocks[i].getCurrentDocId());
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
@@ -189,8 +196,7 @@ public class MaxScore {
 
                     countCurrentDocIdInPostingLists++;
                     if (postingListBlocks[i].next() == - 1) {
-                        System.out.println("i = " + i + " --> postingList = " + postingListBlocks[i].getPostingList().toString());
-                        System.out.println(numElementsRead[i]);
+                        //System.out.println("i = " + i + " --> postingList = " + postingListBlocks[i].getPostingList().toString());
                         uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH);
                         numElementsRead[i] += POSTING_LIST_BLOCK_LENGTH;
                     }
@@ -223,10 +229,11 @@ public class MaxScore {
                 }
             }
 
+            //System.out.println(countCurrentDocIdInPostingLists);
             // LIST PIVOT UPDATE
             if (countCurrentDocIdInPostingLists == postingListBlocks.length)
             {
-                //System.out.println("Entrato nel LIST PIVOT UPDATE con score = " + score);
+                System.out.println("Entrato nel LIST PIVOT UPDATE"); // con score = " + score);
                 heapScores.insertIntoPriorityQueueMAXSCORE(score, minCurrentDocId);
                 minScoreInHeap = heapScores.getMinScore();
                 //System.out.println("minScoreHeap = " + minScoreInHeap);
@@ -235,8 +242,8 @@ public class MaxScore {
                     pivot++;
             }
 
+            if (minCurrentDocId >= 9800) break;
             minCurrentDocId = next;
-            if (minCurrentDocId == 9982) break;
             //System.out.print("next = " + next + ", minCurrentDocId = " + minCurrentDocId + "\n");
         }
 
@@ -245,9 +252,11 @@ public class MaxScore {
 
     public int getMinCurrentDocId() {
         int minCurrentDocId = Integer.MAX_VALUE;
-        for (int i = 0; i < postingListBlocks.length; i++)
+        for (int i = 0; i < postingListBlocks.length; i++) {
+            //System.out.println(" i --> " + postingListBlocks[i].getPostingList());
             if (postingListBlocks[i].getCurrentDocId() < minCurrentDocId)
                 minCurrentDocId = postingListBlocks[i].getCurrentDocId();
+        }
 
         return minCurrentDocId;
     }

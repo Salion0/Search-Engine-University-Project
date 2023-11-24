@@ -47,6 +47,7 @@ public class ConjunctiveDAAT {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
+            System.out.println(MIN_NUM_POSTING_TO_SKIP);
 
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)) {
                 System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
@@ -58,6 +59,7 @@ public class ConjunctiveDAAT {
                 skipDescriptors[i] = null;
                 //load in main memory the posting list for which there is no skipDescriptor cause they are too small
                 postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
+                System.out.println("i = " + i + " --> postingList = " + postingListBlocks[i].getPostingList().toString());
             }
         }
 

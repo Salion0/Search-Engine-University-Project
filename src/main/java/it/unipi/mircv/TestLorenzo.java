@@ -54,8 +54,8 @@ public class TestLorenzo {
         System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         MaxScore maxScore = new MaxScore(queryTerms);
-        ArrayList<Integer> results = maxScore.computeMaxScore();
-        //ArrayList<Integer> results = conjunctiveDAAT.processQuery();
+        //ArrayList<Integer> results = maxScore.computeMaxScore();
+        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
 
     /*
