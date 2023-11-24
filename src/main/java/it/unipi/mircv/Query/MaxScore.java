@@ -74,7 +74,7 @@ public class MaxScore {
 
         for (int i = 0; i < numTermQuery; i++) {
             // break se non trovo il currentDocId in una delle altre posting list
-            System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
+            //System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
         }
     }
 
@@ -186,7 +186,7 @@ public class MaxScore {
             // ESSENTIAL LISTS
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
-                System.out.println("Entrato nel ESSENTIAL LISTS");
+                //System.out.println("Entrato nel ESSENTIAL LISTS");
                 //System.out.println("minCurrentDocId = " + minCurrentDocId);
                 //System.out.println("countCurrentDocIdInPostingLists = " + countCurrentDocIdInPostingLists);
                 //System.out.println("postingListBlocks[i].getCurrentDocId() = " + postingListBlocks[i].getCurrentDocId());
@@ -212,7 +212,7 @@ public class MaxScore {
             // NON-ESSENTIAL LISTS
             for (int i = pivot - 1; i >= 0; i--)
             {
-                System.out.println("Entrato nel NON-ESSENTIAL LISTS");
+                //System.out.println("Entrato nel NON-ESSENTIAL LISTS");
                 if (score + documentUpperBounds[i] <= minScoreInHeap)
                     break;
 
@@ -234,7 +234,7 @@ public class MaxScore {
             // LIST PIVOT UPDATE
             if (countCurrentDocIdInPostingLists == postingListBlocks.length)
             {
-                System.out.println("Entrato nel LIST PIVOT UPDATE"); // con score = " + score);
+                //System.out.println("Entrato nel LIST PIVOT UPDATE"); // con score = " + score);
                 heapScores.insertIntoPriorityQueueMAXSCORE(score, minCurrentDocId);
                 minScoreInHeap = heapScores.getMinScore();
                 //System.out.println("minScoreHeap = " + minScoreInHeap);
@@ -243,7 +243,7 @@ public class MaxScore {
                     pivot++;
             }
 
-            //if (minCurrentDocId >= 9800) break;
+            if (minCurrentDocId >= 9800) break;
             minCurrentDocId = next;
             //System.out.print("next = " + next + ", minCurrentDocId = " + minCurrentDocId + "\n");
         }

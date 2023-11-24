@@ -53,9 +53,9 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         queryTerms = removeStopWords(queryTerms);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
-        //MaxScore maxScore = new MaxScore(queryTerms);
-        //ArrayList<Integer> results = maxScore.computeMaxScore();
-        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
+        MaxScore maxScore = new MaxScore(queryTerms);
+        ArrayList<Integer> results = maxScore.computeMaxScore();
+        //ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(System.currentTimeMillis() - startTime);
         System.out.println(results);
 
