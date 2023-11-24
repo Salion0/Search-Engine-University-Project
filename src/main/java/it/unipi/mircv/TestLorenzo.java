@@ -32,8 +32,9 @@ public class TestLorenzo {
     }
 
     */
+
         /*
-        Index index = new Index("test_collection.tsv");
+        Index index = new Index("collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
         blockMerger.mergeBlocks();
@@ -48,15 +49,16 @@ public class TestLorenzo {
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
         System.out.println("-----------------------------------------------------------");
 
-        long startTime = System.currentTimeMillis();
         String[] queryTerms = "10 100".split(" ");
+        long startTime = System.currentTimeMillis();
         queryTerms = removeStopWords(queryTerms);
-        System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
-        MaxScore maxScore = new MaxScore(queryTerms);
+        //MaxScore maxScore = new MaxScore(queryTerms);
         //ArrayList<Integer> results = maxScore.computeMaxScore();
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
+        System.out.println(System.currentTimeMillis() - startTime);
         System.out.println(results);
+
 
     /*
         //Test per leggere senza unzippare

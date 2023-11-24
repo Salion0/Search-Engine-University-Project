@@ -51,7 +51,8 @@ public class MaxScore {
             upperBoundScores[i] = lexiconHandler.getTermUpperBoundScore(entryBuffer);
             //System.out.println("upperBoundScores[i] = " + upperBoundScores[i]);
 
-            if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)) {
+            if (false) //docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP))
+            {
                 System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
@@ -242,7 +243,7 @@ public class MaxScore {
                     pivot++;
             }
 
-            if (minCurrentDocId >= 9800) break;
+            //if (minCurrentDocId >= 9800) break;
             minCurrentDocId = next;
             //System.out.print("next = " + next + ", minCurrentDocId = " + minCurrentDocId + "\n");
         }
