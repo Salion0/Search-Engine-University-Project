@@ -109,10 +109,10 @@ public class DisjunctiveDAAT {
         postingListBlocks = new ArrayList<>(numTermQuery);
         for(int i=0; i<numTermQuery; i++){
             if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
-                postingListBlocks.set(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
             }
             else{                                     //else posting list length is greather than block size
-                postingListBlocks.set(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
             }
             numBlockRead[i]++;
         }

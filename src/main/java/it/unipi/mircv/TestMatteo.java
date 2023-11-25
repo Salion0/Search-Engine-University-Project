@@ -9,6 +9,7 @@ import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.ConjunctiveDAAT;
+import it.unipi.mircv.Query.DisjunctiveDAAT;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,37 +29,39 @@ public class TestMatteo {
         return filteredTerms.toArray(new String[0]);
     }
     public static void main(String[] args) throws IOException {
-        long startTime = System.currentTimeMillis();
-
-        /*
-        Index index = new Index("test_collection.tsv");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
-        */
-
-        LexiconHandler lexiconHandler = new LexiconHandler();
-
-
-        SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
-        SkipDescriptor skipDescriptor = skipDescriptorFileHandler.readSkipDescriptor(57, 1);
-        System.out.println(skipDescriptor);
 
         // Testing DAAT
+        long startTime = System.currentTimeMillis();
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         PorterStemmer stemmer = new PorterStemmer();
 
+
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
+
+        //what is the distance between flat rock michigan and detroit
         System.out.println("-----------------------------------------------------------");
-        String[] queryTerms= "10 100".split(" ");
+        String[] queryTerms= "how to cook shrimp".split(" ");
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
+
+
+        System.out.println("-----------------------------------------------------------");
+        String[] queryTerms1= "what is the distance between flat rock michigan and detroit".split(" ");
+        queryTerms1 = removeStopWords(queryTerms1);
+        System.out.println(queryTerms1.length);
+        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms1);
+        ArrayList<Integer> results1 = disjunctiveDAAT.processQuery();
+        System.out.println(results1);
+
+
+
+
 
         //testing PL Descriptor
 
@@ -135,6 +138,6 @@ public class TestMatteo {
         */
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("indexing finished in " + (float)elapsedTime/1000 +"sec");
+        System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
     }
 }

@@ -76,61 +76,45 @@ public class ConjunctiveDAAT {
         int currentDocId;
         int offsetNextGEQ;
         boolean continueWhile;
+        boolean breakWhile = false;
 
         System.out.println("docFreqs[0]: " + docFreqs[0]); //DEBUG
 
         while(postingCount < docFreqs[0]){
-
             if(skipDescriptors[0] != null){
                 //load the first posting list block
                 uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
             }
-
             System.out.println(postingListBlocks[0]); //DEBUG
-
-            //read an entire block for the shortest posting list and calculate the score for each document.
             do{
                 currentDocId = postingListBlocks[0].getCurrentDocId();
                 postingCount ++;
                 float currentDocScore = 0;
                 continueWhile = false;
-
+                System.out.println("postingCount: " + postingCount);
                 System.out.println("currentDocId: " + currentDocId);
-
+                System.out.println("position: " + postingListBlocks[0].getPosition());
                 //calculate the partial score for the other posting list if they contain the currentDocId
                 for (int i = 1; i < numTermQuery; i++) {
                     //if skipDescriptors[i] is not null load a posting list block by block
-                    //DEBUG
-                    if(skipDescriptors[i]== null) System.out.println("non ho lo skip: " + i);
-
-                    if(skipDescriptors[i]!=null){
-                        System.out.println("ho lo skip: " + i);
+                    if(skipDescriptors[i] != null){
                         // get the nextGEQ of the current posting list
                         offsetNextGEQ = skipDescriptors[i].nextGEQ(currentDocId);
-
-                        // if the currentDocId is not in the posting list, break
-                        //otherwise search for it
                         if(offsetNextGEQ == -1){
                             System.out.println("break"); //DEBUG
-                            //break with current doc id score equal to zero
-                            continueWhile = true;
+                            breakWhile = true;
                             break;
                         }
                         else{
-                            //calculate the skip size by the square root of the posting list length
                             int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]);
                             //TODO update va fatto solo se offsetNextGEQ non è uguale a quello di prima
                             uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                         }
-
                     }
 
-                    //search for the currentDocId posting list
                     if(currentDocIdInPostingList(i, currentDocId)){
                         int currentTf = postingListBlocks[i].getCurrentTf();
-                        int documentLength = documentIndexHandler.readDocumentLength(
-                                postingListBlocks[i].getCurrentDocId()
-                        );
+                        int documentLength = documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId());
                         currentDocScore += ScoreFunction.BM25(currentTf,documentLength, docFreqs[i]);
                     }else{
                         continueWhile = true;
@@ -138,17 +122,19 @@ public class ConjunctiveDAAT {
                     }
                 }
                 if(continueWhile) continue;
+                if(breakWhile) break;
+                //else
+                currentDocScore += ScoreFunction.BM25(postingListBlocks[0].getCurrentTf(), documentIndexHandler.readDocumentLength(postingListBlocks[0].getCurrentDocId()), docFreqs[0]);
                 heapScores.insertIntoPriorityQueue(currentDocScore , currentDocId);
-            } while(postingListBlocks[0].next() != -1);
+
+            } while(postingListBlocks[0].next() != -1); // && postingListBlocks[0].getCurrentDocId() > 9800);
+            //if(postingListBlocks[0].getCurrentDocId() > 9800) break; DEBUG
         }
         return heapScores.getTopDocIdReversed();
     }
 
     private boolean currentDocIdInPostingList(int indexTerm, int currentDocId){
-
-        System.out.println("entrato in currentDocIdInPostingList----------------------------------");
         do{
-            System.out.println("currentDocId: " + currentDocId + " getCurrentDocId(): " + postingListBlocks[indexTerm].getCurrentDocId());
             if(postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
             if(postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) break;
 
@@ -159,17 +145,6 @@ public class ConjunctiveDAAT {
         //Upload the posting list block
         //if the element to read are less in size than "blockSize", read the remaining elements
         //otherwise read a posting list block of size "blockSize"
-        if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[0] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    docFreqs[indexTerm] - readElement
-            );
-        }
-        else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    blockSize);
-        }
         if (docFreqs[indexTerm] - readElement < blockSize) {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
                     offsets[indexTerm] + readElement,
