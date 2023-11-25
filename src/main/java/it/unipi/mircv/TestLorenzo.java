@@ -56,9 +56,11 @@ public class TestLorenzo {
         MaxScore maxScore = new MaxScore(queryTerms);
         ArrayList<Integer> results = maxScore.computeMaxScore();
         //ArrayList<Integer> results = conjunctiveDAAT.processQuery();
-        System.out.println(System.currentTimeMillis() - startTime);
-        System.out.println(results);
 
+        System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("indexing finished in " + (float)elapsedTime/1000 +"sec");
     /*
         //Test per leggere senza unzippare
         String tarFilePath = "collection.tar.gz";

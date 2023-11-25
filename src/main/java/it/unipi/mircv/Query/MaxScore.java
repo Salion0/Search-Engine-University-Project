@@ -201,7 +201,7 @@ public class MaxScore {
             // LIST PIVOT UPDATE
             if (countCurrentDocIdInPostingLists == postingListBlocks.length)
             {
-                System.out.println("Entrato nel LIST PIVOT UPDATE con id = " + minCurrentDocId);
+                //System.out.println("Entrato nel LIST PIVOT UPDATE con id = " + minCurrentDocId);
                 heapScores.insertIntoPriorityQueueMAXSCORE(score, minCurrentDocId);
                 minScoreInHeap = heapScores.getMinScore();
                 //System.out.println("minScoreHeap = " + minScoreInHeap);
