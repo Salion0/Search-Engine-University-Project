@@ -49,13 +49,13 @@ public class TestLorenzo {
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
         System.out.println("-----------------------------------------------------------");
 
-        String[] queryTerms = "10 100".split(" ");
+        String[] queryTerms = "what is the distance between flat rock michigan and detroit".split(" ");
         long startTime = System.currentTimeMillis();
         queryTerms = removeStopWords(queryTerms);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         MaxScore maxScore = new MaxScore(queryTerms);
-        ArrayList<Integer> results = maxScore.computeMaxScore();
-        //ArrayList<Integer> results = conjunctiveDAAT.processQuery();
+        //ArrayList<Integer> results = maxScore.computeMaxScore();
+        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
 
         System.out.println(results);
         long endTime = System.currentTimeMillis();

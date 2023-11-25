@@ -327,9 +327,6 @@ public class QueryProcessor {
     }
 
     public float computeTFIDF(int termFrequency,int documentFrequency) {
-        if (termFrequency == 0)
-            return 0;
-        else
-            return (float) ((1 + Math.log10(termFrequency)) * Math.log10(documentFrequency/collectionSize));
+        return (float) ((1 + Math.log10(termFrequency)) * Math.log10(documentFrequency/collectionSize));
     }
 }
