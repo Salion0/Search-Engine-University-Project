@@ -104,11 +104,13 @@ public class Index {
                 break;
             }
             //DEBUG per creare più di un blocco
+            /*
             if (count == 3000 || count == 6000){
                 readerToReturn = reader;
                 System.out.println("blocco finito per debug");
                 break;
             }
+            */
             String line = reader.readLine();
             if(line == null){
                 //we reached the end of the file -> close file reader and break
@@ -117,7 +119,7 @@ public class Index {
             }
 
             //DEBUG - every tot document print the memory available
-            if (count%1000 == 0)
+            if (count%10000 == 0)
                 System.out.println("Free memory percentage: "+ freeMemoryPercentage());
 
             //parsing and processing the document corresponding
@@ -127,7 +129,7 @@ public class Index {
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
             //DEBUG
-            if (count == 10000) break; //DEBUG
+            //if (count == 10000) break; //DEBUG
         }
 
         writeLexiconToBlock(lexicon, blockID);
