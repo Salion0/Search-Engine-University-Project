@@ -59,7 +59,6 @@ public class TestLorenzo {
         System.out.println(System.currentTimeMillis() - startTime);
         System.out.println(results);
 
-
     /*
         //Test per leggere senza unzippare
         String tarFilePath = "collection.tar.gz";

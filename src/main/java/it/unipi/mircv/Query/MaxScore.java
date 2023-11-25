@@ -83,64 +83,29 @@ public class MaxScore {
         }
     }
 
-    private boolean uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
+    private int uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
         //Upload the posting list block
         //if the element to read are less in size than "blockSize", read the remaining elements
         //otherwise read a posting list block of size "blockSize"
-        System.out.println("readElement di i = " + indexTerm + " , readElement = " + readElement);
-        System.out.println("docFreqs[" + indexTerm+ "] = " + docFreqs[indexTerm]);
-        System.out.println(docFreqs[indexTerm] - readElement);
+        //System.out.println("readElement di i = " + indexTerm + " , readElement = " + readElement);
+        //System.out.println("docFreqs[" + indexTerm+ "] = " + docFreqs[indexTerm]);
+        //System.out.println(docFreqs[indexTerm] - readElement);
 
-        if (docFreqs[indexTerm] - readElement == 0) // finito di leggere
-            return true;
+        //if (docFreqs[indexTerm] - readElement <= 0) // finito di leggere
+        //    return true;
 
         if ((docFreqs[indexTerm] - readElement) < blockSize) {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     docFreqs[indexTerm] - readElement
             );
+            return (docFreqs[indexTerm] - readElement);
         }
         else {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     blockSize);
-        }
-        return false;
-    }
-
-    public static void sortArraysByArray(float[] arrayToSort, int[] otherArray, int[] otherOtherArray,
-                                         SkipDescriptor[] otherOtherOtherArray, PostingListBlock[] otherOtherOtherOtherArray) {
-
-        Integer[] indexes = new Integer[arrayToSort.length];
-        for (int i = 0; i < indexes.length; i++) {
-            indexes[i] = i;
-        }
-
-        Arrays.sort(indexes, Comparator.comparingDouble(i -> arrayToSort[i]));
-        for (int i = 0; i < arrayToSort.length; i++) {
-            if (indexes[i] != i) {
-                float temp = arrayToSort[i];
-                arrayToSort[i] = arrayToSort[indexes[i]];
-                arrayToSort[indexes[i]] = temp;
-
-                int temp1 = otherArray[i];
-                otherArray[i] = otherArray[indexes[i]];
-                otherArray[indexes[i]] = temp1;
-
-                temp1 = otherOtherArray[i];
-                otherOtherArray[i] = otherOtherArray[indexes[i]];
-                otherOtherArray[indexes[i]] = temp1;
-
-                SkipDescriptor tempSkipDescriptor = otherOtherOtherArray[i];
-                otherOtherOtherArray[i] = otherOtherOtherArray[indexes[i]];
-                otherOtherOtherArray[indexes[i]] = tempSkipDescriptor;
-
-                PostingListBlock postingListBlock = otherOtherOtherOtherArray[i];
-                otherOtherOtherOtherArray[i] = otherOtherOtherOtherArray[indexes[i]];
-                otherOtherOtherOtherArray[indexes[i]] = postingListBlock;
-
-                indexes[indexes[i]] = indexes[i];
-            }
+            return blockSize;
         }
     }
 
@@ -195,9 +160,9 @@ public class MaxScore {
                     countCurrentDocIdInPostingLists++;
                     if (postingListBlocks[i].next() == - 1) {
                         //System.out.println("i = " + i + " --> postingList = " + postingListBlocks[i].getPostingList().toString());
-                        if (uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH) == true)
+                        if (numElementsRead[i]%POSTING_LIST_BLOCK_LENGTH != 0)
                             return heapScores.getTopDocIdReversed();
-                        numElementsRead[i] += POSTING_LIST_BLOCK_LENGTH;
+                        numElementsRead[i] += uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH);
                     }
                     //else
                     //    numElementsRead[i]++;
@@ -236,7 +201,7 @@ public class MaxScore {
             // LIST PIVOT UPDATE
             if (countCurrentDocIdInPostingLists == postingListBlocks.length)
             {
-                //System.out.println("Entrato nel LIST PIVOT UPDATE"); // con score = " + score);
+                System.out.println("Entrato nel LIST PIVOT UPDATE con id = " + minCurrentDocId);
                 heapScores.insertIntoPriorityQueueMAXSCORE(score, minCurrentDocId);
                 minScoreInHeap = heapScores.getMinScore();
                 //System.out.println("minScoreHeap = " + minScoreInHeap);
@@ -276,4 +241,39 @@ public class MaxScore {
         return minCurrentDocId;
     }
 
+    public static void sortArraysByArray(float[] arrayToSort, int[] otherArray, int[] otherOtherArray,
+                                         SkipDescriptor[] otherOtherOtherArray, PostingListBlock[] otherOtherOtherOtherArray) {
+
+        Integer[] indexes = new Integer[arrayToSort.length];
+        for (int i = 0; i < indexes.length; i++) {
+            indexes[i] = i;
+        }
+
+        Arrays.sort(indexes, Comparator.comparingDouble(i -> arrayToSort[i]));
+        for (int i = 0; i < arrayToSort.length; i++) {
+            if (indexes[i] != i) {
+                float temp = arrayToSort[i];
+                arrayToSort[i] = arrayToSort[indexes[i]];
+                arrayToSort[indexes[i]] = temp;
+
+                int temp1 = otherArray[i];
+                otherArray[i] = otherArray[indexes[i]];
+                otherArray[indexes[i]] = temp1;
+
+                temp1 = otherOtherArray[i];
+                otherOtherArray[i] = otherOtherArray[indexes[i]];
+                otherOtherArray[indexes[i]] = temp1;
+
+                SkipDescriptor tempSkipDescriptor = otherOtherOtherArray[i];
+                otherOtherOtherArray[i] = otherOtherOtherArray[indexes[i]];
+                otherOtherOtherArray[indexes[i]] = tempSkipDescriptor;
+
+                PostingListBlock postingListBlock = otherOtherOtherOtherArray[i];
+                otherOtherOtherOtherArray[i] = otherOtherOtherOtherArray[indexes[i]];
+                otherOtherOtherOtherArray[indexes[i]] = postingListBlock;
+
+                indexes[indexes[i]] = indexes[i];
+            }
+        }
+    }
 }
