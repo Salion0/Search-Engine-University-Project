@@ -17,13 +17,15 @@ import static it.unipi.mircv.Config.MIN_NUM_POSTING_TO_SKIP;
 import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
 
 public class ConjunctiveDAAT {
-    private int numTermQuery;
-    private final int[] docFreqs;
-    private final int[] offsets;
-    private final PostingListBlock[] postingListBlocks;
-    private final SkipDescriptor[] skipDescriptors;
-    private final DocumentIndexHandler documentIndexHandler;
-    private final InvertedIndexHandler invertedIndexHandler;
+    protected final int numTermQuery;
+    protected final int[] docFreqs;
+    protected final int[] offsets;
+    protected final PostingListBlock[] postingListBlocks;
+    protected final SkipDescriptor[] skipDescriptors;
+    protected final DocumentIndexHandler documentIndexHandler;
+    protected final InvertedIndexHandler invertedIndexHandler;
+    protected float currentDocScore;
+
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
         //initialize file handlers
         LexiconHandler lexiconHandler = new LexiconHandler();
@@ -69,6 +71,7 @@ public class ConjunctiveDAAT {
             System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
         }
     }
+
     public ArrayList<Integer> processQuery() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
 
@@ -89,7 +92,7 @@ public class ConjunctiveDAAT {
             do{
                 currentDocId = postingListBlocks[0].getCurrentDocId();
                 postingCount ++;
-                float currentDocScore = 0;
+                currentDocScore = 0;
                 continueWhile = false;
                 System.out.println("postingCount: " + postingCount);
                 System.out.println("currentDocId: " + currentDocId);
@@ -107,15 +110,13 @@ public class ConjunctiveDAAT {
                         }
                         else{
                             int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]);
-                            //TODO update va fatto solo se offsetNextGEQ non è uguale a quello di prima
+                            //TODO update va fatto solo se offsetNextGEQ non è uguale a quello di prima - come ha fatto lore non è male
                             uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                         }
                     }
 
                     if(currentDocIdInPostingList(i, currentDocId)){
-                        int currentTf = postingListBlocks[i].getCurrentTf();
-                        int documentLength = documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId());
-                        currentDocScore += ScoreFunction.BM25(currentTf,documentLength, docFreqs[i]);
+                        updateCurrentDocScore(i);
                     }else{
                         continueWhile = true;
                         break;
@@ -124,7 +125,7 @@ public class ConjunctiveDAAT {
                 if(continueWhile) continue;
                 if(breakWhile) break;
                 //else
-                currentDocScore += ScoreFunction.BM25(postingListBlocks[0].getCurrentTf(), documentIndexHandler.readDocumentLength(postingListBlocks[0].getCurrentDocId()), docFreqs[0]);
+                updateCurrentDocScore(0);
                 heapScores.insertIntoPriorityQueue(currentDocScore , currentDocId);
 
             } while(postingListBlocks[0].next() != -1); // && postingListBlocks[0].getCurrentDocId() > 9800);
@@ -133,7 +134,7 @@ public class ConjunctiveDAAT {
         return heapScores.getTopDocIdReversed();
     }
 
-    private boolean currentDocIdInPostingList(int indexTerm, int currentDocId){
+    protected boolean currentDocIdInPostingList(int indexTerm, int currentDocId){
         do{
             if(postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
             if(postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) break;
@@ -141,7 +142,16 @@ public class ConjunctiveDAAT {
         }while(postingListBlocks[indexTerm].next() != -1);
         return false;
     }
-    private void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
+
+    protected void updateCurrentDocScore(int index) throws IOException {
+        currentDocScore += ScoreFunction.BM25(
+                postingListBlocks[index].getCurrentTf(),
+                documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId()),
+                docFreqs[index]
+        );
+    }
+
+    protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
         //Upload the posting list block
         //if the element to read are less in size than "blockSize", read the remaining elements
         //otherwise read a posting list block of size "blockSize"
@@ -158,7 +168,7 @@ public class ConjunctiveDAAT {
             );
         }
     }
-    public static void sortArraysByArray(int[] arrayToSort, int[] otherArray, SkipDescriptor[] otherOtherArray, PostingListBlock[] otherOtherOtherArray){
+    protected static void sortArraysByArray(int[] arrayToSort, int[] otherArray, SkipDescriptor[] otherOtherArray, PostingListBlock[] otherOtherOtherArray){
         // Sort all the input arrays according to the elements of the first array
         // Initialize an array of indexes to keep track of the original positions of the elements
         Integer[] indexes = new Integer[arrayToSort.length];

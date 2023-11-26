@@ -2,19 +2,14 @@ package it.unipi.mircv;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
-import it.unipi.mircv.Index.BlockMerger;
-import it.unipi.mircv.Index.Index;
-import it.unipi.mircv.Index.SkipDescriptor;
+
 import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.DisjunctiveDAAT;
+import it.unipi.mircv.Query.ConjunctiveDAATCache;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import static it.unipi.mircv.Config.CACHE_SIZE;
 import static it.unipi.mircv.Config.stopWords;
 
 public class TestMatteo {
@@ -31,7 +26,7 @@ public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
         // Testing DAAT
-        long startTime = System.currentTimeMillis();
+
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
@@ -40,17 +35,55 @@ public class TestMatteo {
 
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
-
+        long startTime = System.currentTimeMillis();
         //what is the distance between flat rock michigan and detroit
+
+        /*
+        //CONJUNCTIVE DAAT
         System.out.println("-----------------------------------------------------------");
-        String[] queryTerms= "how to cook shrimp".split(" ");
+        String[] queryTerms= "diet detox".split(" ");
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
+         */
 
+        //TESTING CONJUNCTIVE DAAT with CACHE
+        LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
+        //
+        System.out.println("-----------------------------------------------------------");
+        String[] queryTerms= "railroad workers".split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        System.out.println(queryTerms.length);
+        ConjunctiveDAATCache conjunctiveDAATCache = new ConjunctiveDAATCache(queryTerms, docLenCache);
+        ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
+        System.out.println(results);
 
+        System.out.println("-----------------------------------------------------------");
+        String[] queryTerms1= "railroad workers".split(" ");
+        queryTerms1 = removeStopWords(queryTerms1);
+        System.out.println(queryTerms1.length);
+        ConjunctiveDAATCache conjunctiveDAATCache1 = new ConjunctiveDAATCache(queryTerms1, docLenCache);
+        ArrayList<Integer> results1 = conjunctiveDAATCache1.processQuery();
+        System.out.println(results1);
+
+        System.out.println("-----------------------------------------------------------");
+        String[] queryTerms2= "railroad workers".split(" ");
+        queryTerms2 = removeStopWords(queryTerms2);
+        System.out.println(queryTerms2.length);
+        ConjunctiveDAATCache conjunctiveDAATCache2 = new ConjunctiveDAATCache(queryTerms2, docLenCache);
+        ArrayList<Integer> results2 = conjunctiveDAATCache2.processQuery();
+        System.out.println(results2);
+
+        System.out.println("-----------------------------------------------------------");
+        String[] queryTerms3= "railroad workers".split(" ");
+        queryTerms3 = removeStopWords(queryTerms3);
+        System.out.println(queryTerms3.length);
+        ConjunctiveDAATCache conjunctiveDAATCache3 = new ConjunctiveDAATCache(queryTerms3, docLenCache);
+        ArrayList<Integer> results3 = conjunctiveDAATCache3.processQuery();
+        System.out.println(results3);
+        /* DISJUNCTIVE DAAT
         System.out.println("-----------------------------------------------------------");
         String[] queryTerms1= "what is the distance between flat rock michigan and detroit".split(" ");
         queryTerms1 = removeStopWords(queryTerms1);
@@ -58,9 +91,7 @@ public class TestMatteo {
         DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms1);
         ArrayList<Integer> results1 = disjunctiveDAAT.processQuery();
         System.out.println(results1);
-
-
-
+        */
 
 
         //testing PL Descriptor
