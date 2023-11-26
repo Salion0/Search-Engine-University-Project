@@ -58,16 +58,20 @@ public class MaxScore {
                 System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
-                postingListBlocks[i] = new PostingListBlock();
-                postingListBlocks[i].setDummyFields(); // this to avoid using a boolean for the already read block optimization
+                if (POSTING_LIST_BLOCK_LENGTH > docFreqs[i])
+                    postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
+                else
+                    postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], POSTING_LIST_BLOCK_LENGTH);
+                //postingListBlocks[i] = new PostingListBlock();
+                //postingListBlocks[i].setDummyFields(); // this to avoid using a boolean for the already read block optimization
             } else {
                 skipDescriptors[i] = null;
                 //load in main memory the posting list for which there is no skipDescriptor cause they are too small
-                //postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
+                postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
             }
 
-            postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], POSTING_LIST_BLOCK_LENGTH);
-            numElementsRead[i] += POSTING_LIST_BLOCK_LENGTH;
+            //postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], POSTING_LIST_BLOCK_LENGTH);
+            //numElementsRead[i] += POSTING_LIST_BLOCK_LENGTH;
         }
 
         for (int i = 0; i < numTermQuery; i++) {
@@ -83,7 +87,7 @@ public class MaxScore {
         }
     }
 
-    private int uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
+    private void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
         //Upload the posting list block
         //if the element to read are less in size than "blockSize", read the remaining elements
         //otherwise read a posting list block of size "blockSize"
@@ -99,13 +103,13 @@ public class MaxScore {
                     offsets[indexTerm] + readElement,
                     docFreqs[indexTerm] - readElement
             );
-            return (docFreqs[indexTerm] - readElement);
+            //numElementsRead[indexTerm] += (docFreqs[indexTerm] - readElement);
         }
         else {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     blockSize);
-            return blockSize;
+            //numElementsRead[indexTerm] += blockSize;
         }
     }
 
@@ -158,14 +162,16 @@ public class MaxScore {
                             documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId()), docFreqs[i]);
 
                     countCurrentDocIdInPostingLists++;
+                    numElementsRead[i]++;
                     if (postingListBlocks[i].next() == - 1) {
+                        //System.out.println(numElementsRead[i]);
                         //System.out.println("i = " + i + " --> postingList = " + postingListBlocks[i].getPostingList().toString());
-                        if (numElementsRead[i]%POSTING_LIST_BLOCK_LENGTH != 0)
+                        if (numElementsRead[i] >= docFreqs[i]) {
+                            //System.out.println(docFreqs[i]);
                             return heapScores.getTopDocIdReversed();
-                        numElementsRead[i] += uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH);
+                        }
+                        uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH);
                     }
-                    //else
-                    //    numElementsRead[i]++;
                 }
 
                 if (postingListBlocks[i].getCurrentDocId() < next)
@@ -184,13 +190,12 @@ public class MaxScore {
                     if (offsetNextGEQ != -1) {
                         uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), (int) Math.sqrt(docFreqs[i]));
                         numElementsRead[i] = offsetNextGEQ - offsets[i];
+                        //System.out.println("sesso");
                     }
                 }
 
-                int result = currentDocIdInPostingList(i, minCurrentDocId);
-                if (result != 0) //seek currentDocId in the posting list
+                if (currentDocIdInPostingList(i, minCurrentDocId)) //seek currentDocId in the posting list
                 {
-                    //numElementsRead[i] += result;
                     countCurrentDocIdInPostingLists++;
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
                             documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId()), docFreqs[i]);
@@ -218,16 +223,15 @@ public class MaxScore {
         return heapScores.getTopDocIdReversed();
     }
 
-    private int currentDocIdInPostingList(int indexTerm, int currentDocId) {
-        int count = 0;
+    private boolean currentDocIdInPostingList(int indexTerm, int currentDocId) {
         //System.out.println("entrato in currentDocIdInPostingList----------------------------------");
         do {
             //System.out.println("currentDocId: " + currentDocId + " getCurrentDocId(): " + postingListBlocks[indexTerm].getCurrentDocId());
-            if (postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return count;
-            if (postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) break;
-            count++;
-        } while (postingListBlocks[indexTerm].next() != -1);
-        return 0;
+            if (postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
+            if (postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) return false;
+            numElementsRead[indexTerm]++;
+        } while (postingListBlocks[indexTerm].next() != -1); //while (postingListBlocks[indexTerm].next() != -1);
+        return false;
     }
 
     public int getMinCurrentDocId() {
