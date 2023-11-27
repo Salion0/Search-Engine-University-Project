@@ -11,11 +11,15 @@ public class MinHeapScores {
     private final PriorityQueue<Float> topScores;
     private int topDocCount; //counter for keep track of how many document have been inserted in the min-heap
 
+    private int parameterForMaxScore; // DEBUG
+
     public MinHeapScores(){
         score2DocIdMap = new HashMap<>();
         topScores = new PriorityQueue<>();
-        topDocCount =0;
+        topDocCount = 0;
+        parameterForMaxScore = 0;
     }
+
     private void insertDocIdInMap(float score,int docId){
         if (score2DocIdMap.containsKey(score)) {  //if score is present in hashmap
             score2DocIdMap.get(score).add(docId); //add element to the arrayList of docId
@@ -54,13 +58,27 @@ public class MinHeapScores {
 
             float peek = topScores.peek();
             if(docScore > peek) { //need to check if minDocId should be inserted
-                topScores.remove(peek);
+                topScores.remove(peek); // in the peek there is the minScore
                 topScores.add(docScore);
                 removeDocIdFromMap(peek);
                 insertDocIdInMap(docScore,minDocId);
             }
         }
     }
+
+    public void insertIntoPriorityQueueMAXSCORE(float docScore, int minDocId){
+        float peek = topScores.peek();
+        if(docScore > peek) { //need to check if minDocId should be inserted
+            topScores.remove(peek); // in the peek there is the minScore
+            topScores.add(docScore);
+            if (parameterForMaxScore >= topDocCount)
+                removeDocIdFromMap(peek);
+            insertDocIdInMap(docScore,minDocId);
+            parameterForMaxScore++;
+        }
+    }
+
+    public Float getMinScore() {return topScores.peek();}
 
     public PriorityQueue<Float> getTopScores(){return topScores; }
     public ArrayList<Integer> getDocId(float scores){return this.score2DocIdMap.get(scores);}
@@ -82,4 +100,10 @@ public class MinHeapScores {
         }
         return topDocId;
     }
+
+    public void setTopDocCount(int quantity) {
+        for (int i = 0; i < quantity; i++)
+            topScores.offer((float) 0);
+        topDocCount = quantity;
+    } // PER MAX-SCORE
 }

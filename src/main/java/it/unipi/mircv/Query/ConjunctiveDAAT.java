@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.MIN_NUM_POSTING_TO_SKIP;
 import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
@@ -38,7 +39,7 @@ public class ConjunctiveDAAT {
 
         //initialize arrays
         postingListBlocks = new PostingListBlock[numTermQuery];
-        docFreqs =  new int[numTermQuery];
+        docFreqs = new int[numTermQuery];
         offsets = new int[numTermQuery];
         skipDescriptors = new SkipDescriptor[numTermQuery];
 
@@ -59,14 +60,14 @@ public class ConjunctiveDAAT {
             }
         }
 
-        for (int i = 0; i < numTermQuery; i++){
+        for (int i = 0; i < numTermQuery; i++) {
             // break se non trovo il currentDocId in una delle altre posting list
             System.out.println("queryTerm: " + queryTerms[i] + " docFreq: " + docFreqs[i]);
         }
         //sort arrays for posting list Length
         sortArraysByArray(docFreqs, offsets, skipDescriptors, postingListBlocks);
 
-        for (int i = 0; i < numTermQuery; i++){
+        for (int i = 0; i < numTermQuery; i++) {
             // break se non trovo il currentDocId in una delle altre posting list
             System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
         }
@@ -74,7 +75,6 @@ public class ConjunctiveDAAT {
 
     public ArrayList<Integer> processQuery() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
-
         int postingCount = 0;
         int currentDocId;
         int offsetNextGEQ;
@@ -92,6 +92,9 @@ public class ConjunctiveDAAT {
                 currentDocScore = 0;
                 currentDocLen = 0; // it will be updated only if
                 continueWhile = false;
+
+                System.out.println("currentDocId: " + currentDocId);
+
                 //calculate the partial score for the other posting list if they contain the currentDocId
                 for (int i = 1; i < numTermQuery; i++) {
                     //if skipDescriptors[i] is not null load a posting list block by block
@@ -102,11 +105,12 @@ public class ConjunctiveDAAT {
                             System.out.println("break"); //DEBUG
                             breakWhile = true;
                             break;
-                        }
-                        else{
-                            int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]);
-                            //TODO update va fatto solo se offsetNextGEQ non è uguale a quello di prima - come ha fatto lore non è male
-                            uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
+                        } else {
+                            int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
+                            //TODO controllare se va bene questa ottimizzazione
+                            if ((postingListBlocks[i].getMaxDocID() > currentDocId                  // controllo il range del currentDocId per vedere
+                                    && postingListBlocks[i].getMinDocID() < currentDocId) == false) // se siamo nello stesso blocco di prima
+                                uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                         }
                     }
 
@@ -134,7 +138,7 @@ public class ConjunctiveDAAT {
             if(postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
             if(postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) break;
 
-        }while(postingListBlocks[indexTerm].next() != -1);
+        } while (postingListBlocks[indexTerm].next() != -1);
         return false;
     }
 
@@ -149,6 +153,17 @@ public class ConjunctiveDAAT {
         //Upload the posting list block
         //if the element to read are less in size than "blockSize", read the remaining elements
         //otherwise read a posting list block of size "blockSize"
+        if (docFreqs[indexTerm] - readElement < blockSize) {
+            postingListBlocks[0] = invertedIndexHandler.getPostingList(
+                    offsets[indexTerm] + readElement,
+                    docFreqs[indexTerm] - readElement
+            );
+        }
+        else {
+            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+                    offsets[indexTerm] + readElement,
+                    blockSize);
+        }
         if (docFreqs[indexTerm] - readElement < blockSize) {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
                     offsets[indexTerm] + readElement,

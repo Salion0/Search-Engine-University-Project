@@ -30,6 +30,7 @@ public class Index {
         //this method remove precedent files
         cleanFolder("data");
         loadStopWordList();
+
         /*
         FileInputStream fis = new FileInputStream("collection.tar.gz");
         GZIPInputStream gzis = new GZIPInputStream(fis);
@@ -42,7 +43,6 @@ public class Index {
         reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
         reader.skip(values[0].length()-1); // skip metadata
         */
-
 
         documentIndex = new DocumentIndex();
         currentDocId = 0;
@@ -104,13 +104,11 @@ public class Index {
                 break;
             }
             //DEBUG per creare più di un blocco
-            /*
-            if (count == 3000 || count == 6000){
+            /*if (count == 3000 || count == 6000){
                 readerToReturn = reader;
                 System.out.println("blocco finito per debug");
                 break;
-            }
-            */
+            }*/
             String line = reader.readLine();
             if(line == null){
                 //we reached the end of the file -> close file reader and break

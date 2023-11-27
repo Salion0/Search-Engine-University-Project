@@ -1,6 +1,11 @@
 package it.unipi.mircv.Index;
 
+import it.unipi.mircv.Config;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
+import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.Query.MaxScore;
+import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -62,6 +67,10 @@ public class BlockMerger {
         String minTerm; // come valore iniziale prendo questo che controllerò con un if
         //DEBUG
         int iterations = 0;
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+
 
         while(true) {
             //at each iteration a new term is handled. The minTerm will be the first term in lexicographical increasing order
@@ -114,10 +123,16 @@ public class BlockMerger {
                     minTermFoundInBlock.set(i, false);
             }
 
+            // TODO ********** TERM UPPER BOUND ************
+            float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
+            //System.out.println("termUpperBoundScore = " + termUpperBoundScore);
+            // TODO scrivere nel lexicon.dat il termUpperBoundScore
+
             //appending term and posting list in final files
-            writeToDisk(minTerm, offsetToWrite, docFreqSum, collFreqSum, postingList);
+            writeToDisk(minTerm, offsetToWrite, docFreqSum, collFreqSum, termUpperBoundScore, postingList);
             offsetToWrite += docFreqSum;
 
+            if (minTerm.equals("10") || minTerm.equals("100")) System.out.println(postingList); // DEBUG PER MAX-SCORE
             //DEBUG -----------------------------
             //terms.add(minTerm);  //salvo term e Posting List associata
             //postingLists.add(postingList);
@@ -129,8 +144,6 @@ public class BlockMerger {
         fosDocId.close();
         fosTermFreq.close();
 
-        // ********** TERM UPPER BOUND ************
-        //computeTermUpperBound();
 
         //DEBUG ------printing the whole merged lexicon-------
         /*
@@ -140,20 +153,26 @@ public class BlockMerger {
         //DEBUG ---------------------------------------
     }
 
-    /*private void computeTermUpperBound(String term,PostingList postingList) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        int avgDocLength = documentIndexHandler.readAvgDocLen();
+    private float computeTermUpperBound(DocumentIndexHandler documentIndexHandler,
+                                        PostingList postingList) throws IOException {
+        int documentFrequency = postingList.getSize();
         float maxScore = -1;
 
-        for (PostingElement postingElement: postingList.getPostingList()) {
-
-            if (postingElement.ge)
+        for (PostingElement postingElement: postingList.getPostingList())
+        {
+            //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
+            float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),
+                    documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
+            if (currentScore > maxScore)
+                maxScore = currentScore;
         }
 
-    }*/
+        return maxScore;
+    }
 
     //TODO da vedere se funziona
-    private void writeToDisk(String term, int offset, int docFreq, int collFreq, PostingList postingList) throws IOException {
+    private void writeToDisk(String term, int offset, int docFreq, int collFreq,
+                             float termUpperBoundScore, PostingList postingList) throws IOException {
 
         byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);
@@ -164,6 +183,8 @@ public class BlockMerger {
         termBuffer.putInt(docFreq);
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH);
         termBuffer.putInt(collFreq);
+        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
+        termBuffer.putFloat(termUpperBoundScore);
 
         //update the offset to write in the lexicon for the next term (next iteration)
         postingListOffset += postingList.getSize();
@@ -194,7 +215,8 @@ public class BlockMerger {
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
 
-            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
+            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH
+                    + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH);
             termBuffer.putInt(offsetSkipDescriptor);
 
             skipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
@@ -202,10 +224,4 @@ public class BlockMerger {
         }
         fosLexicon.write(termBuffer.array());
     }
-
-    /*
-    private float computeBM25(int termFrequency, int documentLength, int documentFrequency) {
-        return (float) (( termFrequency / (termFrequency + 1.5 * ((1 - 0.75) + 0.75*(documentLength / avgDocLen))) )
-                * (float) Math.log10(collectionSize/documentFrequency));
-    }*/
 }

@@ -257,7 +257,6 @@ public class QueryProcessor {
             }
 
             if (maxDocIdInAllPostingLists == true) {
-                System.out.println("gabriele marino");
                 int currentTf;
                 int documentLength = documentIndexHandler.readDocumentLength(maxDocId);
                 for (int i =0; i<numTermQuery;i++)
@@ -328,9 +327,6 @@ public class QueryProcessor {
     }
 
     public float computeTFIDF(int termFrequency,int documentFrequency) {
-        if (termFrequency == 0)
-            return 0;
-        else
-            return (float) ((1 + Math.log10(termFrequency)) * Math.log10(documentFrequency/collectionSize));
+        return (float) ((1 + Math.log10(termFrequency)) * Math.log10(documentFrequency/collectionSize));
     }
 }
