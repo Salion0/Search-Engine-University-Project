@@ -25,6 +25,7 @@ public class ConjunctiveDAAT {
     protected final DocumentIndexHandler documentIndexHandler;
     protected final InvertedIndexHandler invertedIndexHandler;
     protected float currentDocScore;
+    protected Integer currentDocLen;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
         //initialize file handlers
@@ -48,7 +49,6 @@ public class ConjunctiveDAAT {
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
 
             if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
-                System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
             }
@@ -81,22 +81,17 @@ public class ConjunctiveDAAT {
         boolean continueWhile;
         boolean breakWhile = false;
 
-        System.out.println("docFreqs[0]: " + docFreqs[0]); //DEBUG
-
         while(postingCount < docFreqs[0]){
             if(skipDescriptors[0] != null){
                 //load the first posting list block
                 uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
             }
-            System.out.println(postingListBlocks[0]); //DEBUG
             do{
                 currentDocId = postingListBlocks[0].getCurrentDocId();
                 postingCount ++;
                 currentDocScore = 0;
+                currentDocLen = 0; // it will be updated only if
                 continueWhile = false;
-                System.out.println("postingCount: " + postingCount);
-                System.out.println("currentDocId: " + currentDocId);
-                System.out.println("position: " + postingListBlocks[0].getPosition());
                 //calculate the partial score for the other posting list if they contain the currentDocId
                 for (int i = 1; i < numTermQuery; i++) {
                     //if skipDescriptors[i] is not null load a posting list block by block
@@ -144,11 +139,10 @@ public class ConjunctiveDAAT {
     }
 
     protected void updateCurrentDocScore(int index) throws IOException {
-        currentDocScore += ScoreFunction.BM25(
-                postingListBlocks[index].getCurrentTf(),
-                documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId()),
-                docFreqs[index]
-        );
+        if (index == 1) {
+            currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
+        }
+        currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
     }
 
     protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {

@@ -10,14 +10,15 @@ public class ConjunctiveDAATCache extends ConjunctiveDAAT {
     }
     @Override
     protected void updateCurrentDocScore(int index) throws IOException {
-        int docId = postingListBlocks[index].getCurrentDocId();
-        Integer docLen = cacheDocIndex.get(docId);
-        if (docLen == null) { //need to read in the file the missing DocId -> DocLen and put it in cache
-            docLen = documentIndexHandler.readDocumentLength(docId);
-            cacheDocIndex.put(docId, docLen);
-            System.out.println("miss"); //DEBUG
-        }else System.out.println("Ho hittato in cache: " + docLen); //DEBUG
-
-        currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), docLen, docFreqs[index]);
+        if (index == 1) {
+            int docId = postingListBlocks[index].getCurrentDocId();
+            currentDocLen = cacheDocIndex.get(docId);
+            if (currentDocLen == null) { //need to read in the file the missing DocId -> DocLen and put it in cache
+                currentDocLen = documentIndexHandler.readDocumentLength(docId);
+                cacheDocIndex.put(docId, currentDocLen);
+                System.out.println("miss");
+            } else System.out.println("hit");
+        }
+        currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
     }
 }
