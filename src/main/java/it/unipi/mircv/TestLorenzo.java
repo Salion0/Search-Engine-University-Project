@@ -11,9 +11,12 @@ import it.unipi.mircv.Query.MaxScore;
 import it.unipi.mircv.Query.QueryProcessor;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import static it.unipi.mircv.TestMatteo.removeStopWords;
+import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Config.LEXICON_ENTRY_LENGTH;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
@@ -48,8 +51,8 @@ public class TestLorenzo {
 
         System.out.println("-----------------------------------------------------------");
 
-        String[] queryTerms = "10 100".split(" ");
         long startTime = System.currentTimeMillis();
+        String[] queryTerms = "railroad workers".split(" ");
         queryTerms = removeStopWords(queryTerms);
         MaxScore maxScore = new MaxScore(queryTerms);
         ArrayList<Integer> results = maxScore.computeMaxScore();
@@ -89,4 +92,43 @@ public class TestLorenzo {
 
      */
     }
+
+    public static String[] removeStopWords(String[] queryTerms) throws IOException {
+        ArrayList<String> filteredTerms = new ArrayList<>();
+        for (String term : queryTerms) {
+            if (!seekInStopwords(term)) {
+                filteredTerms.add(term);
+            }
+        }
+        return filteredTerms.toArray(new String[0]);
+    }
+
+    public static boolean seekInStopwords(String term) throws IOException {
+
+        int l = 0, r = stopWords.size() - 1;
+
+        // Loop to implement Binary Search
+        while (l <= r) {
+
+            // computing mid
+            int m = l + (r - l) / 2;
+
+            int res = term.compareTo(stopWords.get(m));
+
+            // Check if term is present at mid
+            if (res == 0)
+                return true;
+
+            // If x greater, ignore left half
+            if (res > 0)
+                l = m + 1;
+
+                // If x is smaller, ignore right half
+            else
+                r = m - 1;
+        }
+
+        return false;
+    }
+
 }

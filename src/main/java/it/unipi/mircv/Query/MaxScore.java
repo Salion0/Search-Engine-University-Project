@@ -117,11 +117,14 @@ public class MaxScore {
         float score;
         int next;
         int countCurrentDocIdInPostingLists; // for checking if the docId is in every posting list
+        int minDocIdDocumentLength; // optimization to avoid reading document length more than one time
         minCurrentDocId = getMinCurrentDocId(); // get the mi docId between the current element of all posting lists
+
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
             score = 0;
             countCurrentDocIdInPostingLists = 0;
+            minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
             next = Integer.MAX_VALUE;
 
             // ESSENTIAL LISTS
@@ -130,9 +133,7 @@ public class MaxScore {
                 //System.out.println("Entrato nel ESSENTIAL LISTS");
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
-                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
-                            documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId()), docFreqs[i]);
-
+                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                     countCurrentDocIdInPostingLists++;
                     numElementsRead[i]++;
                     if (postingListBlocks[i].next() == - 1)
@@ -168,8 +169,7 @@ public class MaxScore {
                 if (currentDocIdInPostingList(i, minCurrentDocId)) //seek currentDocId in the posting list
                 {
                     countCurrentDocIdInPostingLists++;
-                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(),
-                            documentIndexHandler.readDocumentLength(postingListBlocks[i].getCurrentDocId()), docFreqs[i]);
+                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                 }
             }
 
@@ -198,11 +198,9 @@ public class MaxScore {
 
     public int getMinCurrentDocId() {
         int minCurrentDocId = Integer.MAX_VALUE;
-        for (int i = 0; i < postingListBlocks.length; i++) {
-            //System.out.println(" i --> " + postingListBlocks[i].getPostingList());
+        for (int i = 0; i < postingListBlocks.length; i++)
             if (postingListBlocks[i].getCurrentDocId() < minCurrentDocId)
                 minCurrentDocId = postingListBlocks[i].getCurrentDocId();
-        }
 
         return minCurrentDocId;
     }
