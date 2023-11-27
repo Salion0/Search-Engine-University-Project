@@ -35,7 +35,7 @@ public class TestMatteo {
 
 
         //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
-        long startTime = System.currentTimeMillis();
+
         //what is the distance between flat rock michigan and detroit
 
         /*
@@ -53,36 +53,45 @@ public class TestMatteo {
         LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
         //
         System.out.println("-----------------------------------------------------------");
+        long startTime = System.currentTimeMillis();
         String[] queryTerms= "railroad workers".split(" ");
         queryTerms = removeStopWords(queryTerms);
         System.out.println(queryTerms.length);
-        ConjunctiveDAATCache conjunctiveDAATCache = new ConjunctiveDAATCache(queryTerms, docLenCache);
+        ConjunctiveDAAT conjunctiveDAATCache = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
         System.out.println(results);
+        long elapsedTime = System.currentTimeMillis() - startTime;
 
         System.out.println("-----------------------------------------------------------");
+        long startTime1 = System.currentTimeMillis();
         String[] queryTerms1= "railroad workers".split(" ");
         queryTerms1 = removeStopWords(queryTerms1);
         System.out.println(queryTerms1.length);
-        ConjunctiveDAATCache conjunctiveDAATCache1 = new ConjunctiveDAATCache(queryTerms1, docLenCache);
+        ConjunctiveDAAT conjunctiveDAATCache1 = new ConjunctiveDAAT(queryTerms1);
         ArrayList<Integer> results1 = conjunctiveDAATCache1.processQuery();
         System.out.println(results1);
+        long elapsedTime1 = System.currentTimeMillis() - startTime1;
 
         System.out.println("-----------------------------------------------------------");
+        long startTime2 = System.currentTimeMillis();
         String[] queryTerms2= "railroad workers".split(" ");
         queryTerms2 = removeStopWords(queryTerms2);
         System.out.println(queryTerms2.length);
-        ConjunctiveDAATCache conjunctiveDAATCache2 = new ConjunctiveDAATCache(queryTerms2, docLenCache);
+        ConjunctiveDAAT conjunctiveDAATCache2 = new ConjunctiveDAAT(queryTerms2);
         ArrayList<Integer> results2 = conjunctiveDAATCache2.processQuery();
         System.out.println(results2);
+        long elapsedTime2 = System.currentTimeMillis() - startTime2;
 
         System.out.println("-----------------------------------------------------------");
+        long startTime3 = System.currentTimeMillis();
         String[] queryTerms3= "railroad workers".split(" ");
         queryTerms3 = removeStopWords(queryTerms3);
         System.out.println(queryTerms3.length);
-        ConjunctiveDAATCache conjunctiveDAATCache3 = new ConjunctiveDAATCache(queryTerms3, docLenCache);
+        ConjunctiveDAAT conjunctiveDAATCache3 = new ConjunctiveDAAT(queryTerms3);
         ArrayList<Integer> results3 = conjunctiveDAATCache3.processQuery();
         System.out.println(results3);
+        long elapsedTime3 = System.currentTimeMillis() - startTime3;
+
         /* DISJUNCTIVE DAAT
         System.out.println("-----------------------------------------------------------");
         String[] queryTerms1= "what is the distance between flat rock michigan and detroit".split(" ");
@@ -167,8 +176,14 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
         */
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
+
+
         System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
+
+        System.out.println("1 finished in " + (float)elapsedTime1/1000 +"sec");
+
+        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");
+
+        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
     }
 }
