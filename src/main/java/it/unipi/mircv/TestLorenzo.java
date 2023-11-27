@@ -54,18 +54,47 @@ public class TestLorenzo {
 
         System.out.println("-----------------------------------------------------------");
 
+/*
         long startTime = System.currentTimeMillis();
-        String[] queryTerms = "railroad workers 10".split(" ");
+        String[] queryTerms = "10 100".split(" ");
         queryTerms = removeStopWords(queryTerms);
         MaxScore maxScore = new MaxScore(queryTerms);
         ArrayList<Integer> results = maxScore.computeMaxScore();
         //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         //ArrayList<Integer> results = conjunctiveDAAT.processQuery();
-
         System.out.println(results);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("indexing finished in " + (float)elapsedTime/1000 +"sec");
+
+
+
+        long startTime2 = System.currentTimeMillis();
+        String[] queryTerms2 = "10 100".split(" ");
+        queryTerms2 = removeStopWords(queryTerms2);
+        MaxScore maxScore2 = new MaxScore(queryTerms2);
+        ArrayList<Integer> results2 = maxScore2.computeMaxScore();
+        System.out.println(results2);
+        long endTime2 = System.currentTimeMillis();
+        long elapsedTime2 = endTime2 - startTime2;
+*/
+
+
+
+        long startTime3 = System.currentTimeMillis();
+        String[] queryTerms3 = "food farm chicken".split(" ");
+        queryTerms3 = removeStopWords(queryTerms3);
+        MaxScore maxScore3 = new MaxScore(queryTerms3);
+        //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms3);
+        ArrayList<Integer> results3 = maxScore3.computeMaxScore();
+        //ArrayList<Integer> results3 = conjunctiveDAAT.processQuery();
+        System.out.println(results3);
+        long endTime3= System.currentTimeMillis();
+        long elapsedTime3 = endTime3 - startTime3;
+
+
+/*        System.out.println("1 finished in " + (float)elapsedTime/1000 +"sec");
+        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");*/
+        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
     /*
         //Test per leggere senza unzippare
         String tarFilePath = "collection.tar.gz";
