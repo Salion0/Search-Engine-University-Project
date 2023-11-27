@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
 import java.util.List;
 
 public class Config {
@@ -33,6 +35,8 @@ public class Config {
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
     public static final int MIN_NUM_POSTING_TO_SKIP = 10;
     public static final int MEMORY_THRESHOLD = 8; //Expressed in percentage
+    public static final int CACHE_SIZE = 1000; //Expressed in number of entries
+
     public static void loadStopWordList() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -42,6 +46,14 @@ public class Config {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public static void printMemoryOccupacy(Object object){
+        String className = "NomeClasse"; // Sostituisci con il nome della tua classe
+
+        MemoryPoolMXBean memoryPoolMXBean = (MemoryPoolMXBean) ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+        long memoryUsed = memoryPoolMXBean.getUsage().getUsed();
+
+        System.out.println("La classe " + className + " occupa circa " + memoryUsed + " byte in memoria.");
     }
 
 }
