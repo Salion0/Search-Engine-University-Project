@@ -1,5 +1,8 @@
 package it.unipi.mircv.Index;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import static it.unipi.mircv.Config.stopWords;
 
 public class SkipDescriptor {
     private final ArrayList<Integer> maxDocIds;
@@ -29,6 +32,25 @@ public class SkipDescriptor {
             if(maxDocIds.get(i) > docId) return offsetMaxDocIds.get(i);
         }
         return -1;
+    }
+
+    public boolean seekInMaxDocIds(int docId) throws IOException {
+
+        int l = 0, r = maxDocIds.size() - 1;
+
+        while (l <= r)
+        {
+            int m = l + (r - l) / 2;
+            int res = docId.compareTo(stopWords.get(m));
+            if (res == 0)
+                return true;
+            if (res > 0)
+                l = m + 1;
+            else
+                r = m - 1;
+        }
+
+        return false;
     }
 
     @Override

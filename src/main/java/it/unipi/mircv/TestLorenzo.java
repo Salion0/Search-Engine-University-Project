@@ -107,23 +107,14 @@ public class TestLorenzo {
 
         int l = 0, r = stopWords.size() - 1;
 
-        // Loop to implement Binary Search
-        while (l <= r) {
-
-            // computing mid
+        while (l <= r)
+        {
             int m = l + (r - l) / 2;
-
             int res = term.compareTo(stopWords.get(m));
-
-            // Check if term is present at mid
             if (res == 0)
                 return true;
-
-            // If x greater, ignore left half
             if (res > 0)
                 l = m + 1;
-
-                // If x is smaller, ignore right half
             else
                 r = m - 1;
         }
