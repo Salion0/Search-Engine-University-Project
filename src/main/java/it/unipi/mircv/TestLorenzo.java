@@ -14,9 +14,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Config.LEXICON_ENTRY_LENGTH;
+import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
@@ -52,7 +55,7 @@ public class TestLorenzo {
         System.out.println("-----------------------------------------------------------");
 
         long startTime = System.currentTimeMillis();
-        String[] queryTerms = "railroad workers".split(" ");
+        String[] queryTerms = "railroad workers 10".split(" ");
         queryTerms = removeStopWords(queryTerms);
         MaxScore maxScore = new MaxScore(queryTerms);
         ArrayList<Integer> results = maxScore.computeMaxScore();
@@ -95,11 +98,10 @@ public class TestLorenzo {
 
     public static String[] removeStopWords(String[] queryTerms) throws IOException {
         ArrayList<String> filteredTerms = new ArrayList<>();
-        for (String term : queryTerms) {
-            if (!seekInStopwords(term)) {
+        for (String term : queryTerms)
+            if (!seekInStopwords(term)) //if (binarySearch(stopWords,term) == -1) //if (!stopWords.contains(term))
                 filteredTerms.add(term);
-            }
-        }
+
         return filteredTerms.toArray(new String[0]);
     }
 
