@@ -81,7 +81,7 @@ public class TestLorenzo {
 
 
         long startTime3 = System.currentTimeMillis();
-        String[] queryTerms3 = "food farm chicken".split(" ");
+        String[] queryTerms3 = "diet blood".split(" ");
         queryTerms3 = removeStopWords(queryTerms3);
         MaxScore maxScore3 = new MaxScore(queryTerms3);
         //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms3);

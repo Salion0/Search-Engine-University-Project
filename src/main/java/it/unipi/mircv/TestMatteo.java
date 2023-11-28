@@ -5,6 +5,7 @@ import it.unipi.mircv.File.DocumentIndexHandler;
 
 import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.ConjunctiveDAATCache;
+import it.unipi.mircv.Query.DisjunctiveDAAT;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class TestMatteo {
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
          */
-
+/*
         //TESTING CONJUNCTIVE DAAT with CACHE
         LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
         //
@@ -90,18 +91,19 @@ public class TestMatteo {
         ConjunctiveDAAT conjunctiveDAATCache3 = new ConjunctiveDAAT(queryTerms3);
         ArrayList<Integer> results3 = conjunctiveDAATCache3.processQuery();
         System.out.println(results3);
-        long elapsedTime3 = System.currentTimeMillis() - startTime3;
+        long elapsedTime3 = System.currentTimeMillis() - startTime3;*/
 
-        /* DISJUNCTIVE DAAT
+        //DISJUNCTIVE DAAT
         System.out.println("-----------------------------------------------------------");
-        String[] queryTerms1= "what is the distance between flat rock michigan and detroit".split(" ");
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms1= "diet blood".split(" ");
         queryTerms1 = removeStopWords(queryTerms1);
         System.out.println(queryTerms1.length);
         DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms1);
         ArrayList<Integer> results1 = disjunctiveDAAT.processQuery();
         System.out.println(results1);
-        */
-
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Elapsed time: " + elapsedTime+"ms");
 
         //testing PL Descriptor
 
@@ -177,13 +179,13 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
         */
 
-
+/*
         System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
 
         System.out.println("1 finished in " + (float)elapsedTime1/1000 +"sec");
 
         System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");
 
-        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
+        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");*/
     }
 }
