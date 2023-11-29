@@ -1,30 +1,8 @@
 package it.unipi.mircv;
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.Index.Lexicon;
-import it.unipi.mircv.Index.PostingElement;
-import it.unipi.mircv.Index.PostingList;
-import it.unipi.mircv.Query.QueryProcessor;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import it.unipi.mircv.File.LexiconFileHandler;
 
-import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.Index.BlockReader;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.RandomAccess;
 
 
 public class TestSalvo{
@@ -36,7 +14,7 @@ public class TestSalvo{
     }
     public static void main(String[] args) throws IOException {
 
-    LexiconHandler lexiconHandler = new LexiconHandler();
+    LexiconFileHandler lexiconHandler = new LexiconFileHandler();
 /*        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         System.out.println(documentIndexHandler.readAvgDocLen());*/
 

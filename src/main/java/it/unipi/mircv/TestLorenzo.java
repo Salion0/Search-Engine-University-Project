@@ -1,24 +1,12 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
-import it.unipi.mircv.Index.BlockMerger;
-import it.unipi.mircv.Index.Index;
-import it.unipi.mircv.Index.SkipDescriptor;
-import it.unipi.mircv.Query.ConjunctiveDAAT;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.Query.MaxScore;
-import it.unipi.mircv.Query.QueryProcessor;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Config.LEXICON_ENTRY_LENGTH;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
@@ -47,10 +35,10 @@ public class TestLorenzo {
         */
 
         // Testing DAAT
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         Config.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Config.collectionSize = documentIndexFileHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexFileHandler.readAvgDocLen();
 
         System.out.println("-----------------------------------------------------------");
 

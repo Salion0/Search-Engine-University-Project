@@ -1,79 +1,84 @@
 package it.unipi.mircv.Index;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.PriorityQueue;
+
 import static it.unipi.mircv.Config.*;
 
 
 public class BlockMerger {
     private static int numberOfBlocks;
     private static int offsetToWrite = 0;
-    private static final ArrayList<LexiconHandler> lexiconBlocks = new ArrayList<>();
-    private static ArrayList<InvertedIndexHandler> postingListBlocks = new ArrayList<>();
+    private static final ArrayList<LexiconFileHandler> lexiconBlocks = new ArrayList<>();
+    private static ArrayList<InvertedIndexFileHandler> postingListBlocks = new ArrayList<>();
     private static ArrayList<LexiconEntry> currentBlockEntry = new ArrayList<>();
     private static ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
 
+    private static PriorityQueue<String> minTermQueue = new PriorityQueue();
     private static int postingListOffset = 0;  //offset to write in the final lexicon file for each term
-    private String getMinTerm() throws IOException {
-        String minTerm = null;
-        for (int i = 0; i < numberOfBlocks; i++) {      // cerco il term minore dal punto di vista lessicografico
+    private static String path="data/";
 
-            if (currentBlockEntry.get(i) == null) continue;  //skip iteration
+    public void mergeBlocks(int numberOfBlocks) throws IOException {
 
-            //If at the previous iteration the block i-th contains the minTerm => we have to read the next element (term) of the Lexicon of that block
-            if (minTermFoundInBlock.get(i)) {
-                currentBlockEntry.set(i, lexiconBlocks.get(i).nextEntryLexiconFile());
-            }
-            else{
-                if (minTerm == null) {  //Need to set minTerm at the first element of the Lexicon in the first iteration
-                    minTerm = currentBlockEntry.get(i).getTerm();
-                } else {
-                    String currentTerm = currentBlockEntry.get(i).getTerm(); //this return -1, 0 or 1
-                    if (currentTerm.compareTo(minTerm)<0)
-                        minTerm = currentBlockEntry.get(i).getTerm();
-                }
-            }
-        }
-        return minTerm;
-    }
-    public void mergeBlocks() throws IOException {
-
-        //TODO inserire conteggio dei blocchi calcolando il numero dei file in automatico da
+/*        //count number of blocks
         String path = "./data/";
         File directory=new File(path);
-        int numberOfBlocks = (directory.list().length-1)/3;
+        int numberOfBlocks = (directory.list().length-5)/3;*/
+
         this.numberOfBlocks = numberOfBlocks;
+
+
+
+
         //---------------------------------FILE HANDLER---------------------------------------------------------------------------------------------------
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
-            minTermFoundInBlock.add(true); // initialize arrayList
-            currentBlockEntry.add(blockIndex, new LexiconEntry()); // initialize arrayList
-
             // initialize the handlers for each block
-            LexiconHandler lexiconHandler = new LexiconHandler(path+"lexicon"+blockIndex+".dat");
-            InvertedIndexHandler plHandler = new InvertedIndexHandler(path+"docIds"+blockIndex+".dat",path+"termFreq"+blockIndex+".dat");
-            lexiconBlocks.add(blockIndex,lexiconHandler);
-            postingListBlocks.add(blockIndex,plHandler);
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat");
+            InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(path+"docIds"+blockIndex+".dat",path+"termFreq"+blockIndex+".dat");
+            lexiconBlocks.add(lexiconHandler);
+            postingListBlocks.add(plHandler);
         }
+
         FileOutputStream fosLexicon = new FileOutputStream(path+"lexicon.dat",true);
         FileOutputStream fosDocId = new FileOutputStream(path+"docIds.dat",true);
         FileOutputStream fosTermFreq = new FileOutputStream(path+"termFreq.dat",true);
         //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-        String minTerm;
+
+        //Initialzie the priority queue with the first term of each block
+        System.out.print("number of blocks:"+numberOfBlocks+"\n");
+        for (int i = 0; i < numberOfBlocks; i++) {
+            LexiconEntry lexiconEntry = lexiconBlocks.get(i).nextEntryLexiconFile();
+            System.out.println("Block "+i+" first term:"+lexiconEntry.getTerm());
+            minTermQueue.add(lexiconEntry.getTerm());
+            currentBlockEntry.add(i,lexiconEntry);
+        }
+
+        for(int i=0;i<numberOfBlocks;i++){
+            System.out.println("Block"+i+"  currentBlockentry():"+currentBlockEntry.get(i).getTerm()+" offset "+currentBlockEntry.get(i).getOffset()+" df "+currentBlockEntry.get(i).getDf()+" cf "+currentBlockEntry.get(i).getCf());
+        }
+
         while(true) {
+            String minTerm = minTermQueue.peek();
             //at each iteration a new term is handled. The minTerm will be the first term in lexicographical increasing order
-            //TODO ottimizzare la scelta del minTerm salvando il secondo minTerm, valutare se abbia senso in realtà
-            minTerm = getMinTerm();
-            System.out.println("Min term:"+minTerm);
             if(minTerm == null)
                 break;
+            //duplicate terms are removed from the queue
+            System.out.println("Min term queue:"+minTermQueue.toString());
+            while((minTermQueue.peek()!=null) && (minTerm.compareTo(minTermQueue.peek())== 0)) {
+                minTerm = minTermQueue.poll();
+            }
+            System.out.println("Min term:"+minTerm);
+            System.out.println("Min term queue:"+minTermQueue.toString());
+            //if the queue is empty, the merging is completed
+
 
             //----------------------------------MERGING--------------------------------------------------------------------
             PostingList postingList = new PostingList();
@@ -82,17 +87,30 @@ public class BlockMerger {
             for (int i = 0; i < numberOfBlocks; i++) {  //for each block merge the corresponding entry with the min term
                 if (currentBlockEntry.get(i) == null) continue;  //skip iteration if block is completed
                 if (minTerm.compareTo(currentBlockEntry.get(i).getTerm()) == 0) {
+                   //if the term is the same of the minTerm, add the posting list to the final posting list
+                    System.out.println("Block "+i+" term:"+currentBlockEntry.get(i).getTerm()+" is equal to minTerm:"+minTerm);
+                    System.out.println("Block "+i+" offset:"+currentBlockEntry.get(i).getOffset()+" df:"+currentBlockEntry.get(i).getDf()+" cf:"+currentBlockEntry.get(i).getCf());
+                    System.out.println("Block "+i+" posting list:"+postingListBlocks.get(i).getPostingList(0, 12));
                     postingList.addPostingList(postingListBlocks.get(i).getPostingList(
                             currentBlockEntry.get(i).getOffset(),
                             currentBlockEntry.get(i).getDf()
                             )
                     );
+
+                    //compute the sum of docFreq and collFreq
                     docFreqSum += currentBlockEntry.get(i).getDf();
                     collFreqSum += currentBlockEntry.get(i).getCf();
-                    minTermFoundInBlock.set(i, true);
+
+                    //update the currentBlockEntry with the next entry of the block
+                    currentBlockEntry.set(i, lexiconBlocks.get(i).nextEntryLexiconFile());
+                    if (currentBlockEntry.get(i) != null) {
+                        //if the block is not completed, add the next term to the minTermQueue
+                        //check if the term is already in the priority queue
+                        if(minTerm.compareTo(currentBlockEntry.get(i).getTerm()) != 0)
+                            minTermQueue.add(currentBlockEntry.get(i).getTerm());
+
+                    }
                 }
-                else
-                    minTermFoundInBlock.set(i, false);
             }
             //-------------------------------------------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 package it.unipi.mircv.Query;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 
 import java.io.IOException;
@@ -14,8 +14,8 @@ import static it.unipi.mircv.Config.collectionSize;
 
 public class DisjunctiveDAAT {
     private final int numTermQuery;
-    private final DocumentIndexHandler documentIndexHandler;
-    private final InvertedIndexHandler invertedIndexHandler;
+    private final DocumentIndexFileHandler documentIndexFileHandler;
+    private final InvertedIndexFileHandler invertedIndexFileHandler;
     private ArrayList<PostingListBlock> postingListBlocks;
     private final int[] numBlockRead;
     private final int[] docFreqs;
@@ -24,9 +24,9 @@ public class DisjunctiveDAAT {
     private final boolean[] endOfPostingListFlag;
 
     public DisjunctiveDAAT(String[] queryTerms) throws IOException {
-        documentIndexHandler = new DocumentIndexHandler();
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        invertedIndexHandler = new InvertedIndexHandler();
+        documentIndexFileHandler = new DocumentIndexFileHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        invertedIndexFileHandler = new InvertedIndexFileHandler();
 
         //--------------------DEFINE ARRAYS------------------------//
         numTermQuery = queryTerms.length;
@@ -73,7 +73,7 @@ public class DisjunctiveDAAT {
             System.out.println("minDocId: " + minDocId);
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
-            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            int documentLength = documentIndexFileHandler.readDocumentLength(minDocId);
             for (int i =0; i<numTermQuery;i++) {
                 PostingListBlock postingListBlock = postingListBlocks.get(i);
                 if (postingListBlock.getCurrentDocId() == minDocId) {
@@ -109,10 +109,10 @@ public class DisjunctiveDAAT {
         postingListBlocks = new ArrayList<>(numTermQuery);
         for(int i=0; i<numTermQuery; i++){
             if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+                postingListBlocks.add(i,this.invertedIndexFileHandler.getPostingList(offsets[i],docFreqs[i]));
             }
             else{                                     //else posting list length is greather than block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+                postingListBlocks.add(i,this.invertedIndexFileHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
             }
             numBlockRead[i]++;
         }
@@ -132,7 +132,7 @@ public class DisjunctiveDAAT {
                         elementToRead = POSTING_LIST_BLOCK_LENGTH;
                     }
                     postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
-                            this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                            this.invertedIndexFileHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
                                     elementToRead));
                     //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
                     endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco

@@ -1,10 +1,9 @@
 package it.unipi.mircv;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 
 import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.ConjunctiveDAATCache;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,10 +26,10 @@ public class TestMatteo {
 
         // Testing DAAT
 
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         Config.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Config.collectionSize = documentIndexFileHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexFileHandler.readAvgDocLen();
         PorterStemmer stemmer = new PorterStemmer();
 
 

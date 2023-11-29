@@ -2,9 +2,9 @@ package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.Config;
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.*;
 
 import java.io.IOException;
@@ -17,9 +17,9 @@ import static it.unipi.mircv.Config.*;
 public class QueryProcessor {
 
     //------------------FILE HANDLER-------------------------------------------//
-    private final InvertedIndexHandler invertedIndexHandler;
-    private final LexiconHandler lexiconHandler;
-    private final DocumentIndexHandler documentIndexHandler;
+    private final InvertedIndexFileHandler invertedIndexFileHandler;
+    private final LexiconFileHandler lexiconHandler;
+    private final DocumentIndexFileHandler documentIndexFileHandler;
     //------------------------------------------------------------------------//
     private int collectionSize;
     private float avgDocLen;
@@ -52,14 +52,14 @@ public class QueryProcessor {
         //-----------------------------------------------------------
 
         //-------------INITIALIZE FILE HANDLER ----------------------
-        this.lexiconHandler = new LexiconHandler();
-        this.documentIndexHandler = new DocumentIndexHandler();
-        this.invertedIndexHandler = new InvertedIndexHandler();
+        this.lexiconHandler = new LexiconFileHandler();
+        this.documentIndexFileHandler = new DocumentIndexFileHandler();
+        this.invertedIndexFileHandler = new InvertedIndexFileHandler();
         //-----------------------------------------------------------
 
         //-------------INITIALIZE COLLECTION STATISTICS -------------
-        this.collectionSize = documentIndexHandler.readCollectionSize();
-        this.avgDocLen = documentIndexHandler.readAvgDocLen();
+        this.collectionSize = documentIndexFileHandler.readCollectionSize();
+        this.avgDocLen = documentIndexFileHandler.readAvgDocLen();
         //-----------------------------------------------------------
 
         //-------------INITIALIZE TERM STATISTICS---------------------
@@ -96,10 +96,10 @@ public class QueryProcessor {
         this.postingListBlocks = new ArrayList<>(numTermQuery);
         for(int i=0; i<numTermQuery; i++){
             if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+                postingListBlocks.add(i,this.invertedIndexFileHandler.getPostingList(offsets[i],docFreqs[i]));
             }
             else{                                     //else posting list length is greather than block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+                postingListBlocks.add(i,this.invertedIndexFileHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
             }
             numBlockRead[i]++;
         }
@@ -147,7 +147,7 @@ public class QueryProcessor {
                         elementToRead = POSTING_LIST_BLOCK_LENGTH;
                     }
                     postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
-                            this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                            this.invertedIndexFileHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
                                     elementToRead));
                     //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
                     endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
@@ -174,7 +174,7 @@ public class QueryProcessor {
                 elementToRead = POSTING_LIST_BLOCK_LENGTH;
 
             postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
-                    this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                    this.invertedIndexFileHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
                             elementToRead));
 
             endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
@@ -188,7 +188,7 @@ public class QueryProcessor {
     //------------------------------------------------------------------------//
 
     public ArrayList<Integer> DAAT() throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         MinHeapScores heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
@@ -199,7 +199,7 @@ public class QueryProcessor {
             System.out.println("minDocId: " + minDocId);
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
-            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            int documentLength = documentIndexFileHandler.readDocumentLength(minDocId);
             for (int i =0; i<numTermQuery;i++) {
                 PostingListBlock postingListBlock = postingListBlocks.get(i);
                 if (postingListBlock.getCurrentDocId() == minDocId) {
@@ -232,7 +232,7 @@ public class QueryProcessor {
     }
 
     public ArrayList<Integer> conjunctiveDAAT() throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         MinHeapScores heapScores = new MinHeapScores();
         float docScore;
         int maxDocId;
@@ -258,7 +258,7 @@ public class QueryProcessor {
 
             if (maxDocIdInAllPostingLists == true) {
                 int currentTf;
-                int documentLength = documentIndexHandler.readDocumentLength(maxDocId);
+                int documentLength = documentIndexFileHandler.readDocumentLength(maxDocId);
                 for (int i =0; i<numTermQuery;i++)
                 {
                     PostingListBlock postingListBlock = postingListBlocks.get(i);
@@ -276,7 +276,7 @@ public class QueryProcessor {
     }
 
     public void TAAT() throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         HashMap<Integer,Float> mapIdWithScoreTAAT = new HashMap<>();
         int currentDocId;
         int currentTf;
@@ -289,7 +289,7 @@ public class QueryProcessor {
             while(endOfPostingListFlag[i] == false)
             {
                 currentDocId = postingListBlock.getCurrentDocId();
-                documentLength = documentIndexHandler.readDocumentLength(currentDocId);
+                documentLength = documentIndexFileHandler.readDocumentLength(currentDocId);
                 currentTf = postingListBlock.getCurrentTf();
                 score = computeBM25(currentTf, documentLength, docFreqs[i]);
 

@@ -9,17 +9,17 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import static it.unipi.mircv.Config.*;
 
-public class InvertedIndexHandler {
+public class InvertedIndexFileHandler {
     private final FileChannel docIdChannel;
     private final FileChannel termFreqChannel;
-    public InvertedIndexHandler() throws IOException {
+    public InvertedIndexFileHandler() throws IOException {
         RandomAccessFile rafDocId = new RandomAccessFile(DOC_ID_FILE, "rw");
         this.docIdChannel = rafDocId.getChannel();
 
         RandomAccessFile rafTermFreq = new RandomAccessFile(TERM_FREQ_FILE, "rw");
         this.termFreqChannel = rafTermFreq.getChannel();
     }
-    public InvertedIndexHandler(String docIdPath,String termFreqPath) throws IOException {
+    public InvertedIndexFileHandler(String docIdPath, String termFreqPath) throws IOException {
         RandomAccessFile rafDocId = new RandomAccessFile(DOC_ID_FILE, "rw");
         this.docIdChannel = rafDocId.getChannel();
 
@@ -28,7 +28,7 @@ public class InvertedIndexHandler {
     }
 
     public PostingListBlock getPostingList(int offset, int length) throws IOException {
-        PostingListBlock postingListBlock = new PostingListBlock(length);
+        PostingListBlock postingListBlock = new PostingListBlock();
         ByteBuffer docIdBuffer = ByteBuffer.allocate(DOC_ID_LENGTH*length);
         ByteBuffer termFreqBuffer = ByteBuffer.allocate(TERM_FREQ_LENGTH*length);
 
@@ -36,7 +36,7 @@ public class InvertedIndexHandler {
         termFreqChannel.read(termFreqBuffer, (long) offset * TERM_FREQ_LENGTH);
 
         for (int i = 0; i < length; i++){
-            docIdBuffer.position(i * DOC_ID_LENGTH);
+            docIdBuffer.position(i* DOC_ID_LENGTH);
             termFreqBuffer.position(i * TERM_FREQ_LENGTH);
             int docID = docIdBuffer.getInt();
             int termFreq = termFreqBuffer.getInt();

@@ -1,5 +1,4 @@
 package it.unipi.mircv;
-import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.Query.QueryProcessor;
 
 import java.io.IOException;

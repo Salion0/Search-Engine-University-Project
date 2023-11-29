@@ -8,23 +8,23 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-public class LexiconHandler{
+import java.util.PriorityQueue;
+
+public class LexiconFileHandler {
     private int lexiconPos;
     private int collectionFrequency;
     private int currentOffsetRead;
     private int successiveOffsetRead;
-
     public int numEntry;
     //Class that create a file-channel to the lexicon file and implement write and read method for that file
     private final FileChannel lexiconFile;
-    public LexiconHandler() throws IOException {
+    public LexiconFileHandler() throws IOException {
         RandomAccessFile raf = new RandomAccessFile(Config.LEXICON_FILE, "rw");
         this.lexiconFile = raf.getChannel();
         this.lexiconPos = 0;
         this.numEntry = (int) ((lexiconFile.size()/Config.LEXICON_ENTRY_LENGTH));
     }
-    public LexiconHandler(String filePath) throws IOException {
+    public LexiconFileHandler(String filePath) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
         this.lexiconFile = raf.getChannel();
         this.lexiconPos = 0;
@@ -67,12 +67,17 @@ public class LexiconHandler{
         System.out.println(); //DEBUG
         return dataBuffer;
     }
-    public LexiconEntry nextEntryLexiconFile() throws IOException {    // reading the next term with his offset
+    public LexiconEntry nextEntryLexiconFile() throws IOException {
+        // reading the next term with his offset
 
         if(this.lexiconPos > numEntry)
             return null;
-        ByteBuffer dataBuffer = ByteBuffer.allocate(Config.LEXICON_ENTRY_LENGTH);
-        this.lexiconFile.read(dataBuffer, (long) this.lexiconPos *Config.LEXICON_ENTRY_LENGTH);
+        ByteBuffer dataBuffer = ByteBuffer.allocate(
+                Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH
+                + Config.COLLECTIONFREQ_BYTES_LENGTH);
+        this.lexiconFile.read(dataBuffer,
+                (long) this.lexiconPos *(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)
+        );
         this.lexiconPos += 1;
 
         LexiconEntry le = new LexiconEntry();
@@ -104,12 +109,12 @@ public class LexiconHandler{
         return dataBuffer.position(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH).getInt();
     }
     public float getTermUpperBoundScore(ByteBuffer dataBuffer) {
-        return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH
-                + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH).getFloat();
+        return dataBuffer.position(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH
+                + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH).getFloat();
     }
     public int getOffsetSkipDesc(ByteBuffer dataBuffer){
-        return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH
-                + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH).getInt();
+        return dataBuffer.position(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH
+                + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH + Config.UPPER_BOUND_SCORE_LENGTH).getInt();
     }
 
 }

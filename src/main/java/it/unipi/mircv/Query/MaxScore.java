@@ -1,8 +1,8 @@
 package it.unipi.mircv.Query;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.MIN_NUM_POSTING_TO_SKIP;
 import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
@@ -25,14 +24,14 @@ public class MaxScore {
     private final float[] upperBoundScores;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptor[] skipDescriptors;
-    private final DocumentIndexHandler documentIndexHandler;
-    private final InvertedIndexHandler invertedIndexHandler;
+    private final DocumentIndexFileHandler documentIndexFileHandler;
+    private final InvertedIndexFileHandler invertedIndexFileHandler;
 
     public MaxScore(String[] queryTerms) throws IOException {
         //initialize file handlers
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        documentIndexHandler = new DocumentIndexHandler();
-        invertedIndexHandler = new InvertedIndexHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        documentIndexFileHandler = new DocumentIndexFileHandler();
+        invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
         numTermQuery = queryTerms.length;
@@ -59,15 +58,15 @@ public class MaxScore {
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
                 if (POSTING_LIST_BLOCK_LENGTH > docFreqs[i])
                     //we just load the posting list if it is smaller than the chosen treshold for block length
-                    postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
+                    postingListBlocks[i] = invertedIndexFileHandler.getPostingList(offsets[i], docFreqs[i]);
                 else
-                    postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], POSTING_LIST_BLOCK_LENGTH);
+                    postingListBlocks[i] = invertedIndexFileHandler.getPostingList(offsets[i], POSTING_LIST_BLOCK_LENGTH);
             }
             else
             {
                 skipDescriptors[i] = null;
                 //load in main memory the posting list for which there is no skipDescriptor cause they are too small
-                postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
+                postingListBlocks[i] = invertedIndexFileHandler.getPostingList(offsets[i], docFreqs[i]);
             }
         }
 
@@ -87,14 +86,14 @@ public class MaxScore {
         //otherwise read a posting list block of size "blockSize"
 
         if ((docFreqs[indexTerm] - readElement) < blockSize) {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     docFreqs[indexTerm] - readElement
             );
             //numElementsRead[indexTerm] += (docFreqs[indexTerm] - readElement);
         }
         else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     blockSize);
             //numElementsRead[indexTerm] += blockSize;
@@ -124,7 +123,7 @@ public class MaxScore {
         {
             score = 0;
             countCurrentDocIdInPostingLists = 0;
-            minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
+            minDocIdDocumentLength = documentIndexFileHandler.readDocumentLength(minCurrentDocId);
             next = Integer.MAX_VALUE;
 
             // ESSENTIAL LISTS

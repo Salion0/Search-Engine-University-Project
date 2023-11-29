@@ -11,9 +11,14 @@ public class App
 {
     public static void main( String[] args )  {
         try{
-            //Index index = new Index(COLLECTION_FILE);
+            //Index index = new Index("test_collection.tsv");
+            // count number of blocks
+            String path = "./data/";
+            File directory=new File(path);
+            int numberOfBlocks = (directory.list().length)/3;
+            System.out.println("Number of blocks: "+numberOfBlocks);
             BlockMerger blockMerger = new BlockMerger();
-            blockMerger.mergeBlocks();
+            blockMerger.mergeBlocks(numberOfBlocks);
             } catch(Exception e){
                 e.printStackTrace();
             }

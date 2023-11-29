@@ -1,8 +1,8 @@
 package it.unipi.mircv.Query;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
@@ -12,7 +12,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.MIN_NUM_POSTING_TO_SKIP;
 import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
@@ -23,16 +22,16 @@ public class ConjunctiveDAAT {
     protected final int[] offsets;
     protected final PostingListBlock[] postingListBlocks;
     protected final SkipDescriptor[] skipDescriptors;
-    protected final DocumentIndexHandler documentIndexHandler;
-    protected final InvertedIndexHandler invertedIndexHandler;
+    protected final DocumentIndexFileHandler documentIndexFileHandler;
+    protected final InvertedIndexFileHandler invertedIndexFileHandler;
     protected float currentDocScore;
     protected Integer currentDocLen;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
         //initialize file handlers
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        documentIndexHandler = new DocumentIndexHandler();
-        invertedIndexHandler = new InvertedIndexHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        documentIndexFileHandler = new DocumentIndexFileHandler();
+        invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
         numTermQuery = queryTerms.length;
@@ -58,7 +57,7 @@ public class ConjunctiveDAAT {
             else{
                 skipDescriptors[i] = null;
                 //load in main memory the posting list for which there is no skipDescriptor cause they are too small
-                postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
+                postingListBlocks[i] = invertedIndexFileHandler.getPostingList(offsets[i], docFreqs[i]);
             }
         }
 
@@ -146,7 +145,7 @@ public class ConjunctiveDAAT {
 
     protected void updateCurrentDocScore(int index) throws IOException {
         if (index == 1) {
-            currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
+            currentDocLen = documentIndexFileHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
         }
         currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
     }
@@ -156,24 +155,24 @@ public class ConjunctiveDAAT {
         //if the element to read are less in size than "blockSize", read the remaining elements
         //otherwise read a posting list block of size "blockSize"
         if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[0] = invertedIndexHandler.getPostingList(
+            postingListBlocks[0] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     docFreqs[indexTerm] - readElement
             );
         }
         else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     blockSize);
         }
         if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     docFreqs[indexTerm] - readElement
             );
         }
         else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     blockSize
             );
