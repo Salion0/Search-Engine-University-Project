@@ -8,6 +8,8 @@ import it.unipi.mircv.Index.PostingListBlock;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
 import static it.unipi.mircv.Config.collectionSize;
@@ -21,11 +23,16 @@ public class DisjunctiveDAAT {
     private final int[] docFreqs;
     private final int[] offsets;
     private final boolean[] endOfPostingListFlag;
+    private final PriorityQueue<Integer> priorityQueue; // Create a priority queue of integers
+    private final HashSet<Integer> uniqueSet; // Create a set to keep track of unique elements
 
     public DisjunctiveDAAT(String[] queryTerms) throws IOException {
         documentIndexHandler = new DocumentIndexHandler();
         LexiconHandler lexiconHandler = new LexiconHandler();
         invertedIndexHandler = new InvertedIndexHandler();
+
+        priorityQueue = new PriorityQueue<>();
+        uniqueSet = new HashSet<>();
 
         //--------------------DEFINE ARRAYS------------------------//
         numTermQuery = queryTerms.length;
@@ -50,6 +57,7 @@ public class DisjunctiveDAAT {
                 postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH);
 
             numBlockRead[i]++;
+            //insertElement(postingListBlocks[i].getCurrentDocId());
         }
     }
 
@@ -70,12 +78,16 @@ public class DisjunctiveDAAT {
     public ArrayList<Integer> processQuery() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         float currentDocScore;
-        int minDocId;
+        Integer minDocId;
         int count = 0;//DEBUG
 
-        while ((minDocId = getMinDocId()) != collectionSize) {
+        while ((minDocId = getMinDocId()) != collectionSize)
+        //while ((minDocId = priorityQueue.poll()) != null)
+        {
+            //uniqueSet.remove(minDocId);
             currentDocScore = 0;
-            System.out.println("minDocId: " + minDocId);
+            //System.out.println("minDocId: " + minDocId); //DEBUG
+            //System.out.println("Priority Queue: " + priorityQueue);
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
             int documentLength = documentIndexHandler.readDocumentLength(minDocId);
@@ -86,8 +98,13 @@ public class DisjunctiveDAAT {
                     currentTf = postingListBlocks[i].getCurrentTf();
                     currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                     //increment the position in the posting list
+                    //System.out.println("endendOfPostingListFlag[" + i + "]: " + endOfPostingListFlag[i]);
                     if(endOfPostingListFlag[i] == false && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
                         updatePostingListBlock(i);
+                        //if (postingListBlocks[i].next() == -1)
+                        //updatePostingListBlock(i);
+                        //System.out.println("Priority Queue nell' if: " + priorityQueue);
+                        //insertElement(postingListBlocks[i].getCurrentDocId());
                 }
             }
             heapScores.insertIntoPriorityQueue(currentDocScore , minDocId);
@@ -120,22 +137,10 @@ public class DisjunctiveDAAT {
 
     }
 
-    protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
-        //Upload the posting list block
-        //if the element to read are less in size than "blockSize", read the remaining elements
-        //otherwise read a posting list block of size "blockSize"
-
-        if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    docFreqs[indexTerm] - readElement
-            );
-        }
-        else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    blockSize
-            );
+    private void insertElement(int element) {
+        if (!uniqueSet.contains(element)) {
+            priorityQueue.add(element);
+            uniqueSet.add(element);
         }
     }
 }

@@ -6,10 +6,7 @@ import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.SkipDescriptor;
-import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.DisjunctiveDAAT;
-import it.unipi.mircv.Query.MaxScore;
-import it.unipi.mircv.Query.QueryProcessor;
+import it.unipi.mircv.Query.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -75,11 +72,21 @@ public class TestLorenzo {
         System.out.println(results2);
         long endTime2 = System.currentTimeMillis();
         long elapsedTime2 = endTime2 - startTime2;
-*/
 
 
 
+        */
+
+        long startTime4 = System.currentTimeMillis();
+        String[] queryTerms4 = "diet madonna".split(" ");
+        queryTerms4 = removeStopWords(queryTerms4);
+        oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms4);
+        ArrayList<Integer> results4 = oldDisjunctive.processQuery();
+        System.out.println(results4);
+        long endTime4 = System.currentTimeMillis();
+        long elapsedTime4 = endTime4 - startTime4;
         long startTime3 = System.currentTimeMillis();
+
         String[] queryTerms3 = "diet madonna".split(" ");
         queryTerms3 = removeStopWords(queryTerms3);
         DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms3);
@@ -93,9 +100,13 @@ public class TestLorenzo {
         long elapsedTime3 = endTime3 - startTime3;
 
 
-/*        System.out.println("1 finished in " + (float)elapsedTime/1000 +"sec");
-        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");*/
+        System.out.println("***************************************************************************************************");
+
+
+        //System.out.println("1 finished in " + (float)elapsedTime/1000 +"sec");
+        //System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");*/
         System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
+        System.out.println("4 finished in " + (float)elapsedTime4/1000 +"sec");
     /*
         //Test per leggere senza unzippare
         String tarFilePath = "collection.tar.gz";
