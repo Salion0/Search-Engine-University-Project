@@ -57,7 +57,7 @@ public class DisjunctiveDAAT {
                 postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH);
 
             numBlockRead[i]++;
-            //insertElement(postingListBlocks[i].getCurrentDocId());
+            insertElement(postingListBlocks[i].getCurrentDocId()); // for the PriorityQueue version
         }
     }
 
@@ -81,10 +81,10 @@ public class DisjunctiveDAAT {
         Integer minDocId;
         int count = 0;//DEBUG
 
-        while ((minDocId = getMinDocId()) != collectionSize)
-        //while ((minDocId = priorityQueue.poll()) != null)
+        //while ((minDocId = getMinDocId()) != collectionSize)
+        while ((minDocId = priorityQueue.poll()) != null)
         {
-            //uniqueSet.remove(minDocId);
+            uniqueSet.remove(minDocId);
             currentDocScore = 0;
             //System.out.println("minDocId: " + minDocId); //DEBUG
             //System.out.println("Priority Queue: " + priorityQueue);
@@ -97,14 +97,14 @@ public class DisjunctiveDAAT {
                 {
                     currentTf = postingListBlocks[i].getCurrentTf();
                     currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
-                    //increment the position in the posting list
-                    //System.out.println("endendOfPostingListFlag[" + i + "]: " + endOfPostingListFlag[i]);
-                    if(endOfPostingListFlag[i] == false && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
-                        updatePostingListBlock(i);
-                        //if (postingListBlocks[i].next() == -1)
-                        //updatePostingListBlock(i);
-                        //System.out.println("Priority Queue nell' if: " + priorityQueue);
-                        //insertElement(postingListBlocks[i].getCurrentDocId());
+                    if(endOfPostingListFlag[i] == false) // version with PriorityQueue
+                    {
+                        if (postingListBlocks[i].next() == -1)
+                            updatePostingListBlock(i);
+                        insertElement(postingListBlocks[i].getCurrentDocId());
+                    } // end of version with PriorityQueue
+                    //if(endOfPostingListFlag[i] == false && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
+                    //    updatePostingListBlock(i);
                 }
             }
             heapScores.insertIntoPriorityQueue(currentDocScore , minDocId);
