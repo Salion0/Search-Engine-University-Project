@@ -109,6 +109,7 @@ public class ConjunctiveDAAT {
                             break;
                         } else {
                             int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
+                            //TODO controllare se va bene questa ottimizzazione
                             if (!(postingListBlocks[i].getMaxDocID() > currentDocId                  // controllo il range del currentDocId per vedere
                                     && postingListBlocks[i].getMinDocID() < currentDocId)) // se siamo nello stesso blocco di prima
                                 uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
