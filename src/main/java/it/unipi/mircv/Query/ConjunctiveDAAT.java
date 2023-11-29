@@ -52,6 +52,8 @@ public class ConjunctiveDAAT {
             if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
+                postingListBlocks[i] = new PostingListBlock();
+                postingListBlocks[i].setDummyFields();
             }
             else{
                 skipDescriptors[i] = null;
@@ -107,9 +109,8 @@ public class ConjunctiveDAAT {
                             break;
                         } else {
                             int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
-                            //TODO controllare se va bene questa ottimizzazione
-                            if ((postingListBlocks[i].getMaxDocID() > currentDocId                  // controllo il range del currentDocId per vedere
-                                    && postingListBlocks[i].getMinDocID() < currentDocId) == false) // se siamo nello stesso blocco di prima
+                            if (!(postingListBlocks[i].getMaxDocID() > currentDocId                  // controllo il range del currentDocId per vedere
+                                    && postingListBlocks[i].getMinDocID() < currentDocId)) // se siamo nello stesso blocco di prima
                                 uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                         }
                     }
