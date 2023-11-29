@@ -7,6 +7,7 @@ import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.ConjunctiveDAAT;
+import it.unipi.mircv.Query.DisjunctiveDAAT;
 import it.unipi.mircv.Query.MaxScore;
 import it.unipi.mircv.Query.QueryProcessor;
 
@@ -79,11 +80,13 @@ public class TestLorenzo {
 
 
         long startTime3 = System.currentTimeMillis();
-        String[] queryTerms3 = "10 100".split(" ");
+        String[] queryTerms3 = "diet madonna".split(" ");
         queryTerms3 = removeStopWords(queryTerms3);
-        MaxScore maxScore3 = new MaxScore(queryTerms3);
+        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms3);
+        ArrayList<Integer> results3 = disjunctiveDAAT.processQuery();
+        //MaxScore maxScore3 = new MaxScore(queryTerms3);
         //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms3);
-        ArrayList<Integer> results3 = maxScore3.computeMaxScore();
+        //ArrayList<Integer> results3 = maxScore3.computeMaxScore();
         //ArrayList<Integer> results3 = conjunctiveDAAT.processQuery();
         System.out.println(results3);
         long endTime3= System.currentTimeMillis();
