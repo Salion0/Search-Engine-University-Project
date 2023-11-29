@@ -13,9 +13,7 @@ import it.unipi.mircv.Query.QueryProcessor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Config.LEXICON_ENTRY_LENGTH;
@@ -53,7 +51,7 @@ public class TestLorenzo {
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
         System.out.println("-----------------------------------------------------------");
-
+        //testPriorityQueue();
 /*
         long startTime = System.currentTimeMillis();
         String[] queryTerms = "10 100".split(" ");
@@ -81,7 +79,7 @@ public class TestLorenzo {
 
 
         long startTime3 = System.currentTimeMillis();
-        String[] queryTerms3 = "food farm chicken".split(" ");
+        String[] queryTerms3 = "10 100".split(" ");
         queryTerms3 = removeStopWords(queryTerms3);
         MaxScore maxScore3 = new MaxScore(queryTerms3);
         //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms3);
@@ -153,4 +151,33 @@ public class TestLorenzo {
         return false;
     }
 
+    public static void testPriorityQueue() {
+        // Create a priority queue of strings with natural ordering
+        PriorityQueue<String> naturalOrderQueue = new PriorityQueue<>();
+
+        // Add elements to the queue
+        naturalOrderQueue.add("banana");
+        naturalOrderQueue.add("apple");
+        naturalOrderQueue.add("orange");
+
+        System.out.println("Priority Queue with Natural Ordering:");
+        while (!naturalOrderQueue.isEmpty())
+            System.out.println(naturalOrderQueue.poll());
+
+        // Create a priority queue of strings with a custom comparator (reverse order)
+        PriorityQueue<String> reverseOrderQueue = new PriorityQueue<>(Comparator.reverseOrder());
+
+        // Add elements to the queue
+        reverseOrderQueue.add("banana");
+        reverseOrderQueue.add("apple");
+        reverseOrderQueue.add("orange");
+
+        System.out.println("\nPriority Queue with Reverse Ordering:");
+        while (!reverseOrderQueue.isEmpty())
+            System.out.println(reverseOrderQueue.poll());
+
+    }
+
 }
+
+
