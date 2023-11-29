@@ -8,6 +8,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -31,10 +32,10 @@ public class Index {
         cleanFolder("data");
         loadStopWordList();
 
-        /*
+
         FileInputStream fis = new FileInputStream("collection.tar.gz");
         GZIPInputStream gzis = new GZIPInputStream(fis);
-        InputStreamReader inputStreamReader = new InputStreamReader(gzis);
+        InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
         BufferedReader reader = new BufferedReader(inputStreamReader);
 
         //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
@@ -42,13 +43,13 @@ public class Index {
         String[] values = reader.readLine().split("\t"); //per vedere alla prima linea quanto sono lunghi i metadati
         reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
         reader.skip(values[0].length()-1); // skip metadata
-        */
+
 
         documentIndex = new DocumentIndex();
         currentDocId = 0;
         int blockID = 0;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
+            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
             while(reader!=null){
                 System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack
@@ -100,7 +101,7 @@ public class Index {
             if(freeMemoryPercentage() < MEMORY_THRESHOLD_PERC){
                 //poor memory qt available -> break
                 readerToReturn = reader;
-                System.out.println("Memory leak! Free memory: "+ freeMemoryPercentage()); //DEBUG - print the memory available
+                //System.out.println("Memory leak! Free memory: "+ freeMemoryPercentage()); //DEBUG - print the memory available
                 break;
             }
             //DEBUG per creare più di un blocco
@@ -110,15 +111,15 @@ public class Index {
                 break;
             }*/
             String line = reader.readLine();
-            if(line == null){
+            if(line.startsWith("\0\0\0\0\0")){
                 //we reached the end of the file -> close file reader and break
                 reader.close();
                 break;
             }
 
             //DEBUG - every tot document print the memory available
-            if (count%10000 == 0)
-                System.out.println("Free memory percentage: "+ freeMemoryPercentage());
+            //if (count%10000 == 0)
+              //  System.out.println("Free memory percentage: "+ freeMemoryPercentage());
 
             //parsing and processing the document corresponding
             String[] values = line.split("\t"); //split document text and docID

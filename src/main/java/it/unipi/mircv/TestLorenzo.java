@@ -23,31 +23,33 @@ import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
-        /*
-        Index index = new Index("collection.tsv");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
-        */
 
-        // Testing DAAT
+        //testCompressedReading();
+
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+
+        //String test = "\0\0\0\0\0pfdvefvegr";
+        //if (test.startsWith("\0\0\0\0"))
+          //  System.out.println("deh");
 
         System.out.println("-----------------------------------------------------------");
 
         //testNewDisjunctive();
         //testOldDisjunctive();
         //testNoPriorityQueueDisjunctive();
+        //testMaxScoreDisjunctive();
+        testConjunctive();
+
 
         System.out.println("***************************************************************************************************");
     }
 
-    public void testConjunctive() throws IOException {
+    public static void testConjunctive() throws IOException {
         long startTime = System.currentTimeMillis();
-        String[] queryTerms = "10 100".split(" ");
+        String[] queryTerms = "diet detox".split(" ");
         queryTerms = removeStopWords(queryTerms);
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
@@ -64,6 +66,18 @@ public class TestLorenzo {
         MaxScore maxScore2 = new MaxScore(queryTerms);
         ArrayList<Integer> results2 = maxScore2.computeMaxScore();
         System.out.println(results2);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");
+    }
+
+    public static void testMaxScoreDisjunctive() throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = "diet madonna".split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        MaxScoreDisjunctive maxScore = new MaxScoreDisjunctive(queryTerms);
+        ArrayList<Integer> results = maxScore.computeMaxScore();
+        System.out.println(results);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");
@@ -133,32 +147,11 @@ public class TestLorenzo {
         return false;
     }
 
-    public void testCompressedReading() {
-        String tarFilePath = "collection.tar.gz";
-
-        try {
-            FileInputStream fis = new FileInputStream(tarFilePath);
-            GZIPInputStream gzis = new GZIPInputStream(fis);
-            InputStreamReader reader = new InputStreamReader(gzis);
-            BufferedReader br = new BufferedReader(reader);
-
-            String line;
-            br.readLine(); // la prima riga contiene metadati quindi la salto
-            int count = 0;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-                count++;
-                if (count == 5) break; //DEBUG
-            }
-
-            br.close();
-            reader.close();
-            gzis.close();
-            fis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    public static void testCompressedReading() throws IOException {
+        Index index = new Index("");
+        int numberOfBlocks = index.getNumberOfBlocks();
+        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
+        blockMerger.mergeBlocks();
     }
 }
 

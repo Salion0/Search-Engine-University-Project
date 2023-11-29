@@ -61,27 +61,12 @@ public class DisjunctiveDAAT {
         }
     }
 
-    private int getMinDocId() {
-        int minDocId = collectionSize;  //valore che indica che le posting list sono state raggiunte
-
-        //find the current min doc id in the posting lists of the query terms
-        for (int i = 0; i < numTermQuery; i++){
-            if (endOfPostingListFlag[i]) continue;
-            int currentDocId = postingListBlocks[i].getCurrentDocId();
-            if(currentDocId<minDocId){
-                minDocId = currentDocId;
-            }
-        }
-        return minDocId;
-    }
-
     public ArrayList<Integer> processQuery() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         float currentDocScore;
         Integer minDocId;
         int count = 0;//DEBUG
 
-        //while ((minDocId = getMinDocId()) != collectionSize)
         while ((minDocId = priorityQueue.poll()) != null)
         {
             uniqueSet.remove(minDocId);
@@ -102,15 +87,12 @@ public class DisjunctiveDAAT {
                         if (postingListBlocks[i].next() == -1)
                             updatePostingListBlock(i);
                         insertElement(postingListBlocks[i].getCurrentDocId());
-                    } // end of version with PriorityQueue
-                    //if(endOfPostingListFlag[i] == false && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
-                    //    updatePostingListBlock(i);
+                    }
                 }
             }
             heapScores.insertIntoPriorityQueue(currentDocScore , minDocId);
         }
 
-        //System.out.println("DEBUGGG --> " + heapScores.getDocId((float) 3.1066878)); //DEBUG
         return heapScores.getTopDocIdReversed();
     }
 
@@ -129,7 +111,6 @@ public class DisjunctiveDAAT {
             postingListBlocks[i] = invertedIndexHandler.getPostingList(
                     offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead);
 
-            //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
             numBlockRead[i]++; // ho letto un altro blocco quindi aumento il campo
         }
         else
