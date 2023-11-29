@@ -86,7 +86,7 @@ public class DocumentIndexHandler{
     }
 
     public String readDocNo(int docId) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(DOCLENGTH_BYTES_LENGTH);
+        ByteBuffer buffer = ByteBuffer.allocate(DOCNO_BYTES_LENGTH);
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH + (long) docId * (DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH));
         fileChannel.read(buffer);
         buffer.position(0);
