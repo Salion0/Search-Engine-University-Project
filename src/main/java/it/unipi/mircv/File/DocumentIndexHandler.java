@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
 
@@ -83,5 +85,20 @@ public class DocumentIndexHandler{
         fileChannel.close();
     }
 
+    public String readDocNo(int docId) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(DOCLENGTH_BYTES_LENGTH);
+        fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH + (long) docId * (DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH));
+        fileChannel.read(buffer);
+        buffer.position(0);
+        return new String(buffer.array(), StandardCharsets.UTF_8);
+    }
+
+    public String[] getDocNoREVERSE(ArrayList<Integer> docIds) throws IOException {
+        String[] docNos = new String[MAX_NUM_DOC_RETRIEVED];
+        for(int i = 0; i < MAX_NUM_DOC_RETRIEVED; i ++){
+            docNos[i] = readDocNo(docIds.get(MAX_NUM_DOC_RETRIEVED - i - 1));
+        }
+        return docNos;
+    }
 
 }

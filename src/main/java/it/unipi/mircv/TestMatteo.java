@@ -8,6 +8,7 @@ import it.unipi.mircv.Query.ConjunctiveDAATCache;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static it.unipi.mircv.Config.CACHE_SIZE;
 import static it.unipi.mircv.Config.stopWords;
@@ -60,37 +61,10 @@ public class TestMatteo {
         ConjunctiveDAAT conjunctiveDAATCache = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
         System.out.println(results);
+
+        System.out.println(Arrays.toString(documentIndexHandler.getDocNoREVERSE(results)));
         long elapsedTime = System.currentTimeMillis() - startTime;
-
-        System.out.println("-----------------------------------------------------------");
-        long startTime1 = System.currentTimeMillis();
-        String[] queryTerms1= "railroad workers".split(" ");
-        queryTerms1 = removeStopWords(queryTerms1);
-        System.out.println(queryTerms1.length);
-        ConjunctiveDAAT conjunctiveDAATCache1 = new ConjunctiveDAAT(queryTerms1);
-        ArrayList<Integer> results1 = conjunctiveDAATCache1.processQuery();
-        System.out.println(results1);
-        long elapsedTime1 = System.currentTimeMillis() - startTime1;
-
-        System.out.println("-----------------------------------------------------------");
-        long startTime2 = System.currentTimeMillis();
-        String[] queryTerms2= "railroad workers".split(" ");
-        queryTerms2 = removeStopWords(queryTerms2);
-        System.out.println(queryTerms2.length);
-        ConjunctiveDAAT conjunctiveDAATCache2 = new ConjunctiveDAAT(queryTerms2);
-        ArrayList<Integer> results2 = conjunctiveDAATCache2.processQuery();
-        System.out.println(results2);
-        long elapsedTime2 = System.currentTimeMillis() - startTime2;
-
-        System.out.println("-----------------------------------------------------------");
-        long startTime3 = System.currentTimeMillis();
-        String[] queryTerms3= "railroad workers".split(" ");
-        queryTerms3 = removeStopWords(queryTerms3);
-        System.out.println(queryTerms3.length);
-        ConjunctiveDAAT conjunctiveDAATCache3 = new ConjunctiveDAAT(queryTerms3);
-        ArrayList<Integer> results3 = conjunctiveDAATCache3.processQuery();
-        System.out.println(results3);
-        long elapsedTime3 = System.currentTimeMillis() - startTime3;
+        System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
 
         /* DISJUNCTIVE DAAT
         System.out.println("-----------------------------------------------------------");
@@ -176,14 +150,5 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
         */
-
-
-        System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
-
-        System.out.println("1 finished in " + (float)elapsedTime1/1000 +"sec");
-
-        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");
-
-        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
     }
 }
