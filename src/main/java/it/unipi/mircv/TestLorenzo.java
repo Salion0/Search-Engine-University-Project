@@ -3,21 +3,16 @@ package it.unipi.mircv;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Config.LEXICON_ENTRY_LENGTH;
 import static it.unipi.mircv.compression.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
@@ -72,7 +67,7 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        NewConjunctiveDAAT newConjunctiveDAAT = new NewConjunctiveDAAT(queryTerms);
+        ConjunctiveDAAT newConjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = newConjunctiveDAAT.processQuery();
         System.out.println(results);
         long endTime = System.currentTimeMillis();
