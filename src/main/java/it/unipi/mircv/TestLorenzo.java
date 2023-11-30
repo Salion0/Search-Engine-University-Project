@@ -56,7 +56,7 @@ public class TestLorenzo {
 
         testNewConjunctive("diet 100");
 
-        testConjunctive("diet 100");
+        testConjunctiveCache("diet 100",docLenCache);
 
         System.out.println("***************************************************************************************************");
 
