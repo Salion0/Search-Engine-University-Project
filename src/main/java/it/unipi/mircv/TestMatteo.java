@@ -11,18 +11,10 @@ import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.CACHE_SIZE;
 import static it.unipi.mircv.Config.stopWords;
+import static it.unipi.mircv.compression.Utils.seekInStopwords;
 
 public class TestMatteo {
 
-    public static String[] removeStopWords(String[] queryTerms) {
-        ArrayList<String> filteredTerms = new ArrayList<>();
-        for (String term : queryTerms) {
-            if (!stopWords.contains(term)) {
-                filteredTerms.add(term);
-            }
-        }
-        return filteredTerms.toArray(new String[0]);
-    }
     public static void main(String[] args) throws IOException {
 
         // Testing DAAT
@@ -47,7 +39,7 @@ public class TestMatteo {
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
-         */
+
 
         //TESTING CONJUNCTIVE DAAT with CACHE
         LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
@@ -175,7 +167,7 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values2.length, valuesCompressed2)));
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
-        */
+
 
 
         System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
@@ -185,5 +177,6 @@ public class TestMatteo {
         System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");
 
         System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
+        */
     }
 }

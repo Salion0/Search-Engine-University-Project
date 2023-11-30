@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.compression.Utils.seekInStopwords;
 
 public class Index {
     private DocumentIndex documentIndex;
@@ -32,24 +33,28 @@ public class Index {
         cleanFolder("data");
         loadStopWordList();
 
+        BufferedReader reader;
+        if (flagCompressedReading == true)
+        {
+            FileInputStream fis = new FileInputStream("collection.tar.gz");
+            GZIPInputStream gzis = new GZIPInputStream(fis);
+            InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
+            reader = new BufferedReader(inputStreamReader);
 
-        FileInputStream fis = new FileInputStream("collection.tar.gz");
-        GZIPInputStream gzis = new GZIPInputStream(fis);
-        InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
-        BufferedReader reader = new BufferedReader(inputStreamReader);
-
-        //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
-        reader.mark(1024); // 1024 è quanti byte può leggere prima che il mark diventi non più valido
-        String[] values = reader.readLine().split("\t"); //per vedere alla prima linea quanto sono lunghi i metadati
-        reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
-        reader.skip(values[0].length()-1); // skip metadata
+            //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
+            reader.mark(1024); // 1024 è quanti byte può leggere prima che il mark diventi non più valido
+            String[] values = reader.readLine().split("\t"); //per vedere alla prima linea quanto sono lunghi i metadati
+            reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
+            reader.skip(values[0].length() - 1); // skip metadata
+        }
+        else
+            reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
 
 
         documentIndex = new DocumentIndex();
         currentDocId = 0;
         int blockID = 0;
         try {
-            //BufferedReader reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
             while(reader!=null){
                 System.out.println("BlockID: "+blockID); //DEBUG
                 //singlePassInMemoryIndexing may stop for memory lack
@@ -92,7 +97,6 @@ public class Index {
 
     private BufferedReader singlePassInMemoryIndexing(int blockID, BufferedReader reader) throws IOException {
         Lexicon lexicon = new Lexicon();
-
         BufferedReader readerToReturn = null;
 
         while (true) {
@@ -111,11 +115,21 @@ public class Index {
                 break;
             }*/
             String line = reader.readLine();
-            if(line.startsWith("\0\0\0\0\0")){
-                //we reached the end of the file -> close file reader and break
-                reader.close();
-                break;
+            if (flagCompressedReading == true) {
+                if (line == null) {
+                    //we reached the end of the file -> close file reader and break
+                    reader.close();
+                    break;
+                }
             }
+            else {
+                if (line.startsWith("\0\0\0\0\0")) {
+                    //we reached the end of the file -> close file reader and break
+                    reader.close();
+                    break;
+                }
+            }
+
 
             //DEBUG - every tot document print the memory available
             //if (count%10000 == 0)
@@ -135,25 +149,32 @@ public class Index {
         return readerToReturn;
     }
 
-    private int processDocument(Lexicon lexicon, String[] tokens) {
+    private int processDocument(Lexicon lexicon, String[] tokens) throws IOException {
         HashMap<String, Integer> wordCountDocument = new HashMap<>();
         int tokenCount = 0;
 
         //Count all occurrence of all terms in a document
-        for (String token : tokens) {  //map with frequencies only
-            if (stopWords.contains(token)) // stopWordRemoval
+        for (String token : tokens) //map with frequencies only
+        {
+            if (token == null)
                 continue;
-            //token = stemmer.stemWord(token); // stemming
+
+            if (flagStopwordRemoval == true && seekInStopwords(token)) // stopWordRemoval
+                    continue;
+
+            if (flagStemming == true)
+                token = stemmer.stemWord(token); // stemming
+
             if (token.length() > TERM_BYTES_LENGTH) // il token è più lungo di 64 byte quindi lo scartiamo
                 continue;
-            if (token != null){
-                tokenCount++;
-                if (wordCountDocument.get(token) == null)
-                    wordCountDocument.put(token, 1);
-                else
-                    wordCountDocument.put(token, wordCountDocument.get(token) + 1);
-            }
+
+            tokenCount++;
+            if (wordCountDocument.get(token) == null)
+                wordCountDocument.put(token, 1);
+            else
+                wordCountDocument.put(token, wordCountDocument.get(token) + 1);
         }
+
         //updating the lexicon with the document processing results
         for (String term: wordCountDocument.keySet()) {
             lexicon.update(term, currentDocId , wordCountDocument.get(term));

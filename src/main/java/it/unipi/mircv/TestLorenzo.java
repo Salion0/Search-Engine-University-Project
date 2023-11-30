@@ -18,14 +18,18 @@ import java.util.zip.GZIPInputStream;
 
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Config.LEXICON_ENTRY_LENGTH;
+import static it.unipi.mircv.compression.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
+        flagCompressedReading = false;
+        flagStemming = false;
+        flagStopwordRemoval = false;
 
         //testCompressedReading();
         String forLexiconTest = "";
-        checkLexiconEntry("fireworks");
+        //checkLexiconEntry(forLexiconTest);
 
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Config.loadStopWordList();
@@ -39,6 +43,9 @@ public class TestLorenzo {
         System.out.println("-----------------------------------------------------------");
 
         LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
+        //docLenCache.put(1,50);
+        //System.out.println(docLenCache.get(1));
+
         String forConjunctiveTest = "", forDisjunctiveTest = "";
 
         //testNewDisjunctive("");
@@ -46,13 +53,15 @@ public class TestLorenzo {
         //testNoPriorityQueueDisjunctive("");
         //testMaxScoreDisjunctive("");
         //testConjunctive();
-        for (int i = 0; i < 20; i++) {
-            testConjunctive("10 100");
-            testConjunctiveCache("10 100", docLenCache);
+        for (int i = 0; i < 2; i++) {
+            testConjunctive("100 10 diet");
+            testConjunctiveCache("100 10 diet", docLenCache);
         }
 
 
         System.out.println("***************************************************************************************************");
+
+        //testConjunctiveCache("10 diet", docLenCache);
     }
 
     public static void testConjunctiveCache(String string,LRUCache lruCache) throws IOException {
@@ -137,34 +146,6 @@ public class TestLorenzo {
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("NO-PRIORITY-QUEUE-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
-    }
-
-    public static String[] removeStopWords(String[] queryTerms) throws IOException {
-        ArrayList<String> filteredTerms = new ArrayList<>();
-        for (String term : queryTerms)
-            if (!seekInStopwords(term)) //if (binarySearch(stopWords,term) == -1) //if (!stopWords.contains(term))
-                filteredTerms.add(term);
-
-        return filteredTerms.toArray(new String[0]);
-    }
-
-    public static boolean seekInStopwords(String term) throws IOException {
-
-        int l = 0, r = stopWords.size() - 1;
-
-        while (l <= r)
-        {
-            int m = l + (r - l) / 2;
-            int res = term.compareTo(stopWords.get(m));
-            if (res == 0)
-                return true;
-            if (res > 0)
-                l = m + 1;
-            else
-                r = m - 1;
-        }
-
-        return false;
     }
 
     public static void testCompressedReading() throws IOException {

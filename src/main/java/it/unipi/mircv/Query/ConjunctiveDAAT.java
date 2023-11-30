@@ -64,14 +64,14 @@ public class ConjunctiveDAAT {
 
         for (int i = 0; i < numTermQuery; i++) {
             // break se non trovo il currentDocId in una delle altre posting list
-            System.out.println("queryTerm: " + queryTerms[i] + " docFreq: " + docFreqs[i]);
+            //System.out.println("queryTerm: " + queryTerms[i] + " docFreq: " + docFreqs[i]);
         }
         //sort arrays for posting list Length
         sortArraysByArray(docFreqs, offsets, skipDescriptors, postingListBlocks);
 
         for (int i = 0; i < numTermQuery; i++) {
             // break se non trovo il currentDocId in una delle altre posting list
-            System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
+            //System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
         }
     }
 
@@ -104,7 +104,7 @@ public class ConjunctiveDAAT {
                         // get the nextGEQ of the current posting list
                         offsetNextGEQ = skipDescriptors[i].nextGEQ(currentDocId);
                         if(offsetNextGEQ == -1){
-                            System.out.println("break"); //DEBUG
+                            //System.out.println("break"); //DEBUG
                             breakWhile = true;
                             break;
                         } else {
@@ -145,7 +145,7 @@ public class ConjunctiveDAAT {
     }
 
     protected void updateCurrentDocScore(int index) throws IOException {
-        if (index == 1) {
+        if (index != 0) { // prima era index == 1
             currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
         }
         currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);

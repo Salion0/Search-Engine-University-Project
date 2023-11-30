@@ -1,5 +1,10 @@
 package it.unipi.mircv.compression;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static it.unipi.mircv.Config.stopWords;
+
 public class Utils {
     static public void printReverseBytes(byte[] bytesToPrint){
         bytesToPrint = reverseByteArray(bytesToPrint);
@@ -38,4 +43,34 @@ public class Utils {
         }
         return reversedArray;
     }
+
+    public static String[] removeStopWords(String[] queryTerms) throws IOException {
+        ArrayList<String> filteredTerms = new ArrayList<>();
+        for (String term : queryTerms) {
+            if (!seekInStopwords(term)) {
+                filteredTerms.add(term);
+            }
+        }
+        return filteredTerms.toArray(new String[0]);
+    }
+
+    public static boolean seekInStopwords(String term) throws IOException {
+
+        int l = 0, r = stopWords.size() - 1;
+
+        while (l <= r)
+        {
+            int m = l + (r - l) / 2;
+            int res = term.compareTo(stopWords.get(m));
+            if (res == 0)
+                return true;
+            if (res > 0)
+                l = m + 1;
+            else
+                r = m - 1;
+        }
+
+        return false;
+    }
+
 }

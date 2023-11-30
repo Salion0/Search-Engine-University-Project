@@ -37,7 +37,7 @@ public class Config {
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
     public static final int MIN_NUM_POSTING_TO_SKIP = 10; // vecchio valore era 10
     public static final int MEMORY_THRESHOLD = 8; //Expressed in percentage
-    public static final int CACHE_SIZE = 100; //Expressed in number of entries
+    public static final int CACHE_SIZE = 100000; //Expressed in number of entries
 
     public static void loadStopWordList() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -50,4 +50,9 @@ public class Config {
         }
     }
 
+    // ************************* PARTE PER I FLAG ********************************************
+    public static boolean flagCompressedReading;
+    public static boolean flagStopwordRemoval;
+    public static boolean flagStemming;
+    public static boolean flagMaxScore;
 }
