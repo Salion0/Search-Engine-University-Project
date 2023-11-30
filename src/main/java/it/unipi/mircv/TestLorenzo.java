@@ -139,7 +139,7 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
+        PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = disjunctiveDAAT.processQuery();
         System.out.println(results);
         long endTime = System.currentTimeMillis();
@@ -151,7 +151,7 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        noPriorityQueueDisjunctive noPriorityQueueDisjunctive = new noPriorityQueueDisjunctive(queryTerms);
+        DisjunctiveDAAT noPriorityQueueDisjunctive = new DisjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = noPriorityQueueDisjunctive.processQuery();
         System.out.println(results);
         long endTime = System.currentTimeMillis();
