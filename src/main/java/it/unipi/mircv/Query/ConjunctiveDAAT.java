@@ -127,7 +127,7 @@ public class ConjunctiveDAAT {
     }
 
     protected void updateCurrentDocScore(int index) throws IOException {
-        if (index != 0) { // prima era index == 1
+        if (index == 1) { // prima era index == 1
             currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
         }
         currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);

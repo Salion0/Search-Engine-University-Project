@@ -12,7 +12,7 @@ public class ConjunctiveDAATCache extends ConjunctiveDAAT {
     @Override
     protected void updateCurrentDocScore(int index) throws IOException {
         //System.out.println(index); DEBUG
-        if (index != 0) { // prima era index == 1
+        if (index == 1) { // prima era index == 1
             int docId = postingListBlocks[index].getCurrentDocId();
             //System.out.println("currentDocId = " + docId);
             currentDocLen = cacheDocIndex.get(docId);
