@@ -52,16 +52,32 @@ public class TestLorenzo {
         //testOldDisjunctive("");
         //testNoPriorityQueueDisjunctive("");
         //testMaxScoreDisjunctive("");
-        testConjunctive("diet detox");
+        //testConjunctive("diet detox");
+        //testMaxScore("diet detox");
         for (int i = 0; i < 2; i++) {
-            //testConjunctive("100 10 diet");
+            //testConjunctive("100 10");
             //testConjunctiveCache("100 10 diet", docLenCache);
         }
 
+        testConjunctive("diet 100");
+
+        testNewConjunctive("diet 100");
 
         System.out.println("***************************************************************************************************");
 
-        //testConjunctiveCache("10 diet", docLenCache);
+        testMaxScore("diet 100");
+    }
+
+    public static void testNewConjunctive(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        NewConjunctiveDAAT newConjunctiveDAAT = new NewConjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = newConjunctiveDAAT.processQuery();
+        System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("NEW-CONJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
     public static void testConjunctiveCache(String string,LRUCache lruCache) throws IOException {
@@ -88,7 +104,7 @@ public class TestLorenzo {
         System.out.println("CONJUNCTIVE-WITHOUT-CACHE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public void testMaxScore(String string) throws IOException {
+    public static void testMaxScore(String string) throws IOException {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
