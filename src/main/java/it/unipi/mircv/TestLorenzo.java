@@ -52,10 +52,10 @@ public class TestLorenzo {
         //testOldDisjunctive("");
         //testNoPriorityQueueDisjunctive("");
         //testMaxScoreDisjunctive("");
-        //testConjunctive();
+        testConjunctive("diet detox");
         for (int i = 0; i < 2; i++) {
-            testConjunctive("100 10 diet");
-            testConjunctiveCache("100 10 diet", docLenCache);
+            //testConjunctive("100 10 diet");
+            //testConjunctiveCache("100 10 diet", docLenCache);
         }
 
 
