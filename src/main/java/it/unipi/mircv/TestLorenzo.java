@@ -59,13 +59,13 @@ public class TestLorenzo {
             //testConjunctiveCache("100 10 diet", docLenCache);
         }
 
-        testConjunctive("diet 100");
-
         testNewConjunctive("diet 100");
+
+        testConjunctive("diet 100");
 
         System.out.println("***************************************************************************************************");
 
-        testMaxScore("diet 100");
+        //testMaxScore("diet 100");
     }
 
     public static void testNewConjunctive(String string) throws IOException {

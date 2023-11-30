@@ -3,15 +3,7 @@ package it.unipi.mircv;
 import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.DocumentIndexHandler;
 
-import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.ConjunctiveDAATCache;
-
 import java.io.IOException;
-import java.util.ArrayList;
-
-import static it.unipi.mircv.Config.CACHE_SIZE;
-import static it.unipi.mircv.Config.stopWords;
-import static it.unipi.mircv.compression.Utils.seekInStopwords;
 
 public class TestMatteo {
 
