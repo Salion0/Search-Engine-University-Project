@@ -5,6 +5,7 @@ import it.unipi.mircv.File.DocumentIndexHandler;
 
 import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.ConjunctiveDAATCache;
+import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class TestMatteo {
 
         /*
         //CONJUNCTIVE DAAT
+        long startTime = System.currentTimeMillis();
         System.out.println("-----------------------------------------------------------");
         String[] queryTerms= "diet detox".split(" ");
         queryTerms = removeStopWords(queryTerms);
@@ -48,15 +50,16 @@ public class TestMatteo {
         ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAAT.processQuery();
         System.out.println(results);
-         */
+        System.out.println(System.currentTimeMillis() - startTime);
 
+
+        
         //TESTING CONJUNCTIVE DAAT with CACHE
         LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
         //
         System.out.println("-----------------------------------------------------------");
         long startTime = System.currentTimeMillis();
-        String[] queryTerms= "railroad workers".split(" ");
-        queryTerms = removeStopWords(queryTerms);
+        String[] queryTerms = removeStopWords("railroad workers".split(" "));
         System.out.println(queryTerms.length);
         ConjunctiveDAAT conjunctiveDAATCache = new ConjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
@@ -65,6 +68,11 @@ public class TestMatteo {
         System.out.println(Arrays.toString(documentIndexHandler.getDocNoREVERSE(results)));
         long elapsedTime = System.currentTimeMillis() - startTime;
         System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
+        */
+        SystemEvaluator.evaluateSystem("query/msmarco-test2020-queries.tsv", false, false);
+        SystemEvaluator.evaluateSystem("query/msmarco-test2020-queries.tsv", false, false);
+
+
 
         /* DISJUNCTIVE DAAT
         System.out.println("-----------------------------------------------------------");

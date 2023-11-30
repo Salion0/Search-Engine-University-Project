@@ -94,9 +94,10 @@ public class DocumentIndexHandler{
     }
 
     public String[] getDocNoREVERSE(ArrayList<Integer> docIds) throws IOException {
-        String[] docNos = new String[MAX_NUM_DOC_RETRIEVED];
-        for(int i = 0; i < MAX_NUM_DOC_RETRIEVED; i ++){
-            docNos[i] = readDocNo(docIds.get(MAX_NUM_DOC_RETRIEVED - i - 1));
+        int resultsSize = docIds.size();
+        String[] docNos = new String[resultsSize];
+        for(int i = 0; i < resultsSize; i ++){
+            docNos[i] = readDocNo(docIds.get(resultsSize - i - 1));
         }
         return docNos;
     }
