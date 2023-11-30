@@ -120,6 +120,7 @@ public class MaxScoreDisjunctive {
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                    //score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     numElementsRead[i]++;
                     if (postingListBlocks[i].next() == - 1)
                     {
