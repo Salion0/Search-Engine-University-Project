@@ -16,8 +16,8 @@ public class ConjunctiveDAATCache extends ConjunctiveDAAT {
             if (currentDocLen == null) { //need to read in the file the missing DocId -> DocLen and put it in cache
                 currentDocLen = documentIndexHandler.readDocumentLength(docId);
                 cacheDocIndex.put(docId, currentDocLen);
-                System.out.println("miss");
-            } else System.out.println("hit");
+                //System.out.println("miss");
+            } //else System.out.println("hit");
         }
         currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
     }

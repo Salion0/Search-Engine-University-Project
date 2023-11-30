@@ -95,7 +95,7 @@ public class ConjunctiveDAAT {
                 currentDocLen = 0; // it will be updated only if
                 continueWhile = false;
 
-                System.out.println("currentDocId: " + currentDocId);
+                //System.out.println("currentDocId: " + currentDocId);
 
                 //calculate the partial score for the other posting list if they contain the currentDocId
                 for (int i = 1; i < numTermQuery; i++) {
