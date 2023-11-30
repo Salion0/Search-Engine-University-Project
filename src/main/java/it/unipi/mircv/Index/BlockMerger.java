@@ -132,7 +132,6 @@ public class BlockMerger {
             writeToDisk(minTerm, offsetToWrite, docFreqSum, collFreqSum, termUpperBoundScore, postingList);
             offsetToWrite += docFreqSum;
 
-            if (minTerm.equals("10") || minTerm.equals("100")) System.out.println(postingList); // DEBUG PER MAX-SCORE
             //DEBUG -----------------------------
             //terms.add(minTerm);  //salvo term e Posting List associata
             //postingLists.add(postingList);

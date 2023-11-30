@@ -1,5 +1,6 @@
 package it.unipi.mircv.Query;
 
+import it.unipi.mircv.Config;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
@@ -14,8 +15,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-import static it.unipi.mircv.Config.MIN_NUM_POSTING_TO_SKIP;
-import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
+import static it.unipi.mircv.Config.*;
 
 public class MaxScore {
     private int numTermQuery;
@@ -54,7 +54,7 @@ public class MaxScore {
 
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP))
             {
-                System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
+                //System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
                 if (POSTING_LIST_BLOCK_LENGTH > docFreqs[i])
@@ -104,7 +104,7 @@ public class MaxScore {
     // ************************  -- MAX SCORE --   ****************************************
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
-        heapScores.setTopDocCount(20); // initialize the priority queue with 20 elements set to 0
+        heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
         float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
         float minScoreInHeap = 0; // teta
         int pivot = 0;
@@ -143,8 +143,10 @@ public class MaxScore {
                         uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH); // load another block
                     }
                 }
-                if (postingListBlocks[i].getCurrentDocId() < next)
+                if (postingListBlocks[i].getCurrentDocId() < next) {
+                    //System.out.println("minCurrentDocId = " + minCurrentDocId + " next = " + next);
                     next = postingListBlocks[i].getCurrentDocId();
+                }
             }
 
             // NON-ESSENTIAL LISTS
@@ -182,6 +184,7 @@ public class MaxScore {
                 while(pivot < postingListBlocks.length && documentUpperBounds[pivot] <= minScoreInHeap)
                     pivot++;
             }
+            //System.out.println("minCurrentDocId = " + minCurrentDocId + " next = " + next);
             minCurrentDocId = next;
         }
         return heapScores.getTopDocIdReversed();

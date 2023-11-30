@@ -16,15 +16,6 @@ import static it.unipi.mircv.Config.stopWords;
 
 public class TestMatteo {
 
-    public static String[] removeStopWords(String[] queryTerms) {
-        ArrayList<String> filteredTerms = new ArrayList<>();
-        for (String term : queryTerms) {
-            if (!stopWords.contains(term)) {
-                filteredTerms.add(term);
-            }
-        }
-        return filteredTerms.toArray(new String[0]);
-    }
     public static void main(String[] args) throws IOException {
 
         // Testing DAAT
@@ -42,7 +33,6 @@ public class TestMatteo {
 
         /*
         //CONJUNCTIVE DAAT
-        long startTime = System.currentTimeMillis();
         System.out.println("-----------------------------------------------------------");
         String[] queryTerms= "diet detox".split(" ");
         queryTerms = removeStopWords(queryTerms);
@@ -53,7 +43,8 @@ public class TestMatteo {
         System.out.println(System.currentTimeMillis() - startTime);
 
 
-        
+
+
         //TESTING CONJUNCTIVE DAAT with CACHE
         LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
         //
@@ -157,6 +148,17 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values2.length, valuesCompressed2)));
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
+        */
+
+
+
+        System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
+
+        System.out.println("1 finished in " + (float)elapsedTime1/1000 +"sec");
+
+        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");
+
+        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
         */
     }
 }
