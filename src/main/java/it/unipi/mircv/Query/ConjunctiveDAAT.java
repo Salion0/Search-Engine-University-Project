@@ -76,7 +76,6 @@ public class ConjunctiveDAAT {
             currentDocScore = 0;
             currentDocLen = 0; // it will be updated only if
             docIdNotInAllPostingLists = false;
-            System.out.println(postingListBlocks[0].getPostingList());
             //calculate the partial score for the other posting list if they contain the currentDocId
             for (int i = 1; i < numTermQuery; i++) {
                 //if skipDescriptors[i] is not null load a posting list block by block
