@@ -155,15 +155,19 @@ public class BlockMerger {
     private float computeTermUpperBound(DocumentIndexHandler documentIndexHandler,
                                         PostingList postingList) throws IOException {
         int documentFrequency = postingList.getSize();
-        float maxScore = -1;
+        float maxScoreBM25 = -1;
+        float currentScoreBM25;
+        float currentScoreTFIDF;
 
         for (PostingElement postingElement: postingList.getPostingList())
         {
             //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
-            float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),
+            currentScoreBM25 = ScoreFunction.BM25(postingElement.getTermFreq(),
                     documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
-            if (currentScore > maxScore)
-                maxScore = currentScore;
+            currentScoreTFIDF = ScoreFunction.computeTFIDF(postingElement.getTermFreq(),documentFrequency);
+            if (currentScoreBM25 > maxScoreBM25)
+                maxScoreBM25 = currentScoreBM25;
+            if ()
         }
 
         return maxScore;

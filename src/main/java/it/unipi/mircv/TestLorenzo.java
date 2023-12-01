@@ -14,6 +14,7 @@ import java.util.*;
 
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.compression.Utils.removeStopWords;
+import static it.unipi.mircv.compression.Utils.seekInStopwords;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
@@ -37,11 +38,9 @@ public class TestLorenzo {
 
         System.out.println("-----------------------------------------------------------");
 
-        LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
         //docLenCache.put(1,50);
         //System.out.println(docLenCache.get(1));
 
-        String forConjunctiveTest = "", forDisjunctiveTest = "";
 
         //testNewDisjunctive("");
         //testOldDisjunctive("");
@@ -54,13 +53,23 @@ public class TestLorenzo {
             //testConjunctiveCache("100 10 diet", docLenCache);
         }
 
-        testNewConjunctive("caries detection system");
 
-        //testNoPriorityQueueDisjunctive("manhattan project scientist");
+        //testNewConjunctive("caries detection system");
+
+        //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");
+
+        int count = 0;
+        for (String stop:stopWords
+        ) {
+            System.out.println(++count);
+            if (!seekInStopwords(stop))
+                System.out.println("Paolo Manni");
+
+        }
 
         System.out.println("***************************************************************************************************");
 
-        //testMaxScoreDisjunctive("manhattan project scientist");
+        //testMaxScoreDisjunctive("what is the distance between flat rock michigan and detroit");
     }
 
     public static void testNewConjunctive(String string) throws IOException {
@@ -180,6 +189,11 @@ public class TestLorenzo {
         System.out.println("offset = " + offset);
         System.out.println("documentFrequency = " + documentFrequency);
         System.out.println("termUpperBoundScore = " + termUpperBoundScore);
+    }
+
+    public void testIntegerAndFloat(Integer testInteger,Float testFloat) {
+        testInteger = 1;
+        testFloat = Float.valueOf(2);
     }
 }
 
