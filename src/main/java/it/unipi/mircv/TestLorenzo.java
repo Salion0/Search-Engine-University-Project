@@ -13,21 +13,22 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Utils.removeStopWords;
+import static it.unipi.mircv.compression.Utils.removeStopWords;
+import static it.unipi.mircv.compression.Utils.seekInStopwords;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
         flagCompressedReading = false;
         flagStemming = false;
-        flagStopWordRemoval = false;
+        flagStopwordRemoval = false;
 
         //testCompressedReading();
         String forLexiconTest = "";
         //checkLexiconEntry(forLexiconTest);
 
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        Utils.loadStopWordList();
+        Config.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
@@ -37,11 +38,9 @@ public class TestLorenzo {
 
         System.out.println("-----------------------------------------------------------");
 
-        LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
         //docLenCache.put(1,50);
         //System.out.println(docLenCache.get(1));
 
-        String forConjunctiveTest = "", forDisjunctiveTest = "";
 
         //testNewDisjunctive("");
         //testOldDisjunctive("");
@@ -54,13 +53,23 @@ public class TestLorenzo {
             //testConjunctiveCache("100 10 diet", docLenCache);
         }
 
-        testNewConjunctive("caries detection system");
 
-        //testNoPriorityQueueDisjunctive("manhattan project scientist");
+        //testNewConjunctive("caries detection system");
+
+        //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");
+
+        int count = 0;
+        for (String stop:stopWords
+        ) {
+            System.out.println(++count);
+            if (!seekInStopwords(stop))
+                System.out.println("Paolo Manni");
+
+        }
 
         System.out.println("***************************************************************************************************");
 
-        //testMaxScoreDisjunctive("manhattan project scientist");
+        //testMaxScoreDisjunctive("what is the distance between flat rock michigan and detroit");
     }
 
     public static void testNewConjunctive(String string) throws IOException {
@@ -127,9 +136,9 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        //oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms);
-        //ArrayList<Integer> results = oldDisjunctive.processQuery();
-        //System.out.println(results);
+        oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms);
+        ArrayList<Integer> results = oldDisjunctive.processQuery();
+        System.out.println(results);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("OLD-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
@@ -139,9 +148,9 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        //PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
-        //ArrayList<Integer> results = disjunctiveDAAT.processQuery();
-        //System.out.println(results);
+        PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = disjunctiveDAAT.processQuery();
+        System.out.println(results);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("NEW-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
@@ -180,6 +189,11 @@ public class TestLorenzo {
         System.out.println("offset = " + offset);
         System.out.println("documentFrequency = " + documentFrequency);
         System.out.println("termUpperBoundScore = " + termUpperBoundScore);
+    }
+
+    public void testIntegerAndFloat(Integer testInteger,Float testFloat) {
+        testInteger = 1;
+        testFloat = Float.valueOf(2);
     }
 }
 
