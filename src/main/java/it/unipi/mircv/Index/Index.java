@@ -3,27 +3,23 @@ package it.unipi.mircv.Index;
 import ca.rmen.porterstemmer.PorterStemmer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import it.unipi.mircv.Utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.compression.Utils.seekInStopwords;
+import static it.unipi.mircv.Utils.cleanFolder;
+import static it.unipi.mircv.Utils.stemWord;
 
 public class Index {
-    private DocumentIndex documentIndex;
-    private PorterStemmer stemmer = new PorterStemmer();
+    private final DocumentIndex documentIndex;
+    private final PorterStemmer stemmer = new PorterStemmer();
     int count = 0; //DEBUG
     private int numberOfBlocks;
     private int currentDocId;
@@ -34,8 +30,7 @@ public class Index {
         loadStopWordList();
 
         BufferedReader reader;
-        if (flagCompressedReading == true)
-        {
+        if (flagCompressedReading) {
             FileInputStream fis = new FileInputStream("collection.tar.gz");
             GZIPInputStream gzis = new GZIPInputStream(fis);
             InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
@@ -47,8 +42,7 @@ public class Index {
             reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
             reader.skip(values[0].length() - 1); // skip metadata
         }
-        else
-            reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
+        else reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
 
 
         documentIndex = new DocumentIndex();
@@ -79,7 +73,6 @@ public class Index {
             e.printStackTrace();
         }
     }
-
 
     private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
         String path = "./data/";
@@ -115,7 +108,7 @@ public class Index {
                 break;
             }*/
             String line = reader.readLine();
-            if (flagCompressedReading == true) {
+            if (flagCompressedReading) {
                 if (line == null) {
                     //we reached the end of the file -> close file reader and break
                     reader.close();
@@ -137,7 +130,7 @@ public class Index {
 
             //parsing and processing the document corresponding
             String[] values = line.split("\t"); //split document text and docID
-            String[] tokens = Index.tokenization(values[1]);  //take tokens from the text
+            String[] tokens = Utils.tokenization(values[1]);  //take tokens from the text
             String docNo = values[0];
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
@@ -156,17 +149,13 @@ public class Index {
         //Count all occurrence of all terms in a document
         for (String token : tokens) //map with frequencies only
         {
-            if (token == null)
-                continue;
+            if (token == null) continue;
 
-            if (flagStopwordRemoval == true && seekInStopwords(token)) // stopWordRemoval
-                    continue;
+            if (flagStopWordRemoval && Utils.seekInStopwords(token))  continue;// stopWordRemoval
 
-            if (flagStemming == true)
-                token = stemmer.stemWord(token); // stemming
+            if (flagStemming) token = stemWord(token); // stemming
 
-            if (token.length() > TERM_BYTES_LENGTH) // il token è più lungo di 64 byte quindi lo scartiamo
-                continue;
+            if (token.length() > TERM_BYTES_LENGTH) continue;// il token è più lungo di 64 byte quindi lo scartiamo
 
             tokenCount++;
             if (wordCountDocument.get(token) == null)
@@ -198,34 +187,6 @@ public class Index {
         }
         return "";
     }
-
-    public static String[] tokenization(String doc) {
-        //html tags removal
-        doc = doc.replaceAll("<[^>]*>", "");
-        //punctuation and whitespace
-        String result = doc.replaceAll("\\p{Punct}","").toLowerCase();
-        String[] tokens = result.split("\\s+");
-
-        return tokens;
-    }
-
-    private static void cleanFolder(String folderName) throws IOException {
-        //function called every time the indexing starts in order to clean up the folder where blocks are stored
-        File folder = new File(folderName);
-        if(folder.exists() && folder.isDirectory()) {
-            File[] files = folder.listFiles();
-
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile()) {
-                        if (file.delete()) System.out.println("File deleted: " + file.getName());
-                        else System.err.println("It's impossible to delete the file: " + file.getName());
-                    }
-                }
-            }
-        } else Files.createDirectory(Paths.get("data"));
-    }
-
     public DocumentIndex getDocumentIndex() {
         return documentIndex;
     }

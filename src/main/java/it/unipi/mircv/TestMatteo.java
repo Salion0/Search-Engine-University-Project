@@ -1,18 +1,13 @@
 package it.unipi.mircv;
 
-import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.DocumentIndexHandler;
 
-import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.ConjunctiveDAATCache;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-import static it.unipi.mircv.Config.CACHE_SIZE;
-import static it.unipi.mircv.Config.stopWords;
+import static it.unipi.mircv.Config.QueryProcessor.*;
+import static it.unipi.mircv.Config.Score.BM25;
 
 public class TestMatteo {
 
@@ -21,59 +16,12 @@ public class TestMatteo {
         // Testing DAAT
 
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        Config.loadStopWordList();
+        Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
-        PorterStemmer stemmer = new PorterStemmer();
 
-
-        //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
-
-        //what is the distance between flat rock michigan and detroit
-
-        /*
-        //CONJUNCTIVE DAAT
-        System.out.println("-----------------------------------------------------------");
-        String[] queryTerms= "diet detox".split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        System.out.println(queryTerms.length);
-        ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
-        System.out.println(results);
-        System.out.println(System.currentTimeMillis() - startTime);
-
-
-
-
-        //TESTING CONJUNCTIVE DAAT with CACHE
-        LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
-        //
-        System.out.println("-----------------------------------------------------------");
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = removeStopWords("railroad workers".split(" "));
-        System.out.println(queryTerms.length);
-        ConjunctiveDAAT conjunctiveDAATCache = new ConjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
-        System.out.println(results);
-
-        System.out.println(Arrays.toString(documentIndexHandler.getDocNoREVERSE(results)));
-        long elapsedTime = System.currentTimeMillis() - startTime;
-        System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
-        */
-        SystemEvaluator.evaluateSystem("query/msmarco-test2020-queries.tsv", false, false);
-        SystemEvaluator.evaluateSystem("query/msmarco-test2020-queries.tsv", false, false);
-
-
-
-        /* DISJUNCTIVE DAAT
-        System.out.println("-----------------------------------------------------------");
-        String[] queryTerms1= "what is the distance between flat rock michigan and detroit".split(" ");
-        queryTerms1 = removeStopWords(queryTerms1);
-        System.out.println(queryTerms1.length);
-        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms1);
-        ArrayList<Integer> results1 = disjunctiveDAAT.processQuery();
-        System.out.println(results1);
-        */
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE, BM25,true, false);
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE, BM25,true, false);
 
 
         //testing PL Descriptor
@@ -148,17 +96,6 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values2.length, valuesCompressed2)));
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
-        */
-
-
-
-        System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
-
-        System.out.println("1 finished in " + (float)elapsedTime1/1000 +"sec");
-
-        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");
-
-        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
         */
     }
 }

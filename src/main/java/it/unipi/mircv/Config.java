@@ -1,12 +1,5 @@
 package it.unipi.mircv;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
 import java.util.List;
 
 public class Config {
@@ -39,20 +32,10 @@ public class Config {
     public static final int MEMORY_THRESHOLD = 8; //Expressed in percentage
     public static final int CACHE_SIZE = 100000; //Expressed in number of entries
 
-    public static void loadStopWordList() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            File file = new File("stop_words_english.json");
-            stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     // ************************* PARTE PER I FLAG ********************************************
     public static boolean flagCompressedReading;
-    public static boolean flagStopwordRemoval;
+    public static boolean flagStopWordRemoval;
     public static boolean flagStemming;
-    public static boolean flagMaxScore;
+    public enum QueryProcessor { DISJUNCTIVE, CONJUNCTIVE, DISJUNCTIVE_MAX_SCORE, CONJUNCTIVE_MAX_SCORE }
+    public enum Score{ BM25, FTIDF }
 }

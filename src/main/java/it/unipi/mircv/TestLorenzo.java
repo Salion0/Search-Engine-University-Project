@@ -13,21 +13,21 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.compression.Utils.removeStopWords;
+import static it.unipi.mircv.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
         flagCompressedReading = false;
         flagStemming = false;
-        flagStopwordRemoval = false;
+        flagStopWordRemoval = false;
 
         //testCompressedReading();
         String forLexiconTest = "";
         //checkLexiconEntry(forLexiconTest);
 
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        Config.loadStopWordList();
+        Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
@@ -127,9 +127,9 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms);
-        ArrayList<Integer> results = oldDisjunctive.processQuery();
-        System.out.println(results);
+        //oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms);
+        //ArrayList<Integer> results = oldDisjunctive.processQuery();
+        //System.out.println(results);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("OLD-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
@@ -139,9 +139,9 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = disjunctiveDAAT.processQuery();
-        System.out.println(results);
+        //PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
+        //ArrayList<Integer> results = disjunctiveDAAT.processQuery();
+        //System.out.println(results);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("NEW-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");

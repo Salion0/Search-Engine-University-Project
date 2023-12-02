@@ -18,16 +18,10 @@ public class DocumentIndexHandler{
 
     public DocumentIndexHandler() throws IOException {
         File file = new File(filepath);
-        if (file.exists()) {
-            System.out.println("Document Index file founded");
-        } else {
-            // Create the file
-            if (file.createNewFile()) {
-                System.out.println("Document Index file created correctly");
-            } else {
-                System.out.println("Failed to create Document Index file");
-            }
-        }
+        if (!file.exists()) {
+            if(file.createNewFile()) System.out.println("Document Index file created correctly");
+            else System.out.println("Error in Document Index file creation");
+        } else System.out.println("Document Index file founded");
 
         randomAccessFile = new RandomAccessFile(filepath,"rw");
         fileChannel = randomAccessFile.getChannel();

@@ -134,20 +134,6 @@ public class ConjunctiveDAAT {
     }
 
     protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
-        //Upload the posting list block
-        //if the element to read are less in size than "blockSize", read the remaining elements
-        //otherwise read a posting list block of size "blockSize"
-        /*if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[0] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    docFreqs[indexTerm] - readElement
-            );
-        }
-        else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    blockSize);
-        }*/
         if (docFreqs[indexTerm] - readElement < blockSize) {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
                     offsets[indexTerm] + readElement,
