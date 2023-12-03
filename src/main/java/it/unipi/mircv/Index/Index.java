@@ -14,8 +14,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Utils.cleanFolder;
-import static it.unipi.mircv.Utils.stemWord;
+import static it.unipi.mircv.Utils.*;
 
 public class Index {
     private final DocumentIndex documentIndex;
@@ -61,17 +60,6 @@ public class Index {
             System.err.println("Error reading the file: " + e.getMessage());
         }
         documentIndex.addAverageDocumentLength();
-    }
-
-    public void loadStopWordList() {  // load in memory the lists of stop words from the json file
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            File file = new File("stop_words_english.json");
-            stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {

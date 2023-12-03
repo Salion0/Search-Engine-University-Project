@@ -91,7 +91,7 @@ public class DocumentIndexHandler{
         int resultsSize = docIds.size();
         String[] docNos = new String[resultsSize];
         for(int i = 0; i < resultsSize; i ++){
-            docNos[i] = readDocNo(docIds.get(resultsSize - i - 1));
+            docNos[i] = readDocNo(docIds.get(resultsSize - i - 1)).replace("\0", "");
         }
         return docNos;
     }

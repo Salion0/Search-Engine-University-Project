@@ -6,6 +6,7 @@ public class Config {
     public static List<String> stopWords;
     public static int collectionSize;
     public static float avgDocLen;
+    public static int[] docsLen;
     public static final int MEMORY_THRESHOLD_PERC = 8;
     public static final int TERM_BYTES_LENGTH = 64;
     public static final int DOC_ID_LENGTH = 4;

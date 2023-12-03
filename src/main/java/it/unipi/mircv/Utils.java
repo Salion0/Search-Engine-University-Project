@@ -110,6 +110,15 @@ public class Utils {
         } else Files.createDirectory(Paths.get("data"));
     }
 
+    public static void deleteFile(String filePath) {
+        File file = new File(filePath);
+        if (file.exists())
+            if (file.delete()) System.out.println("File deleted: " + file.getName());
+            else System.out.println("File not deleted");
+        else System.out.println("File does not exist.");
+    }
+
+
     public static String stemWord(String toStem){
         return porterStemmer.stemWord(toStem);
     }

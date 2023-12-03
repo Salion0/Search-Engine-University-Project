@@ -4,6 +4,8 @@ import it.unipi.mircv.File.DocumentIndexHandler;
 
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import static it.unipi.mircv.Config.QueryProcessor.*;
@@ -13,16 +15,26 @@ public class TestMatteo {
 
     public static void main(String[] args) throws IOException {
 
-        // Testing DAAT
-
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE, BM25,true, false);
-        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE, BM25,true, false);
+        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
+        Config.docsLen = new int[Config.collectionSize];
+        for (int i = 0; i < Config.collectionSize; i++){
+            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
+        }
 
+        System.out.println(Config.docsLen.length);
+        System.out.println(documentIndexHandler.readDocumentLength(8000000));
+        System.out.println(Config.docsLen[8000000]);
+
+        System.out.println(SystemEvaluator.testQueryTime("10 100", CONJUNCTIVE, BM25,true, false ));
+
+        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
+        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
 
         //testing PL Descriptor
 

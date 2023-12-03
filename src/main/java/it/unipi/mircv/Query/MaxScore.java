@@ -124,7 +124,9 @@ public class MaxScore {
         {
             score = 0;
             countCurrentDocIdInPostingLists = 0;
-            minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
+            //AIUDOOO
+            //minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
+            minDocIdDocumentLength = docsLen[minCurrentDocId];
             next = Integer.MAX_VALUE;
 
             // ESSENTIAL LISTS

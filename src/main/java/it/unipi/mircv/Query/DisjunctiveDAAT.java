@@ -9,8 +9,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
-import static it.unipi.mircv.Config.collectionSize;
+import static it.unipi.mircv.Config.*;
 
 public class DisjunctiveDAAT {
     private final int numTermQuery;
@@ -78,7 +77,9 @@ public class DisjunctiveDAAT {
             //System.out.println("minDocId: " + minDocId); //DEBUG
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
-            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            //AIUDOO
+            //int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            int documentLength = docsLen[minDocId];
             for (int i =0; i<numTermQuery;i++)
             {
                 if (postingListBlocks[i].getCurrentDocId() == minDocId)

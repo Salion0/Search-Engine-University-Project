@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import static it.unipi.mircv.Config.MIN_NUM_POSTING_TO_SKIP;
-import static it.unipi.mircv.Config.POSTING_LIST_BLOCK_LENGTH;
+import static it.unipi.mircv.Config.*;
 
 public class ConjunctiveDAAT {
     protected final int numTermQuery;
@@ -65,7 +64,7 @@ public class ConjunctiveDAAT {
         int postingCount = 0;
         int currentDocId;
         int offsetNextGEQ;
-        boolean docIdNotInAllPostingLists;
+        boolean docIdInAllPostingLists;
 
         if(skipDescriptors[0] != null)
             uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH); //load the first posting list block
@@ -74,8 +73,8 @@ public class ConjunctiveDAAT {
             currentDocId = postingListBlocks[0].getCurrentDocId();
             postingCount++;
             currentDocScore = 0;
-            currentDocLen = 0; // it will be updated only if
-            docIdNotInAllPostingLists = false;
+            currentDocLen = 0;
+            docIdInAllPostingLists = true;
 
             //calculate the partial score for the other posting list if they contain the currentDocId
             for (int i = 1; i < numTermQuery; i++) {
@@ -101,12 +100,12 @@ public class ConjunctiveDAAT {
                     updateCurrentDocScore(i);
                 else
                 {
-                    docIdNotInAllPostingLists = true;
+                    docIdInAllPostingLists = false;
                     break;
                 }
             }
 
-            if(docIdNotInAllPostingLists == false) {
+            if(docIdInAllPostingLists) {
                 updateCurrentDocScore(0);
                 heapScores.insertIntoPriorityQueue(currentDocScore, currentDocId);
             }
@@ -120,15 +119,16 @@ public class ConjunctiveDAAT {
     protected boolean currentDocIdInPostingList(int indexTerm, int currentDocId){
         do{
             if(postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
-            if(postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) break;
-
+            if(postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) return false;
         } while (postingListBlocks[indexTerm].next() != -1);
         return false;
     }
 
     protected void updateCurrentDocScore(int index) throws IOException {
-        if (index == 1) { // prima era index == 1
-            currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
+        if (index == 1) {
+            //AIUDOO
+            //currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
+            currentDocLen = docsLen[postingListBlocks[index].getCurrentDocId()];
         }
         currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
     }

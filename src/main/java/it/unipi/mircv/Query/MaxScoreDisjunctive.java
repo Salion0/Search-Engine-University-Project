@@ -108,7 +108,9 @@ public class MaxScoreDisjunctive {
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
             score = 0;
-            minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
+            //AIUDOOO
+            //minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
+            minDocIdDocumentLength = docsLen[minCurrentDocId];
             next = Integer.MAX_VALUE;
 
             // ESSENTIAL LISTS
