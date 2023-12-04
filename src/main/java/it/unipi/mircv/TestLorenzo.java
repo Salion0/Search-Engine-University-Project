@@ -13,22 +13,21 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.compression.Utils.removeStopWords;
-import static it.unipi.mircv.compression.Utils.seekInStopwords;
+import static it.unipi.mircv.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
         flagCompressedReading = false;
         flagStemming = false;
-        flagStopwordRemoval = false;
+        flagStopWordRemoval = false;
 
         //testCompressedReading();
         String forLexiconTest = "";
         //checkLexiconEntry(forLexiconTest);
 
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        Config.loadStopWordList();
+        Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 

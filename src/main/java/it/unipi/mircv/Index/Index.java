@@ -96,7 +96,7 @@ public class Index {
                 break;
             }*/
             String line = reader.readLine();
-            if (flagCompressedReading) {
+            if (!flagCompressedReading) {
                 if (line == null) {
                     //we reached the end of the file -> close file reader and break
                     reader.close();

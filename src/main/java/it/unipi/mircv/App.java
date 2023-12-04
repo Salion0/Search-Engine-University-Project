@@ -9,6 +9,7 @@ public class App
 {
 
     public static void main( String[] args ) throws IOException {
+
         Index index = new Index("collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
