@@ -54,18 +54,11 @@ public class TestLorenzo {
         }
 
 
-        //testNewConjunctive("caries detection system");
+        testNewConjunctive("diet 100");
+        //testNoPriorityQueueDisjunctive("diet 100");
+
 
         //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");
-
-        int count = 0;
-        for (String stop:stopWords
-        ) {
-            System.out.println(++count);
-            if (!seekInStopwords(stop))
-                System.out.println("Paolo Manni");
-
-        }
 
         System.out.println("***************************************************************************************************");
 
