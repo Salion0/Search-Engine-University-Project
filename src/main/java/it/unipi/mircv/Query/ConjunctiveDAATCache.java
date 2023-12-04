@@ -18,7 +18,7 @@ public class ConjunctiveDAATCache extends ConjunctiveDAAT {
             currentDocLen = cacheDocIndex.get(docId);
             //System.out.println("currentDocLen = " + currentDocLen);
             if (currentDocLen == null) { //need to read in the file the missing DocId -> DocLen and put it in cache
-                currentDocLen = documentIndexHandler.readDocumentLength(docId);
+                currentDocLen = documentIndexFileHandler.readDocumentLength(docId);
                 cacheDocIndex.put(docId, currentDocLen);
                 //System.out.println(cacheDocIndex.get(docId));
                 //System.out.println("miss");

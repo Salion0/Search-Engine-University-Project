@@ -1,18 +1,23 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Query.*;
+import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Config.QueryProcessor.CONJUNCTIVE;
+import static it.unipi.mircv.Config.QueryProcessor.DISJUNCTIVE;
+import static it.unipi.mircv.Config.Score.BM25;
 import static it.unipi.mircv.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
@@ -26,11 +31,16 @@ public class TestLorenzo {
         String forLexiconTest = "";
         //checkLexiconEntry(forLexiconTest);
 
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
+        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
+        Config.docsLen = new int[Config.collectionSize];
+        for (int i = 0; i < Config.collectionSize; i++){
+            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
+        }
         //String test = "\0\0\0\0\0pfdvefvegr";
         //if (test.startsWith("\0\0\0\0"))
           //  System.out.println("deh");
@@ -53,10 +63,14 @@ public class TestLorenzo {
             //testConjunctive("100 10");
             //testConjunctiveCache("100 10 diet", docLenCache);
         }
-
-        testNewConjunctive("diet 100");
-
-        testConjunctiveCache("diet 100",docLenCache);
+        System.out.println("Test Conjuctive");
+        testNewConjunctive("manhattan project");
+        checkLexiconEntry("manhattan");
+        checkLexiconEntry("project");
+        //testMaxScore("diet 100");
+        //testOldDisjunctive("diet 100");
+        //System.out.println(SystemEvaluator.testQueryTime("diet 100", CONJUNCTIVE, BM25,true, false ));
+        //testConjunctiveCache("diet 100",docLenCache);
 
         System.out.println("***************************************************************************************************");
 
@@ -127,11 +141,11 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        //oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms);
-        //ArrayList<Integer> results = oldDisjunctive.processQuery();
-        //System.out.println(results);
+        DisjunctiveDAAT oldDisjunctive = new DisjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = oldDisjunctive.processQuery();
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
+        System.out.println(results);
         System.out.println("OLD-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
@@ -162,13 +176,13 @@ public class TestLorenzo {
     public static void testCompressedReading() throws IOException {
         Index index = new Index("");
         int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
+        BlockMerger blockMerger = new BlockMerger();
+        blockMerger.mergeBlocks(numberOfBlocks);
     }
 
     public static void checkLexiconEntry(String string) throws IOException {
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        InvertedIndexFileHandler invertedIndexHandler = new InvertedIndexFileHandler();
         ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
         String term = lexiconHandler.getTerm(entryBuffer);
         int documentFrequency = lexiconHandler.getDf(entryBuffer);
