@@ -1,4 +1,7 @@
 package it.unipi.mircv;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 
@@ -11,14 +14,31 @@ public class App
 {
     public static void main( String[] args )  {
         try{
-            //Index index = new Index("test_collection.tsv");
-            // count number of blocks
-            String path = "./data/";
-            File directory=new File(path);
-            int numberOfBlocks = (directory.list().length)/3;
-            System.out.println("Number of blocks: "+numberOfBlocks);
+            DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+            Config.collectionSize = documentIndexFileHandler.readCollectionSize();
+
+            flagStemming=false;
+            flagStopWordRemoval=true;
+            flagCompressedReading=false;
+
+            Index index = new Index("test_collection.tsv");
+
             BlockMerger blockMerger = new BlockMerger();
-            blockMerger.mergeBlocks(numberOfBlocks);
+            blockMerger.mergeBlocks(index.getNumberOfBlocks());
+
+            //read the first PostingList
+            //InvertedIndexFileHandler plFileHandler = new InvertedIndexFileHandler();
+
+            //test verifica merging
+            /*LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
+            InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler();
+            String term = "break";
+            ByteBuffer dataBuffer = lexiconFileHandler.findTermEntry(term);
+            int offset = lexiconFileHandler.getOffset(dataBuffer);
+            int length = lexiconFileHandler.getDf(dataBuffer);
+            System.out.println("Offset: "+offset+" - Length: "+length);
+            System.out.println(term+": pl: "+plHandler.getPostingList(offset,length).getPostingList());
+*/
             } catch(Exception e){
                 e.printStackTrace();
             }

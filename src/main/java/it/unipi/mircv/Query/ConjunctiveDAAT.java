@@ -1,8 +1,8 @@
 package it.unipi.mircv.Query;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
@@ -21,15 +21,15 @@ public class ConjunctiveDAAT {
     protected final int[] offsets;
     protected final PostingListBlock[] postingListBlocks;
     protected final SkipDescriptor[] skipDescriptors;
-    protected final DocumentIndexHandler documentIndexHandler;
-    protected final InvertedIndexHandler invertedIndexHandler;
+    protected final DocumentIndexFileHandler documentIndexFileHandler;
+    protected final InvertedIndexFileHandler invertedIndexFileHandler;
     protected float currentDocScore;
     protected Integer currentDocLen;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        documentIndexHandler = new DocumentIndexHandler();
-        invertedIndexHandler = new InvertedIndexHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        documentIndexFileHandler = new DocumentIndexFileHandler();
+        invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
         numTermQuery = queryTerms.length;
@@ -52,7 +52,7 @@ public class ConjunctiveDAAT {
             }
             else{
                 skipDescriptors[i] = null;
-                postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
+                postingListBlocks[i] = invertedIndexFileHandler.getPostingList(offsets[i], docFreqs[i]);
             }
         }
 
@@ -135,13 +135,13 @@ public class ConjunctiveDAAT {
 
     protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
         if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     docFreqs[indexTerm] - readElement
             );
         }
         else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
+            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
                     blockSize
             );

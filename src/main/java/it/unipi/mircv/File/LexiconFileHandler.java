@@ -22,13 +22,13 @@ public class LexiconFileHandler {
         RandomAccessFile raf = new RandomAccessFile(Config.LEXICON_FILE, "rw");
         this.lexiconFile = raf.getChannel();
         this.lexiconPos = 0;
-        this.numEntry = (int) ((lexiconFile.size()/Config.LEXICON_ENTRY_LENGTH));
+        this.numEntry = (int) ((lexiconFile.size()/(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)));
     }
     public LexiconFileHandler(String filePath) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
         this.lexiconFile = raf.getChannel();
         this.lexiconPos = 0;
-        this.numEntry = (int) ((lexiconFile.size()/Config.LEXICON_ENTRY_LENGTH));
+        this.numEntry = (int) ((lexiconFile.size()/(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)));
     }
     public ByteBuffer findTermEntry(String term) throws IOException {
         //Find a term in the lexicon file by binary search assuming that a=0; b=FileSize; c = center that we calculate at each iteration
@@ -64,13 +64,11 @@ public class LexiconFileHandler {
              termBuffer.clear();
          }
 
-        System.out.println(); //DEBUG
         return dataBuffer;
     }
     public LexiconEntry nextEntryLexiconFile() throws IOException {
         // reading the next term with his offset
-
-        if(this.lexiconPos > numEntry)
+        if(this.lexiconPos >= numEntry)
             return null;
         ByteBuffer dataBuffer = ByteBuffer.allocate(
                 Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH
@@ -115,6 +113,10 @@ public class LexiconFileHandler {
     public int getOffsetSkipDesc(ByteBuffer dataBuffer){
         return dataBuffer.position(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH
                 + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH + Config.UPPER_BOUND_SCORE_LENGTH).getInt();
+    }
+
+    public void close() throws IOException {
+        this.lexiconFile.close();
     }
 
 }

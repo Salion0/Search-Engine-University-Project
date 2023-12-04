@@ -1,6 +1,7 @@
 package it.unipi.mircv.File;
 
 import it.unipi.mircv.Index.PostingElement;
+import it.unipi.mircv.Index.PostingList;
 import it.unipi.mircv.Index.PostingListBlock;
 
 import java.io.IOException;
@@ -12,6 +13,8 @@ import static it.unipi.mircv.Config.*;
 public class InvertedIndexFileHandler {
     private final FileChannel docIdChannel;
     private final FileChannel termFreqChannel;
+
+
     public InvertedIndexFileHandler() throws IOException {
         RandomAccessFile rafDocId = new RandomAccessFile(DOC_ID_FILE, "rw");
         this.docIdChannel = rafDocId.getChannel();
@@ -20,22 +23,21 @@ public class InvertedIndexFileHandler {
         this.termFreqChannel = rafTermFreq.getChannel();
     }
     public InvertedIndexFileHandler(String docIdPath, String termFreqPath) throws IOException {
-        RandomAccessFile rafDocId = new RandomAccessFile(DOC_ID_FILE, "rw");
+        RandomAccessFile rafDocId = new RandomAccessFile(docIdPath, "rw");
         this.docIdChannel = rafDocId.getChannel();
 
-        RandomAccessFile rafTermFreq = new RandomAccessFile(TERM_FREQ_FILE, "rw");
+        RandomAccessFile rafTermFreq = new RandomAccessFile(termFreqPath, "rw");
         this.termFreqChannel = rafTermFreq.getChannel();
     }
-    public InvertedIndexHandler(String docIdPath,String termFreqPath) throws IOException {
-        RandomAccessFile rafDocId = new RandomAccessFile(DOC_ID_FILE, "rw");
-        this.docIdChannel = rafDocId.getChannel();
+    public PostingListBlock getCompressedPostingList(long startOffsetDocId, long endOffsetDocId, long startOffsetTermFreq, long endOffsetTermFreq){
+        PostingListBlock postingListBlock = new PostingListBlock();
+        ByteBuffer docIdBuffer = ByteBuffer.allocate((int) (endOffsetDocId - startOffsetDocId));
+        ByteBuffer termFreqBuffer = ByteBuffer.allocate((int) (endOffsetTermFreq - startOffsetTermFreq));
 
-        RandomAccessFile rafTermFreq = new RandomAccessFile(TERM_FREQ_FILE, "rw");
-        this.termFreqChannel = rafTermFreq.getChannel();
+        return null;
     }
-
     public PostingListBlock getPostingList(int offset, int length) throws IOException {
-        PostingListBlock postingListBlock = new PostingListBlock(length);
+        PostingListBlock postingListBlock = new PostingListBlock();
         ByteBuffer docIdBuffer = ByteBuffer.allocate(DOC_ID_LENGTH*length);
         ByteBuffer termFreqBuffer = ByteBuffer.allocate(TERM_FREQ_LENGTH*length);
 
@@ -49,6 +51,12 @@ public class InvertedIndexFileHandler {
             int termFreq = termFreqBuffer.getInt();
             postingListBlock.addPostingElement(new PostingElement(docID, termFreq));
         }
+        postingListBlock.setFields(length);
         return postingListBlock;
     }
+    public void close() throws IOException {
+        this.docIdChannel.close();
+        termFreqChannel.close();
+    }
+
 }

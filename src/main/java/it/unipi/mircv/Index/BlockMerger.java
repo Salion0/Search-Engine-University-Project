@@ -1,6 +1,10 @@
 package it.unipi.mircv.Index;
+import it.unipi.mircv.Config;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.File.InvertedIndexFileHandler;
 import it.unipi.mircv.File.LexiconFileHandler;
+import it.unipi.mircv.File.SkipDescriptorFileHandler;
+import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,25 +26,38 @@ public class BlockMerger {
 
     private static PriorityQueue<String> minTermQueue = new PriorityQueue();
     private static int postingListOffset = 0;  //offset to write in the final lexicon file for each term
+    private static int offsetSkipDescriptor = 0;
+
+    private static SkipDescriptorFileHandler skipDescriptorFileHandler;
     private static String path="data/";
 
     public void mergeBlocks(int numberOfBlocks) throws IOException {
-
-/*        //count number of blocks
+        /*
+        //count number of blocks
         String path = "./data/";
         File directory=new File(path);
-        int numberOfBlocks = (directory.list().length-5)/3;*/
+        int numberOfBlocks = (directory.list().length-5)/3;
+        */
 
+
+        //initialize the skip descriptor file handler
+        skipDescriptorFileHandler = new SkipDescriptorFileHandler();
+        //initialize the document index file handler
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        //read the collection size and the average document length
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         this.numberOfBlocks = numberOfBlocks;
-
-
 
 
         //---------------------------------FILE HANDLER---------------------------------------------------------------------------------------------------
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
+
             LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat");
-            InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(path+"docIds"+blockIndex+".dat",path+"termFreq"+blockIndex+".dat");
+            InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
+                    path+"docIds"+blockIndex+".dat",
+                    path+"termFreq"+blockIndex+".dat");
             lexiconBlocks.add(lexiconHandler);
             postingListBlocks.add(plHandler);
         }
@@ -48,96 +65,88 @@ public class BlockMerger {
         FileOutputStream fosLexicon = new FileOutputStream(path+"lexicon.dat",true);
         FileOutputStream fosDocId = new FileOutputStream(path+"docIds.dat",true);
         FileOutputStream fosTermFreq = new FileOutputStream(path+"termFreq.dat",true);
-        //--------------------------------------------------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
-        //Initialzie the priority queue with the first term of each block
-        System.out.print("number of blocks:"+numberOfBlocks+"\n");
+        //Initialize the priority queue with the first term of each block
+/*
+        System.out.print("number of blocks:"+numberOfBlocks+"\n");  //DEBUG
+*/
         for (int i = 0; i < numberOfBlocks; i++) {
             LexiconEntry lexiconEntry = lexiconBlocks.get(i).nextEntryLexiconFile();
-            System.out.println("Block "+i+" first term:"+lexiconEntry.getTerm());
             minTermQueue.add(lexiconEntry.getTerm());
             currentBlockEntry.add(i,lexiconEntry);
         }
 
-        for(int i=0;i<numberOfBlocks;i++){
-            System.out.println("Block"+i+"  currentBlockentry():"+currentBlockEntry.get(i).getTerm()+" offset "+currentBlockEntry.get(i).getOffset()+" df "+currentBlockEntry.get(i).getDf()+" cf "+currentBlockEntry.get(i).getCf());
-        }
 
+        String minTerm = minTermQueue.peek();
+
+        //at each iteration a new term is handled. The minTerm will be the first term in lexicographical increasing order
         while(true) {
-            String minTerm = minTermQueue.peek();
-            //at each iteration a new term is handled. The minTerm will be the first term in lexicographical increasing order
+            //System.out.println("Merging working progress... Percentage: boh");
+
+            //if the queue is empty, the merging is completed
             if(minTerm == null)
                 break;
             //duplicate terms are removed from the queue
-            System.out.println("Min term queue:"+minTermQueue.toString());
             while((minTermQueue.peek()!=null) && (minTerm.compareTo(minTermQueue.peek())== 0)) {
                 minTerm = minTermQueue.poll();
             }
-            System.out.println("Min term:"+minTerm);
-            System.out.println("Min term queue:"+minTermQueue.toString());
-            //if the queue is empty, the merging is completed
 
 
             //----------------------------------MERGING--------------------------------------------------------------------
             PostingList postingList = new PostingList();
             int docFreqSum = 0;
             int collFreqSum = 0;
+
             for (int i = 0; i < numberOfBlocks; i++) {  //for each block merge the corresponding entry with the min term
                 if (currentBlockEntry.get(i) == null) continue;  //skip iteration if block is completed
-                if (minTerm.compareTo(currentBlockEntry.get(i).getTerm()) == 0) {
-                   //if the term is the same of the minTerm, add the posting list to the final posting list
-                    System.out.println("Block "+i+" term:"+currentBlockEntry.get(i).getTerm()+" is equal to minTerm:"+minTerm);
-                    System.out.println("Block "+i+" offset:"+currentBlockEntry.get(i).getOffset()+" df:"+currentBlockEntry.get(i).getDf()+" cf:"+currentBlockEntry.get(i).getCf());
-                    System.out.println("Block "+i+" posting list:"+postingListBlocks.get(i).getPostingList(0, 12));
+                if (minTerm.compareTo(currentBlockEntry.get(i).getTerm()) == 0) {   //if the term is the same of the minTerm, add the posting list to the final posting list
+
                     postingList.addPostingList(postingListBlocks.get(i).getPostingList(
                             currentBlockEntry.get(i).getOffset(),
                             currentBlockEntry.get(i).getDf()
                             )
                     );
-
-                    //compute the sum of docFreq and collFreq
                     docFreqSum += currentBlockEntry.get(i).getDf();
                     collFreqSum += currentBlockEntry.get(i).getCf();
 
-                    //update the currentBlockEntry with the next entry of the block
+                    //update the currentBlockEntry
                     currentBlockEntry.set(i, lexiconBlocks.get(i).nextEntryLexiconFile());
-                    if (currentBlockEntry.get(i) != null) {
-                        //if the block is not completed, add the next term to the minTermQueue
-                        //check if the term is already in the priority queue
-                        if(minTerm.compareTo(currentBlockEntry.get(i).getTerm()) != 0)
-                            minTermQueue.add(currentBlockEntry.get(i).getTerm());
 
+                    if (currentBlockEntry.get(i) != null) {
+                            minTermQueue.add(currentBlockEntry.get(i).getTerm());
                     }
                 }
             }
             //-------------------------------------------------------------------------------------------------------------
-
+            //compute the termUpperBoundScore
+            float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
 
             //appending term and posting list in final files
-            writeToDisk(fosLexicon,fosDocId,fosTermFreq,minTerm, offsetToWrite, docFreqSum, collFreqSum, postingList);
+            writeToDisk(fosLexicon,fosDocId,fosTermFreq,minTerm, offsetToWrite, docFreqSum, collFreqSum,termUpperBoundScore, postingList);
             offsetToWrite += docFreqSum;
 
-            //DEBUG -----------------------------
-            //terms.add(minTerm);  //salvo term e Posting List associata
-            //postingLists.add(postingList);
-            //System.out.println(minTerm + " --->> " + postingList);
-            //DEBUG ---------------------------------------
-
+            //update the minTerm
+            minTerm = minTermQueue.peek();
         }
+        System.out.println("Merge completed!");
+
+
+        //close the final files
         fosLexicon.close();
         fosDocId.close();
         fosTermFreq.close();
-
-        //DEBUG ------printing the whole merged lexicon-------
-        /*for (int i = 0; i < terms.size(); i++) {
-            System.out.println(terms.get(i) + " --->> " + postingLists.get(i));
-        }
-        */
-        //DEBUG ---------------------------------------
+/*        //close the skip descriptor file handler
+        skipDescriptorFileHandler.closeFileChannel();
+        //close the handlers for each block
+        for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
+            lexiconBlocks.get(blockIndex).close();
+            postingListBlocks.get(blockIndex).close();
+        }*/
     }
-    private void writeToDisk(FileOutputStream fosLexicon,FileOutputStream fosDocId,FileOutputStream fosTermFreq,String term, int offset, int docFreq, int collFreq, PostingList postingList) throws IOException {
+    private void writeToDisk(FileOutputStream fosLexicon,FileOutputStream fosDocId,FileOutputStream fosTermFreq,
+                             String term, int offset, int docFreq, int collFreq, float termUpperBoundScore, PostingList postingList) throws IOException {
 
         byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);
@@ -148,13 +157,62 @@ public class BlockMerger {
         termBuffer.putInt(docFreq);
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH);
         termBuffer.putInt(collFreq);
+        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
+        termBuffer.putFloat(termUpperBoundScore);
+
 
         //update the offset to write in the lexicon for the next term (next iteration)
         postingListOffset += postingList.getSize();
         //Write posting list in docIds and termFreq files
         byte[][] bytePostingList = postingList.getBytes();
-        fosLexicon.write(termBuffer.array());
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
+
+
+
+        int postingListSize = postingList.getSize();
+
+        //if the posting list is big enough, write the skip descriptor
+        if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
+            SkipDescriptor skipDescriptor = new SkipDescriptor();
+            int postingListSizeBlock = (int) Math.sqrt(postingListSize);
+
+            for (int i = 0; i <= postingListSize - postingListSizeBlock; i += postingListSizeBlock){
+                int maxDocId = postingList.getPostingList().get(i + postingListSizeBlock - 1).getDocId();
+                int offsetMaxDocId = offsetToWrite + i;
+                skipDescriptor.add(maxDocId, offsetMaxDocId);
+            }
+
+            //the last offset will be written here
+            if (postingListSize%postingListSizeBlock != 0) {
+                int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
+                int offsetMaxDocId = offsetToWrite + postingListSizeBlock*postingListSizeBlock;
+                skipDescriptor.add(maxDocId, offsetMaxDocId);
+            }
+
+            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH
+                    + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH);
+            termBuffer.putInt(offsetSkipDescriptor);
+
+            skipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
+            offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
+        }
+        fosLexicon.write(termBuffer.array());
+    }
+
+    private float computeTermUpperBound(DocumentIndexFileHandler documentIndexHandler,
+                                        PostingList postingList) throws IOException {
+        int documentFrequency = postingList.getSize();
+        float maxScore = -1;
+
+        for (PostingElement postingElement: postingList.getPostingList())
+        {
+            //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
+            float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),
+                    documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
+            if (currentScore > maxScore)
+                maxScore = currentScore;
+        }
+        return maxScore;
     }
 }

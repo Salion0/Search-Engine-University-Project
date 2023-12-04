@@ -1,9 +1,10 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
+import javax.swing.text.Document;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class TestMatteo {
 
     public static void main(String[] args) throws IOException {
 
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
@@ -26,15 +27,22 @@ public class TestMatteo {
             Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
         }
 
-        System.out.println(Config.docsLen.length);
+ /*       System.out.println(Config.docsLen.length);
         System.out.println(documentIndexHandler.readDocumentLength(8000000));
-        System.out.println(Config.docsLen[8000000]);
+        System.out.println(Config.docsLen[8000000]);*/
 
-        System.out.println(SystemEvaluator.testQueryTime("10 100", CONJUNCTIVE, BM25,true, false ));
+/*        System.out.println(SystemEvaluator.testQueryTime("manhattan project", DISJUNCTIVE, BM25,
+                true, false ));*/
+
+        InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
+        System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
+
+
+
 
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
+        //SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
 
         //testing PL Descriptor
 

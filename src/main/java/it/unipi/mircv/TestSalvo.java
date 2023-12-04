@@ -1,6 +1,7 @@
 package it.unipi.mircv;
 
 import it.unipi.mircv.File.LexiconFileHandler;
+import it.unipi.mircv.Index.LexiconEntry;
 
 import java.io.IOException;
 
@@ -15,7 +16,13 @@ public class TestSalvo{
     public static void main(String[] args) throws IOException {
 
     LexiconFileHandler lexiconHandler = new LexiconFileHandler();
-/*        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+    LexiconEntry le = new LexiconEntry();
+    while(le != null){
+        le = lexiconHandler.nextEntryLexiconFile();
+        System.out.println("Term: "+le.getTerm()+" - Offset: "+le.getOffset()+" - Df: "+le.getDf()+" - Cf: "+le.getCf());
+    }
+
+    /* DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
         System.out.println(documentIndexHandler.readAvgDocLen());*/
 
 /*

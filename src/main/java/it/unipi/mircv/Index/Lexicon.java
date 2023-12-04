@@ -30,14 +30,20 @@ public class Lexicon {
 
 
 
-    public void update(String term,int docId,int tf){
-       //update  term posting lists if exist and create an entry in the lexicon if term not exist.
+
+    public void addPostingElement(String term, int docId, int tf){
+       //update term entry if exist and create an entry in the lexicon if term not exist.
         if (termExists(term)) {
             getPostingList(term).addPostingElement(new PostingElement(docId, tf));
+            treeMap.get(term).setDf(treeMap.get(term).getDf()+1);
+            treeMap.get(term).setCf(treeMap.get(term).getCf()+tf);
         }else {
+            //add lexicon entry to the lexicon
             PostingList pl = new PostingList(new PostingElement(docId,tf));
             LexiconEntry le = new LexiconEntry();
             le.setPostingList(pl);
+            le.setDf(1);
+            le.setCf(tf);
             treeMap.put(term,le);
         }
     }
@@ -46,10 +52,9 @@ public class Lexicon {
             FileOutputStream fosLexicon = new FileOutputStream(path+fileLexicon,true);
             FileOutputStream fosDocId = new FileOutputStream(path+fileDocId,true);
             FileOutputStream fosTermFreq = new FileOutputStream(path+fileTermFreq,true);
-            //offset to save in lexicon
 
+            //offset to save in lexicon
             int offset = 0;
-            //int count = 0; //DEBUG
 
             for(String term: treeMap.keySet()) {
                 //Write Lexicon on file using ByteBuffer
@@ -58,39 +63,28 @@ public class Lexicon {
 
                 if (termBytes.length > TERM_BYTES_LENGTH)
                     continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
-                ByteBuffer termBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH+OFFSET_BYTES_LENGTH);
-                termBuffer.put(termBytes);
-                termBuffer.position(TERM_BYTES_LENGTH);
 
-                termBuffer.putInt(offset);
+                ByteBuffer entryBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH);
+                entryBuffer.put(termBytes);
+                entryBuffer.position(TERM_BYTES_LENGTH);
 
-                int collectionFreq =0;
-                PostingList pl = getPostingList(term);
-                for(PostingElement pe: pl.getPostingList()){
-                    collectionFreq += pe.getTermFreq();
-                }
-                termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
+                entryBuffer.putInt(offset);
+                entryBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
 
-                termBuffer.putInt(collectionFreq);
+                entryBuffer.putInt(treeMap.get(term).getDf());
+                entryBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH);
+
+                entryBuffer.putInt(treeMap.get(term).getCf());
+
 
                 //update the offset to write in the lexicon for the next term (next iteration)
                 offset += getPostingList(term).getSize();
-                fosLexicon.write(termBuffer.array());
+                fosLexicon.write(entryBuffer.array());
 
                 //Write posting list in two different files: docIds file and termFreq file
-                byte[][] bytePostingList = pl.getBytes();
+                byte[][] bytePostingList = getPostingList(term).getBytes();
                 fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
                 fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-
-                //System.out.print(offset); //DEBUG
-                //count++; //DEBUG
-                //DEBUG
-                /*
-                int c = 0;
-                for (Byte b : termBuffer.array()) {
-                    System.out.println("Byte " + c + "-" + b);
-                    c++;
-                }*/
             }
             fosLexicon.close();
             fosDocId.close();

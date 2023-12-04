@@ -1,7 +1,7 @@
 package it.unipi.mircv.evaluation;
 import it.unipi.mircv.Config.Score;
 import it.unipi.mircv.Config.QueryProcessor;
-import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.Query.*;
 import it.unipi.mircv.Utils;
 
@@ -65,7 +65,7 @@ public class SystemEvaluator {
     }
 
     public static String[] queryResult(String query, QueryProcessor queryProcessor, Score score, boolean stopWordRemoval, boolean stemming) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         String[] queryTerms = Utils.tokenization(query);
 
         if (stopWordRemoval) queryTerms = removeStopWords(queryTerms);
@@ -93,7 +93,7 @@ public class SystemEvaluator {
     }
 
     public static long testQueryTime(String query, QueryProcessor queryProcessor, Score score, boolean stopWordRemoval, boolean stemming) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         long startTime = System.currentTimeMillis();
         String[] queryTerms = Utils.tokenization(query);
 
