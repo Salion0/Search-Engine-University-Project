@@ -18,8 +18,8 @@ public class TestSalvo{
     LexiconFileHandler lexiconHandler = new LexiconFileHandler();
     LexiconEntry le = new LexiconEntry();
     while(le != null){
-        le = lexiconHandler.nextEntryLexiconFile();
         System.out.println("Term: "+le.getTerm()+" - Offset: "+le.getOffset()+" - Df: "+le.getDf()+" - Cf: "+le.getCf());
+        le = lexiconHandler.nextEntryLexiconFile();
     }
 
     /* DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();

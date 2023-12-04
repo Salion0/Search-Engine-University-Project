@@ -73,7 +73,7 @@ public class BlockMerger {
         System.out.print("number of blocks:"+numberOfBlocks+"\n");  //DEBUG
 */
         for (int i = 0; i < numberOfBlocks; i++) {
-            LexiconEntry lexiconEntry = lexiconBlocks.get(i).nextEntryLexiconFile();
+            LexiconEntry lexiconEntry = lexiconBlocks.get(i).nextBlockEntryLexiconFile();
             minTermQueue.add(lexiconEntry.getTerm());
             currentBlockEntry.add(i,lexiconEntry);
         }
@@ -109,16 +109,18 @@ public class BlockMerger {
                             )
                     );
                     docFreqSum += currentBlockEntry.get(i).getDf();
+                    //System.out.println(docFreqSum);
                     collFreqSum += currentBlockEntry.get(i).getCf();
 
                     //update the currentBlockEntry
-                    currentBlockEntry.set(i, lexiconBlocks.get(i).nextEntryLexiconFile());
+                    currentBlockEntry.set(i, lexiconBlocks.get(i).nextBlockEntryLexiconFile());
 
                     if (currentBlockEntry.get(i) != null) {
                             minTermQueue.add(currentBlockEntry.get(i).getTerm());
                     }
                 }
             }
+            System.out.println(offsetToWrite);
             //-------------------------------------------------------------------------------------------------------------
             //compute the termUpperBoundScore
             float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
@@ -160,14 +162,13 @@ public class BlockMerger {
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
         termBuffer.putFloat(termUpperBoundScore);
 
-
         //update the offset to write in the lexicon for the next term (next iteration)
         postingListOffset += postingList.getSize();
         //Write posting list in docIds and termFreq files
         byte[][] bytePostingList = postingList.getBytes();
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-
+        System.out.println();
 
 
         int postingListSize = postingList.getSize();

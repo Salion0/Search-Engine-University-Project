@@ -82,7 +82,7 @@ public class Index {
         BufferedReader readerToReturn = null;
 
         while (true) {
-            count++; //DEBUG
+          /*  count++; //DEBUG*/
 
             if(freeMemoryPercentage() < MEMORY_THRESHOLD_PERC){
                 //poor memory qt available -> break
@@ -91,11 +91,11 @@ public class Index {
                 break;
             }
             //DEBUG per creare più di un blocco
-            if (count == 6 || count == 12){
+/*            if (count == 6 || count == 12){
                 readerToReturn = reader;
                 System.out.println("blocco finito per debug");
                 break;
-            }
+            }*/
             String line = reader.readLine();
             if (!flagCompressedReading) {
                 if (line == null) {
@@ -124,7 +124,7 @@ public class Index {
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
             //DEBUG
-            if (count == 20) break; //DEBUG
+/*            if (count == 20) break; //DEBUG*/
         }
 
         writeLexiconToBlock(lexicon, blockID);

@@ -8,10 +8,9 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.PriorityQueue;
 
 public class LexiconFileHandler {
-    private int lexiconPos;
+    private int lexiconRow;
     private int collectionFrequency;
     private int currentOffsetRead;
     private int successiveOffsetRead;
@@ -21,13 +20,13 @@ public class LexiconFileHandler {
     public LexiconFileHandler() throws IOException {
         RandomAccessFile raf = new RandomAccessFile(Config.LEXICON_FILE, "rw");
         this.lexiconFile = raf.getChannel();
-        this.lexiconPos = 0;
-        this.numEntry = (int) ((lexiconFile.size()/(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)));
+        this.lexiconRow = 0;
+        this.numEntry = (int) ((lexiconFile.size()/(Config.LEXICON_ENTRY_LENGTH)));
     }
     public LexiconFileHandler(String filePath) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
         this.lexiconFile = raf.getChannel();
-        this.lexiconPos = 0;
+        this.lexiconRow = 0;
         this.numEntry = (int) ((lexiconFile.size()/(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)));
     }
     public ByteBuffer findTermEntry(String term) throws IOException {
@@ -66,17 +65,34 @@ public class LexiconFileHandler {
 
         return dataBuffer;
     }
-    public LexiconEntry nextEntryLexiconFile() throws IOException {
+    public LexiconEntry nextBlockEntryLexiconFile() throws IOException {
         // reading the next term with his offset
-        if(this.lexiconPos >= numEntry)
+        if(this.lexiconRow >= numEntry)
             return null;
         ByteBuffer dataBuffer = ByteBuffer.allocate(
                 Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH
                 + Config.COLLECTIONFREQ_BYTES_LENGTH);
         this.lexiconFile.read(dataBuffer,
-                (long) this.lexiconPos *(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)
+                (long) this.lexiconRow *(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)
         );
-        this.lexiconPos += 1;
+        this.lexiconRow += 1;
+
+        LexiconEntry le = new LexiconEntry();
+        le.setTerm(getTerm(dataBuffer));
+        le.setCf(getCf(dataBuffer));
+        le.setDf(getDf(dataBuffer));
+        le.setOffset(getOffset(dataBuffer));
+
+        return le;
+    }
+    public LexiconEntry nextEntryLexiconFile() throws IOException {
+        // reading the next term with his offset
+        if(this.lexiconRow >= numEntry)
+            return null;
+        ByteBuffer dataBuffer = ByteBuffer.allocate(Config.LEXICON_ENTRY_LENGTH);
+        this.lexiconFile.read(dataBuffer,
+                (long) this.lexiconRow *(Config.LEXICON_ENTRY_LENGTH));
+        this.lexiconRow += 1;
 
         LexiconEntry le = new LexiconEntry();
         le.setTerm(getTerm(dataBuffer));

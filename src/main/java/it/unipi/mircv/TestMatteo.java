@@ -38,11 +38,11 @@ public class TestMatteo {
         System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
 
 
-
+        //System.out.println(SystemEvaluator.testQueryTime("manhattan project", CONJUNCTIVE, BM25,true,false));
 
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        //SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
 
         //testing PL Descriptor
 
