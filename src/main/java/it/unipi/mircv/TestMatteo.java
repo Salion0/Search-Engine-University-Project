@@ -26,11 +26,11 @@ public class TestMatteo {
             Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
         }
 
-        System.out.println(Config.docsLen.length);
-        System.out.println(documentIndexHandler.readDocumentLength(8000000));
-        System.out.println(Config.docsLen[8000000]);
+        //System.out.println(Config.docsLen.length);
+        //System.out.println(documentIndexHandler.readDocumentLength(8000000));
+        //System.out.println(Config.docsLen[8000000]);
 
-        System.out.println(SystemEvaluator.testQueryTime("10 100", CONJUNCTIVE, BM25,true, false ));
+        System.out.println(SystemEvaluator.testQueryTime("manhattan project", CONJUNCTIVE, BM25,true, false ));
 
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);

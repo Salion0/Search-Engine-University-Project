@@ -124,13 +124,13 @@ public class BlockMerger {
             }
 
             // TODO ********** TERM UPPER BOUND ************
-            float[] termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
+            float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
             //System.out.println("termUpperBoundScore = " + termUpperBoundScore);
             // TODO scrivere nel lexicon.dat il termUpperBoundScore
 
             //appending term and posting list in final files
             writeToDisk(minTerm, offsetToWrite, docFreqSum, collFreqSum,
-                    termUpperBoundScore[0], termUpperBoundScore[1], postingList);
+                    termUpperBoundScore, postingList);
             offsetToWrite += docFreqSum;
 
             //DEBUG -----------------------------
@@ -153,7 +153,7 @@ public class BlockMerger {
         //DEBUG ---------------------------------------
     }
 
-    private float[] computeTermUpperBound(DocumentIndexHandler documentIndexHandler,
+    private float computeTermUpperBound(DocumentIndexHandler documentIndexHandler,
                                                    PostingList postingList) throws IOException {
         int documentFrequency = postingList.getSize();
         float maxScoreBM25 = -1;
@@ -166,19 +166,20 @@ public class BlockMerger {
             //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
             currentScoreBM25 = ScoreFunction.BM25(postingElement.getTermFreq(),
                     documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
-            currentScoreTFIDF = ScoreFunction.computeTFIDF(postingElement.getTermFreq(),documentFrequency);
+            //currentScoreTFIDF = ScoreFunction.computeTFIDF(postingElement.getTermFreq(),documentFrequency);
             if (currentScoreBM25 > maxScoreBM25)
                 maxScoreBM25 = currentScoreBM25;
-            if (currentScoreTFIDF > maxScoreTFIDF)
-                maxScoreTFIDF = currentScoreTFIDF;
+            //if (currentScoreTFIDF > maxScoreTFIDF)
+            //    maxScoreTFIDF = currentScoreTFIDF;
         }
 
-        return new float[]{maxScoreBM25,maxScoreTFIDF};
+        //return new float[]{maxScoreBM25,maxScoreTFIDF};
+        return maxScoreBM25;
     }
 
     //TODO da vedere se funziona
     private void writeToDisk(String term, int offset, int docFreq, int collFreq,
-                             float termUpperBoundScore, float termUpperBoundScoreTFIDF, PostingList postingList) throws IOException {
+                             float termUpperBoundScore, PostingList postingList) throws IOException {
 
         byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);

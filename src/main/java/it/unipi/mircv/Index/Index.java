@@ -90,11 +90,11 @@ public class Index {
                 break;
             }
             //DEBUG per creare più di un blocco
-            /*if (count == 3000 || count == 6000){
+            if (count == 6 || count == 12){
                 readerToReturn = reader;
                 System.out.println("blocco finito per debug");
                 break;
-            }*/
+            }
             String line = reader.readLine();
             if (!flagCompressedReading) {
                 if (line == null) {
@@ -123,7 +123,7 @@ public class Index {
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
             //DEBUG
-            //if (count == 10000) break; //DEBUG
+            if (count == 20) break; //DEBUG
         }
 
         writeLexiconToBlock(lexicon, blockID);

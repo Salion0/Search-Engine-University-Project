@@ -53,8 +53,11 @@ public class TestLorenzo {
         }
 
 
-        testNewConjunctive("diet 100");
+        //testNewConjunctive("manhattan project");
         //testNoPriorityQueueDisjunctive("diet 100");
+
+        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        System.out.println(invertedIndexHandler.getPostingList(0,20));
 
 
         //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");
