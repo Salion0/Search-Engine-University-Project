@@ -1,20 +1,70 @@
 package it.unipi.mircv;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 
+import static it.unipi.mircv.Config.*;
 
 public class App
 {
+    public static void main( String[] args )  {
+        try{
+            DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+            Config.collectionSize = documentIndexFileHandler.readCollectionSize();
 
-    public static void main( String[] args ) throws IOException {
-        Index index = new Index("collection.tsv");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
-        // TODO compute term upper bounds scores
+            flagStemming=false;
+            flagStopWordRemoval=true;
+            flagCompressedReading=false;
+
+            Index index = new Index("collection.tsv");
+
+            BlockMerger blockMerger = new BlockMerger();
+            blockMerger.mergeBlocks(index.getNumberOfBlocks());
+
+            //read the first PostingList
+            //InvertedIndexFileHandler plFileHandler = new InvertedIndexFileHandler();
+
+            //test verifica merging
+            /*LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
+            InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler();
+            String term = "break";
+            ByteBuffer dataBuffer = lexiconFileHandler.findTermEntry(term);
+            int offset = lexiconFileHandler.getOffset(dataBuffer);
+            int length = lexiconFileHandler.getDf(dataBuffer);
+            System.out.println("Offset: "+offset+" - Length: "+length);
+            System.out.println(term+": pl: "+plHandler.getPostingList(offset,length).getPostingList());
+*/
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+
+
     }
+
+
+
+/*    public void testWord() throws FileNotFoundException {
+
+        int[] buffer = new int[64];
+
+        String striga = "Hello World!";
+        ByteBuffer stringaBuffer = ByteBuffer.allocate(64);
+        stringaBuffer.put(striga.getBytes());
+        FileOutputStream fos = new FileOutputStream("test.dat");
+        fos.write(stringaBuffer.array());
+
+        FileInputStream test = new FileInputStream("test.dat");
+        BufferedInputStream testBuff = new BufferedInputStream(test);
+        bytesRead = testBuff.read(buffer, offsetIncrement, offsetIncrement + termByteLength); //leggo il primo int
+
+        String termTest = new String(buffer,StandardCharsets.UTF_8);
+        System.out.println(termTest.charAt(10));
+    }*/
 
 }
 

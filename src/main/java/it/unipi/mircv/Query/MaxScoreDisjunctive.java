@@ -18,35 +18,33 @@ import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.*;
 
-public class MaxScore {
+public class MaxScoreDisjunctive {
     private int numTermQuery;
     private final int[] docFreqs;
     private final int[] offsets;
-    private int[] numElementsRead; // count the numbers of element read for each posting list
+    private final int[] numElementsRead; // count the numbers of element read for each posting list
     private final float[] upperBoundScores;
+    private final boolean[] endOfPostingListFlag;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptor[] skipDescriptors;
     private final DocumentIndexFileHandler documentIndexHandler;
     private final InvertedIndexFileHandler invertedIndexHandler;
 
-    public MaxScore(String[] queryTerms) throws IOException {
-        //initialize file handlers
+    public MaxScoreDisjunctive(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
         documentIndexHandler = new DocumentIndexFileHandler();
         invertedIndexHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
-
         numTermQuery = queryTerms.length;
 
-        //initialize arrays
         postingListBlocks = new PostingListBlock[numTermQuery];
         docFreqs = new int[numTermQuery];
         offsets = new int[numTermQuery];
-        numElementsRead =  new int[postingListBlocks.length]; // count the numbers of element read for each posting list
+        numElementsRead = new int[postingListBlocks.length]; // count the numbers of element read for each posting list
+        endOfPostingListFlag = new boolean[postingListBlocks.length];
         upperBoundScores = new float[numTermQuery];
         skipDescriptors = new SkipDescriptor[numTermQuery];
 
-        //search for the query terms in the lexicon
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
@@ -55,11 +53,9 @@ public class MaxScore {
 
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP))
             {
-                //System.out.println("offsetToSkipSrittoNel Lexicon: " + lexiconHandler.getOffsetSkipDesc(entryBuffer));
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
                 if (POSTING_LIST_BLOCK_LENGTH > docFreqs[i])
-                    //we just load the posting list if it is smaller than the chosen treshold for block length
                     postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
                 else
                     postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], POSTING_LIST_BLOCK_LENGTH);
@@ -67,25 +63,14 @@ public class MaxScore {
             else
             {
                 skipDescriptors[i] = null;
-                //load in main memory the posting list for which there is no skipDescriptor cause they are too small
                 postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
             }
         }
 
-        //for (int i = 0; i < numTermQuery; i++)
-        //    System.out.println("queryTerm: " + queryTerms[i] + " docFreq: " + docFreqs[i]); // for visual debug
-
-        //sort arrays for upper bound scores
         sortArraysByArray(upperBoundScores, docFreqs, offsets, skipDescriptors, postingListBlocks);
-
-        //for (int i = 0; i < numTermQuery; i++) // for visual debug
-        //    System.out.println("docFreq: " + docFreqs[i] + " offset: " + offsets[i] + " postList: " + i + postingListBlocks[i]);
     }
 
     private void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
-        //Upload the posting list block
-        //if the element to read are less in size than "blockSize", read the remaining elements
-        //otherwise read a posting list block of size "blockSize"
 
         if ((docFreqs[indexTerm] - readElement) < blockSize) {
             postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
@@ -117,14 +102,13 @@ public class MaxScore {
 
         float score;
         int next;
-        int countCurrentDocIdInPostingLists; // for checking if the docId is in every posting list
         int minDocIdDocumentLength; // optimization to avoid reading document length more than one time
+        int countFinishedPostingLists = 0;
         minCurrentDocId = getMinCurrentDocId(); // get the mi docId between the current element of all posting lists
 
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
             score = 0;
-            countCurrentDocIdInPostingLists = 0;
             //AIUDOOO
             //minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
             minDocIdDocumentLength = docsLen[minCurrentDocId];
@@ -133,35 +117,36 @@ public class MaxScore {
             // ESSENTIAL LISTS
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
-                //System.out.println("Entrato nel ESSENTIAL LISTS");
+                if (endOfPostingListFlag[i] == true)
+                    continue;
+
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
-                    countCurrentDocIdInPostingLists++;
                     numElementsRead[i]++;
                     if (postingListBlocks[i].next() == - 1)
                     {
+                        //uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH); // load another block
                         if (numElementsRead[i] >= docFreqs[i]) // check if the entire posting list is finished
-                            return heapScores.getTopDocIdReversed(); // terminate processing because one of the posting list is finished
-                        uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH); // load another block
+                            endOfPostingListFlag[i] = true;
+                        else
+                            uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH); // load another block
                     }
                 }
-                if (postingListBlocks[i].getCurrentDocId() < next) {
-                    //System.out.println("minCurrentDocId = " + minCurrentDocId + " next = " + next);
+                if (postingListBlocks[i].getCurrentDocId() < next)
                     next = postingListBlocks[i].getCurrentDocId();
-                }
             }
 
             // NON-ESSENTIAL LISTS
             for (int i = pivot - 1; i >= 0; i--)
             {
-                //System.out.println("Entrato nel NON-ESSENTIAL LISTS");
                 if (score + documentUpperBounds[i] <= minScoreInHeap)
                     break;
 
                 if (skipDescriptors[i] != null) {
                     int offsetNextGEQ = skipDescriptors[i].nextGEQ(minCurrentDocId); // get the nextGEQ of the current posting list
-                    if (offsetNextGEQ != -1) {
+                    if (offsetNextGEQ != -1)
+                    {
                         if (!(postingListBlocks[i].getMaxDocID() > minCurrentDocId
                                 && postingListBlocks[i].getMinDocID() < minCurrentDocId))
                         {
@@ -172,24 +157,19 @@ public class MaxScore {
                 }
 
                 if (currentDocIdInPostingList(i, minCurrentDocId)) //seek currentDocId in the posting list
-                {
-                    countCurrentDocIdInPostingLists++;
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
-                }
             }
 
             // LIST PIVOT UPDATE
-            if (countCurrentDocIdInPostingLists == postingListBlocks.length) // check if the docId is in all the posting lists
-            {
-                //System.out.println("Entrato nel LIST PIVOT UPDATE con id = " + minCurrentDocId);
-                heapScores.insertIntoPriorityQueueMAXSCORE(score, minCurrentDocId);
-                minScoreInHeap = heapScores.getMinScore();
-                while(pivot < postingListBlocks.length && documentUpperBounds[pivot] <= minScoreInHeap)
-                    pivot++;
-            }
-            //System.out.println("minCurrentDocId = " + minCurrentDocId + " next = " + next);
+            heapScores.insertIntoPriorityQueueMAXSCORE(score, minCurrentDocId);
+            minScoreInHeap = heapScores.getMinScore();
+            while(pivot < postingListBlocks.length && documentUpperBounds[pivot] <= minScoreInHeap)
+                pivot++;
+
             minCurrentDocId = next;
+            //System.out.println("minCurrentDocId = " + minCurrentDocId);
         }
+
         return heapScores.getTopDocIdReversed();
     }
 

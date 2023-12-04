@@ -1,12 +1,16 @@
 package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import it.unipi.mircv.Config;
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.Index.*;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+
+import it.unipi.mircv.File.LexiconFileHandler;
+
+import it.unipi.mircv.Index.*;
+import it.unipi.mircv.Utils;
+
+import javax.swing.text.Document;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -17,9 +21,9 @@ import static it.unipi.mircv.Config.*;
 public class QueryProcessor {
 
     //------------------FILE HANDLER-------------------------------------------//
-    private final InvertedIndexHandler invertedIndexHandler;
-    private final LexiconHandler lexiconHandler;
-    private final DocumentIndexHandler documentIndexHandler;
+    private final InvertedIndexFileHandler invertedIndexFileHandler;
+    private final LexiconFileHandler lexiconFileHandler;
+    private final DocumentIndexFileHandler documentIndexFileHandler;
     //------------------------------------------------------------------------//
     private int collectionSize;
     private float avgDocLen;
@@ -39,7 +43,7 @@ public class QueryProcessor {
 
     public QueryProcessor(String query) throws IOException {
 
-        Config.loadStopWordList();
+        Utils.loadStopWordList();
         //---------------INITIALIZE ARRAYS---------------------------
         this.queryTerms = doStopWordRemovalAndStemming(query.split(" "));
         this.numTermQuery = queryTerms.length;
@@ -52,22 +56,22 @@ public class QueryProcessor {
         //-----------------------------------------------------------
 
         //-------------INITIALIZE FILE HANDLER ----------------------
-        this.lexiconHandler = new LexiconHandler();
-        this.documentIndexHandler = new DocumentIndexHandler();
-        this.invertedIndexHandler = new InvertedIndexHandler();
+        this.lexiconFileHandler = new LexiconFileHandler();
+        this.documentIndexFileHandler = new DocumentIndexFileHandler();
+        this.invertedIndexFileHandler = new InvertedIndexFileHandler();
         //-----------------------------------------------------------
 
         //-------------INITIALIZE COLLECTION STATISTICS -------------
-        this.collectionSize = documentIndexHandler.readCollectionSize();
-        this.avgDocLen = documentIndexHandler.readAvgDocLen();
+        this.collectionSize = documentIndexFileHandler.readCollectionSize();
+        this.avgDocLen = documentIndexFileHandler.readAvgDocLen();
         //-----------------------------------------------------------
 
         //-------------INITIALIZE TERM STATISTICS---------------------
         for (int i = 0; i < numTermQuery; i++) {
-                ByteBuffer entryBuffer = this.lexiconHandler.findTermEntry(queryTerms[i]);
-                docFreqs[i] = this.lexiconHandler.getDf(entryBuffer);
-                collectionFreqs[i] = this.lexiconHandler.getCf(entryBuffer);
-                offsets[i] = this.lexiconHandler.getOffset(entryBuffer);
+                ByteBuffer entryBuffer = this.lexiconFileHandler.findTermEntry(queryTerms[i]);
+                docFreqs[i] = this.lexiconFileHandler.getDf(entryBuffer);
+                collectionFreqs[i] = this.lexiconFileHandler.getCf(entryBuffer);
+                offsets[i] = this.lexiconFileHandler.getOffset(entryBuffer);
         }
         initializePostingListBlocks();
 
@@ -96,10 +100,10 @@ public class QueryProcessor {
         this.postingListBlocks = new ArrayList<>(numTermQuery);
         for(int i=0; i<numTermQuery; i++){
             if(POSTING_LIST_BLOCK_LENGTH > docFreqs[i]){ //if posting list length is less than the block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],docFreqs[i]));
+                postingListBlocks.add(i,this.invertedIndexFileHandler.getPostingList(offsets[i],docFreqs[i]));
             }
             else{                                     //else posting list length is greather than block size
-                postingListBlocks.add(i,this.invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
+                postingListBlocks.add(i,this.invertedIndexFileHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH));
             }
             numBlockRead[i]++;
         }
@@ -147,7 +151,7 @@ public class QueryProcessor {
                         elementToRead = POSTING_LIST_BLOCK_LENGTH;
                     }
                     postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
-                            this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                            this.invertedIndexFileHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
                                     elementToRead));
                     //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
                     endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
@@ -174,7 +178,7 @@ public class QueryProcessor {
                 elementToRead = POSTING_LIST_BLOCK_LENGTH;
 
             postingListBlocks.set(i, // ho messo i perché sennò facevamo sempre append e non replace
-                    this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
+                    this.invertedIndexFileHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]),
                             elementToRead));
 
             endOfPostingListBlockFlag[i] = false; // resetto il campo perché ho caricato un altro blocco
@@ -188,7 +192,7 @@ public class QueryProcessor {
     //------------------------------------------------------------------------//
 
     public ArrayList<Integer> DAAT() throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         MinHeapScores heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
@@ -232,7 +236,7 @@ public class QueryProcessor {
     }
 
     public ArrayList<Integer> conjunctiveDAAT() throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         MinHeapScores heapScores = new MinHeapScores();
         float docScore;
         int maxDocId;
@@ -276,7 +280,7 @@ public class QueryProcessor {
     }
 
     public void TAAT() throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         HashMap<Integer,Float> mapIdWithScoreTAAT = new HashMap<>();
         int currentDocId;
         int currentTf;
