@@ -34,11 +34,6 @@ public class PostingList {
 
         return postingListData;
     }
-
-    private PostingListCompression compress(){
-        PostingListCompression postingListCompression = new PostingListCompression();
-
-    }
     @Override
     public String toString(){
         StringBuilder string = new StringBuilder();

@@ -23,11 +23,8 @@ public class BlockMerger {
     private static ArrayList<InvertedIndexFileHandler> postingListBlocks = new ArrayList<>();
     private static ArrayList<LexiconEntry> currentBlockEntry = new ArrayList<>();
     private static ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
-
     private static PriorityQueue<String> minTermQueue = new PriorityQueue();
-    private static int postingListOffset = 0;  //offset to write in the final lexicon file for each term
     private static int offsetSkipDescriptor = 0;
-
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;
     private static String path="data/";
 
@@ -126,7 +123,7 @@ public class BlockMerger {
             float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
 
             //appending term and posting list in final files
-            writeToDisk(fosLexicon,fosDocId,fosTermFreq,minTerm, offsetToWrite, docFreqSum, collFreqSum,termUpperBoundScore, postingList);
+            writeToDisk(fosLexicon,fosDocId,fosTermFreq,minTerm, docFreqSum, collFreqSum,termUpperBoundScore, postingList);
             offsetToWrite += docFreqSum;
 
             //update the minTerm
@@ -148,13 +145,13 @@ public class BlockMerger {
         }*/
     }
     private void writeToDisk(FileOutputStream fosLexicon,FileOutputStream fosDocId,FileOutputStream fosTermFreq,
-                             String term, int offset, int docFreq, int collFreq, float termUpperBoundScore, PostingList postingList) throws IOException {
+                             String term, int docFreq, int collFreq, float termUpperBoundScore, PostingList postingList) throws IOException {
 
         byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);
         termBuffer.put(termBytes);
         termBuffer.position(TERM_BYTES_LENGTH);
-        termBuffer.putInt(offset);
+        termBuffer.putInt(offsetToWrite);
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
         termBuffer.putInt(docFreq);
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH);
@@ -162,8 +159,6 @@ public class BlockMerger {
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
         termBuffer.putFloat(termUpperBoundScore);
 
-        //update the offset to write in the lexicon for the next term (next iteration)
-        postingListOffset += postingList.getSize();
         //Write posting list in docIds and termFreq files
         byte[][] bytePostingList = postingList.getBytes();
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID

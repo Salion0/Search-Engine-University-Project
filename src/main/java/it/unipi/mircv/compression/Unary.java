@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class Unary {
-    public static byte[] compress(int[] values) {
+    public static byte[] compress(ArrayList<Integer> values) {
         //this method works with the assumption that values are > 0
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ByteManipulator byteManipulator = new ByteManipulator();

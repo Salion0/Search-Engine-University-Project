@@ -12,6 +12,7 @@ public class Config {
     public static final int DOC_ID_LENGTH = 4;
     public static final int TERM_FREQ_LENGTH = 4;
     public static final int OFFSET_BYTES_LENGTH = 4;
+    public static final int OFFSET_COMPRESS_BYTES_LENGTH = 8;
     public static final int DOCUMFREQ_BYTES_LENGTH = 4;
     public static final int DOCNO_BYTES_LENGTH = 12;
     public static final int AVGDOCLENGHT_BYTES_LENGTH = 4;
@@ -20,6 +21,8 @@ public class Config {
     public static final int COLLECTIONFREQ_BYTES_LENGTH = 4;
     public static final int OFFSET_SKIP_DESC_BYTES_LENGTH = 4;
     public static final int UPPER_BOUND_SCORE_LENGTH = 4;
+    public static final int LEXICON_COMPRESS_ENTRY_LENGTH = TERM_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH
+            + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
     public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH
             + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
     public static final int POSTING_LIST_BLOCK_LENGTH = 10000; //Expressed in element, vecchio valore era 20
@@ -30,7 +33,6 @@ public class Config {
     public static final String POSTING_LIST_DESC_FILE = "data/postingListDesc.dat";
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
     public static final int MIN_NUM_POSTING_TO_SKIP = 10; // vecchio valore era 10
-    public static final int MEMORY_THRESHOLD = 8; //Expressed in percentage
     public static final int CACHE_SIZE = 100000; //Expressed in number of entries
 
     // ************************* FLAG ********************************************

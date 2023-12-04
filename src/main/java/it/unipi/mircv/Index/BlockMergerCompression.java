@@ -15,7 +15,6 @@ import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.*;
 
-
 public class BlockMergerCompression {
     private static int numberOfBlocks;
     private static long offsetToWriteDocId = 0;
@@ -96,20 +95,23 @@ public class BlockMergerCompression {
 
 
             //----------------------------------MERGING--------------------------------------------------------------------
-            PostingListCompression postingListCompression = new PostingListCompression();
+            PostingList2 postingList2Compress = new PostingList2();
             int docFreqSum = 0;
             int collFreqSum = 0;
 
             for (int i = 0; i < numberOfBlocks; i++) {  //for each block merge the corresponding entry with the min term
                 if (currentBlockEntry.get(i) == null) continue;  //skip iteration if block is completed
                 if (minTerm.compareTo(currentBlockEntry.get(i).getTerm()) == 0) {   //if the term is the same of the minTerm, add the posting list to the final posting list
-                    postingListCompression;
-                    /*
-                    postingList.addPostingList(postingListBlocks.get(i).getPostingList(
+                    /*postingList.addPostingList(postingListBlocks.get(i).getPostingList(
                             currentBlockEntry.get(i).getOffset(),
                             currentBlockEntry.get(i).getDf()
                             )
                     );*/
+                    postingList2Compress.addPostingList(postingListBlocks.get(i).getPostingList2(
+                            currentBlockEntry.get(i).getOffset(),
+                            currentBlockEntry.get(i).getDf()
+                            )
+                    );
                     docFreqSum += currentBlockEntry.get(i).getDf();
                     //System.out.println(docFreqSum);
                     collFreqSum += currentBlockEntry.get(i).getCf();
@@ -127,11 +129,14 @@ public class BlockMergerCompression {
 
             //-------------------------------------------------------------------------------------------------------------
             //compute the termUpperBoundScore
-            float termUpperBoundScore = computeTermUpperBound(documentIndexHandler, postingList);
+            float termUpperBoundScore = computeTermUpperBound2(documentIndexHandler, postingList2Compress);
 
             //appending term and posting list in final files
-            writeToDisk(fosLexicon,fosDocId,fosTermFreq,minTerm, offsetToWrite, docFreqSum, collFreqSum,termUpperBoundScore, postingList);
-            offsetToWrite += docFreqSum;
+            int[] increments = writeToDiskCompression(fosLexicon, fosDocId, fosTermFreq, minTerm,
+                    docFreqSum, collFreqSum, termUpperBoundScore, postingList2Compress);
+
+            offsetToWriteDocId += increments[0];
+            offsetToWriteTermFreq += increments[1];
 
             //update the minTerm
             minTerm = minTermQueue.peek();
@@ -151,39 +156,35 @@ public class BlockMergerCompression {
             postingListBlocks.get(blockIndex).close();
         }*/
     }
-    private void writeToDisk(FileOutputStream fosLexicon,FileOutputStream fosDocId,FileOutputStream fosTermFreq,
-                             String term, int offset, int docFreq, int collFreq, float termUpperBoundScore, PostingList postingList) throws IOException {
+    private int[] writeToDiskCompression(
+                FileOutputStream fosLexicon, FileOutputStream fosDocId,
+                FileOutputStream fosTermFreq, String term, int docFreq, int collFreq,
+                float termUpperBoundScore, PostingList2 postingList2Compress) throws IOException {
 
-        byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);
-        termBuffer.put(termBytes);
-        termBuffer.position(TERM_BYTES_LENGTH);
-        termBuffer.putInt(offset);
-        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
+        ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_COMPRESS_ENTRY_LENGTH);
+        termBuffer.put(term.getBytes(StandardCharsets.UTF_8));
+        termBuffer.putLong(offsetToWriteDocId);
+        termBuffer.putLong(offsetToWriteTermFreq);
         termBuffer.putInt(docFreq);
-        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH);
         termBuffer.putInt(collFreq);
-        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
         termBuffer.putFloat(termUpperBoundScore);
 
-        //update the offset to write in the lexicon for the next term (next iteration)
-        postingListOffset += postingList.getSize();
         //Write posting list in docIds and termFreq files
-        byte[][] bytePostingList = postingList.getBytes();
+        byte[][] bytePostingList = postingList2Compress.getBytesCompressed();
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-        System.out.println();
 
-
-        int postingListSize = postingList.getSize();
+        // SKIP DESCRIPTORS
+        int postingListSize = postingList2Compress.getSize();
 
         //if the posting list is big enough, write the skip descriptor
         if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
-            SkipDescriptor skipDescriptor = new SkipDescriptor();
+            SkipDescriptorCompression skipDescriptorCompression = new SkipDescriptorCompression();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
+
             for (int i = 0; i <= postingListSize - postingListSizeBlock; i += postingListSizeBlock){
-                int maxDocId = postingList.getPostingList().get(i + postingListSizeBlock - 1).getDocId();
+                int maxDocId = postingList2Compress.getDocIds().get(i + postingListSizeBlock - 1);
                 int offsetMaxDocId = offsetToWrite + i;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
@@ -195,18 +196,19 @@ public class BlockMergerCompression {
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
 
-            termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH
-                    + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH);
-            termBuffer.putInt(offsetSkipDescriptor);
+
+            termBuffer.putLong(offsetDocIdSkipDescriptor);
+            termBuffer.putLong(offsetTermFreqSkipDescriptor);
 
             skipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
             offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
         }
         fosLexicon.write(termBuffer.array());
+
+        return new int[]{bytePostingList[0].length, bytePostingList[1].length};
     }
 
-    private float computeTermUpperBound(DocumentIndexFileHandler documentIndexHandler,
-                                        PostingList postingList) throws IOException {
+    private float computeTermUpperBound(DocumentIndexFileHandler documentIndexHandler, PostingList postingList) throws IOException {
         int documentFrequency = postingList.getSize();
         float maxScore = -1;
 
@@ -218,6 +220,19 @@ public class BlockMergerCompression {
             if (currentScore > maxScore)
                 maxScore = currentScore;
         }
+        return maxScore;
+    }
+    private float computeTermUpperBound2(DocumentIndexFileHandler documentIndexHandler, PostingList2 postingList) throws IOException {
+        int documentFrequency = postingList.getSize();
+        float maxScore = -1;
+
+        for(int i = 0; i < documentFrequency; i++){
+            float currentScore = ScoreFunction.BM25(postingList.getTermFreqs().get(i),
+                    documentIndexHandler.readDocumentLength(postingList.getDocIds().get(i)), documentFrequency);
+            if (currentScore > maxScore)
+                maxScore = currentScore;
+        }
+
         return maxScore;
     }
 }
