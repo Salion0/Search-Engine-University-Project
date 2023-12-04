@@ -1,107 +1,44 @@
 package it.unipi.mircv;
 
-import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.File.DocumentIndexHandler;
 
-import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.ConjunctiveDAATCache;
+import it.unipi.mircv.evaluation.SystemEvaluator;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import static it.unipi.mircv.Config.CACHE_SIZE;
-import static it.unipi.mircv.Config.stopWords;
+import static it.unipi.mircv.Config.QueryProcessor.*;
+import static it.unipi.mircv.Config.Score.BM25;
 
 public class TestMatteo {
 
-    public static String[] removeStopWords(String[] queryTerms) {
-        ArrayList<String> filteredTerms = new ArrayList<>();
-        for (String term : queryTerms) {
-            if (!stopWords.contains(term)) {
-                filteredTerms.add(term);
-            }
-        }
-        return filteredTerms.toArray(new String[0]);
-    }
     public static void main(String[] args) throws IOException {
 
-        // Testing DAAT
-
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        Config.loadStopWordList();
+        Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
-        PorterStemmer stemmer = new PorterStemmer();
+
+        //TestLorenzo.checkLexiconEntry("diet");
+
+        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
+        Config.docsLen = new int[Config.collectionSize];
+        for (int i = 0; i < Config.collectionSize; i++){
+            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
+        }
 
 
-        //String[] queryTerms= TokenProcessing.doStopWordRemovalAndStemming(stemmer, "holy spirit".split(" "));
 
-        //what is the distance between flat rock michigan and detroit
+        System.out.println(Config.docsLen.length);
+        System.out.println(documentIndexHandler.readDocumentLength(8000000));
+        System.out.println(Config.docsLen[8000000]);
 
-        /*
-        //CONJUNCTIVE DAAT
-        System.out.println("-----------------------------------------------------------");
-        String[] queryTerms= "diet detox".split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        System.out.println(queryTerms.length);
-        ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
-        System.out.println(results);
-         */
+        System.out.println(SystemEvaluator.testQueryTime("diet 100", CONJUNCTIVE, BM25,true, false ));
 
-        //TESTING CONJUNCTIVE DAAT with CACHE
-        LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
-        //
-        System.out.println("-----------------------------------------------------------");
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms= "railroad workers".split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        System.out.println(queryTerms.length);
-        ConjunctiveDAAT conjunctiveDAATCache = new ConjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
-        System.out.println(results);
-        long elapsedTime = System.currentTimeMillis() - startTime;
-
-        System.out.println("-----------------------------------------------------------");
-        long startTime1 = System.currentTimeMillis();
-        String[] queryTerms1= "railroad workers".split(" ");
-        queryTerms1 = removeStopWords(queryTerms1);
-        System.out.println(queryTerms1.length);
-        ConjunctiveDAAT conjunctiveDAATCache1 = new ConjunctiveDAAT(queryTerms1);
-        ArrayList<Integer> results1 = conjunctiveDAATCache1.processQuery();
-        System.out.println(results1);
-        long elapsedTime1 = System.currentTimeMillis() - startTime1;
-
-        System.out.println("-----------------------------------------------------------");
-        long startTime2 = System.currentTimeMillis();
-        String[] queryTerms2= "railroad workers".split(" ");
-        queryTerms2 = removeStopWords(queryTerms2);
-        System.out.println(queryTerms2.length);
-        ConjunctiveDAAT conjunctiveDAATCache2 = new ConjunctiveDAAT(queryTerms2);
-        ArrayList<Integer> results2 = conjunctiveDAATCache2.processQuery();
-        System.out.println(results2);
-        long elapsedTime2 = System.currentTimeMillis() - startTime2;
-
-        System.out.println("-----------------------------------------------------------");
-        long startTime3 = System.currentTimeMillis();
-        String[] queryTerms3= "railroad workers".split(" ");
-        queryTerms3 = removeStopWords(queryTerms3);
-        System.out.println(queryTerms3.length);
-        ConjunctiveDAAT conjunctiveDAATCache3 = new ConjunctiveDAAT(queryTerms3);
-        ArrayList<Integer> results3 = conjunctiveDAATCache3.processQuery();
-        System.out.println(results3);
-        long elapsedTime3 = System.currentTimeMillis() - startTime3;
-
-        /* DISJUNCTIVE DAAT
-        System.out.println("-----------------------------------------------------------");
-        String[] queryTerms1= "what is the distance between flat rock michigan and detroit".split(" ");
-        queryTerms1 = removeStopWords(queryTerms1);
-        System.out.println(queryTerms1.length);
-        DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms1);
-        ArrayList<Integer> results1 = disjunctiveDAAT.processQuery();
-        System.out.println(results1);
-        */
-
+        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
+        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
 
         //testing PL Descriptor
 
@@ -176,14 +113,5 @@ public class TestMatteo {
         System.out.println(Arrays.toString(Unary.decompress(values3.length, valuesCompressed3)));
         System.out.println(Arrays.toString(Unary.decompress(values4.length, valuesCompressed4)));
         */
-
-
-        System.out.println("finished in " + (float)elapsedTime/1000 +"sec");
-
-        System.out.println("1 finished in " + (float)elapsedTime1/1000 +"sec");
-
-        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");
-
-        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
     }
 }

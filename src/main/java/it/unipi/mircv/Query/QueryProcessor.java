@@ -1,11 +1,11 @@
 package it.unipi.mircv.Query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import it.unipi.mircv.Config;
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.Index.*;
+import it.unipi.mircv.Utils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -39,7 +39,7 @@ public class QueryProcessor {
 
     public QueryProcessor(String query) throws IOException {
 
-        Config.loadStopWordList();
+        Utils.loadStopWordList();
         //---------------INITIALIZE ARRAYS---------------------------
         this.queryTerms = doStopWordRemovalAndStemming(query.split(" "));
         this.numTermQuery = queryTerms.length;

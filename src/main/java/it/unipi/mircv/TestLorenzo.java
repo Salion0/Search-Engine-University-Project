@@ -1,156 +1,186 @@
 package it.unipi.mircv;
 
 import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
-import it.unipi.mircv.Index.SkipDescriptor;
-import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.MaxScore;
-import it.unipi.mircv.Query.QueryProcessor;
+import it.unipi.mircv.Index.PostingListBlock;
+import it.unipi.mircv.Query.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Config.LEXICON_ENTRY_LENGTH;
+import static it.unipi.mircv.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {
     public static void main(String[] args) throws IOException {
-        /*DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        flagCompressedReading = false;
+        flagStemming = false;
+        flagStopWordRemoval = false;
 
-        // ---------------------TEST DAAT-----------------------------
-        String query = "railroad workers";
-        QueryProcessor queryProcessor = new QueryProcessor(query);
-        System.out.println("**************** DAAT ******************");
-        ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
-        System.out.println("Doc Id retrieved: ");
-        System.out.println(docId);
-        System.out.println("**************** TAAT ******************");
-        queryProcessor = new QueryProcessor(query);
-        //queryProcessor.TAAT();
-    }
+        //testCompressedReading();
+        String forLexiconTest = "";
+        //checkLexiconEntry(forLexiconTest);
 
-    */
-
-        /*
-        Index index = new Index("collection.tsv");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
-        */
-
-        // Testing DAAT
         DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        Config.loadStopWordList();
+        Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
+        //String test = "\0\0\0\0\0pfdvefvegr";
+        //if (test.startsWith("\0\0\0\0"))
+          //  System.out.println("deh");
+
         System.out.println("-----------------------------------------------------------");
 
-/*
+        LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
+        //docLenCache.put(1,50);
+        //System.out.println(docLenCache.get(1));
+
+        String forConjunctiveTest = "", forDisjunctiveTest = "";
+
+        //testNewDisjunctive("");
+        //testOldDisjunctive("");
+        //testNoPriorityQueueDisjunctive("");
+        //testMaxScoreDisjunctive("");
+        //testConjunctive("diet detox");
+        //testMaxScore("diet detox");
+        for (int i = 0; i < 2; i++) {
+            //testConjunctive("100 10");
+            //testConjunctiveCache("100 10 diet", docLenCache);
+        }
+
+        testNewConjunctive("diet 100");
+
+        testConjunctiveCache("diet 100",docLenCache);
+
+        System.out.println("***************************************************************************************************");
+
+        //testMaxScore("diet 100");
+    }
+
+    public static void testNewConjunctive(String string) throws IOException {
         long startTime = System.currentTimeMillis();
-        String[] queryTerms = "10 100".split(" ");
+        String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        MaxScore maxScore = new MaxScore(queryTerms);
-        ArrayList<Integer> results = maxScore.computeMaxScore();
-        //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
-        //ArrayList<Integer> results = conjunctiveDAAT.processQuery();
+        ConjunctiveDAAT newConjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = newConjunctiveDAAT.processQuery();
         System.out.println(results);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
+        System.out.println("NEW-CONJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
+    }
 
+    public static void testConjunctiveCache(String string,LRUCache lruCache) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        ConjunctiveDAATCache conjunctiveDAATCache = new ConjunctiveDAATCache(queryTerms,lruCache);
+        ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
+        System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("CONJUNCTIVE-CACHE finished in " + (float)elapsedTime/1000 +"sec");
+    }
 
+    public static void testConjunctive(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = conjunctiveDAAT.processQuery();
+        System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("CONJUNCTIVE-WITHOUT-CACHE finished in " + (float)elapsedTime/1000 +"sec");
+    }
 
-        long startTime2 = System.currentTimeMillis();
-        String[] queryTerms2 = "10 100".split(" ");
-        queryTerms2 = removeStopWords(queryTerms2);
-        MaxScore maxScore2 = new MaxScore(queryTerms2);
+    public static void testMaxScore(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        MaxScore maxScore2 = new MaxScore(queryTerms);
         ArrayList<Integer> results2 = maxScore2.computeMaxScore();
         System.out.println(results2);
-        long endTime2 = System.currentTimeMillis();
-        long elapsedTime2 = endTime2 - startTime2;
-*/
-
-
-
-        long startTime3 = System.currentTimeMillis();
-        String[] queryTerms3 = "food farm chicken".split(" ");
-        queryTerms3 = removeStopWords(queryTerms3);
-        MaxScore maxScore3 = new MaxScore(queryTerms3);
-        //ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms3);
-        ArrayList<Integer> results3 = maxScore3.computeMaxScore();
-        //ArrayList<Integer> results3 = conjunctiveDAAT.processQuery();
-        System.out.println(results3);
-        long endTime3= System.currentTimeMillis();
-        long elapsedTime3 = endTime3 - startTime3;
-
-
-/*        System.out.println("1 finished in " + (float)elapsedTime/1000 +"sec");
-        System.out.println("2 finished in " + (float)elapsedTime2/1000 +"sec");*/
-        System.out.println("3 finished in " + (float)elapsedTime3/1000 +"sec");
-    /*
-        //Test per leggere senza unzippare
-        String tarFilePath = "collection.tar.gz";
-
-        try {
-            FileInputStream fis = new FileInputStream(tarFilePath);
-            GZIPInputStream gzis = new GZIPInputStream(fis);
-            InputStreamReader reader = new InputStreamReader(gzis);
-            BufferedReader br = new BufferedReader(reader);
-
-            String line;
-            br.readLine(); // la prima riga contiene metadati quindi la salto
-            int count = 0;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-                count++;
-                if (count == 5) break; //DEBUG
-            }
-
-            br.close();
-            reader.close();
-            gzis.close();
-            fis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-     */
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public static String[] removeStopWords(String[] queryTerms) throws IOException {
-        ArrayList<String> filteredTerms = new ArrayList<>();
-        for (String term : queryTerms)
-            if (!seekInStopwords(term)) //if (binarySearch(stopWords,term) == -1) //if (!stopWords.contains(term))
-                filteredTerms.add(term);
-
-        return filteredTerms.toArray(new String[0]);
+    public static void testMaxScoreDisjunctive(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        MaxScoreDisjunctive maxScore = new MaxScoreDisjunctive(queryTerms);
+        ArrayList<Integer> results = maxScore.computeMaxScore();
+        System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public static boolean seekInStopwords(String term) throws IOException {
-
-        int l = 0, r = stopWords.size() - 1;
-
-        while (l <= r)
-        {
-            int m = l + (r - l) / 2;
-            int res = term.compareTo(stopWords.get(m));
-            if (res == 0)
-                return true;
-            if (res > 0)
-                l = m + 1;
-            else
-                r = m - 1;
-        }
-
-        return false;
+    public static void testOldDisjunctive(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        //oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms);
+        //ArrayList<Integer> results = oldDisjunctive.processQuery();
+        //System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("OLD-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
+    public static void testNewDisjunctive(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        //PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
+        //ArrayList<Integer> results = disjunctiveDAAT.processQuery();
+        //System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("NEW-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
+    }
+
+    public static void testNoPriorityQueueDisjunctive(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        DisjunctiveDAAT noPriorityQueueDisjunctive = new DisjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = noPriorityQueueDisjunctive.processQuery();
+        System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("NO-PRIORITY-QUEUE-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
+    }
+
+    public static void testCompressedReading() throws IOException {
+        Index index = new Index("");
+        int numberOfBlocks = index.getNumberOfBlocks();
+        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
+        blockMerger.mergeBlocks();
+    }
+
+    public static void checkLexiconEntry(String string) throws IOException {
+        LexiconHandler lexiconHandler = new LexiconHandler();
+        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
+        String term = lexiconHandler.getTerm(entryBuffer);
+        int documentFrequency = lexiconHandler.getDf(entryBuffer);
+        int offset = lexiconHandler.getOffset(entryBuffer);
+        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+        PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
+        System.out.println("term = " + term);
+        System.out.println("postingList = " + postingListBlock);
+        System.out.println("offset = " + offset);
+        System.out.println("documentFrequency = " + documentFrequency);
+        System.out.println("termUpperBoundScore = " + termUpperBoundScore);
+    }
 }
+
+
