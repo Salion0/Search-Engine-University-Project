@@ -21,13 +21,15 @@ public class TestMatteo {
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
+        //TestLorenzo.checkLexiconEntry("diet");
+
         //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
         Config.docsLen = new int[Config.collectionSize];
         for (int i = 0; i < Config.collectionSize; i++){
             Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
         }
 
- /*       System.out.println(Config.docsLen.length);
+
         System.out.println(documentIndexHandler.readDocumentLength(8000000));
         System.out.println(Config.docsLen[8000000]);*/
 
@@ -38,7 +40,6 @@ public class TestMatteo {
         System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
 
 
-        //System.out.println(SystemEvaluator.testQueryTime("manhattan project", CONJUNCTIVE, BM25,true,false));
 
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
