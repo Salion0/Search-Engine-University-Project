@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
 
@@ -16,16 +18,10 @@ public class DocumentIndexFileHandler {
 
     public DocumentIndexFileHandler() throws IOException {
         File file = new File(filepath);
-        if (file.exists()) {
-            System.out.println("Document Index file founded");
-        } else {
-            // Create the file
-            if (file.createNewFile()) {
-                System.out.println("Document Index file created correctly");
-            } else {
-                System.out.println("Failed to create Document Index file");
-            }
-        }
+        if (!file.exists()) {
+            if(file.createNewFile()) System.out.println("Document Index file created correctly");
+            else System.out.println("Error in Document Index file creation");
+        } else System.out.println("Document Index file founded");
 
         randomAccessFile = new RandomAccessFile(filepath,"rw");
         fileChannel = randomAccessFile.getChannel();
@@ -83,5 +79,21 @@ public class DocumentIndexFileHandler {
         fileChannel.close();
     }
 
+    public String readDocNo(int docId) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(DOCNO_BYTES_LENGTH);
+        fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH + (long) docId * (DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH));
+        fileChannel.read(buffer);
+        buffer.position(0);
+        return new String(buffer.array(), StandardCharsets.UTF_8);
+    }
+
+    public String[] getDocNoREVERSE(ArrayList<Integer> docIds) throws IOException {
+        int resultsSize = docIds.size();
+        String[] docNos = new String[resultsSize];
+        for(int i = 0; i < resultsSize; i ++){
+            docNos[i] = readDocNo(docIds.get(resultsSize - i - 1)).replace("\0", "");
+        }
+        return docNos;
+    }
 
 }
