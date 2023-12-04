@@ -31,7 +31,7 @@ public class TestMatteo {
 
 
         System.out.println(documentIndexHandler.readDocumentLength(8000000));
-        System.out.println(Config.docsLen[8000000]);*/
+        System.out.println(Config.docsLen[8000000]);
 
 /*        System.out.println(SystemEvaluator.testQueryTime("manhattan project", DISJUNCTIVE, BM25,
                 true, false ));*/
