@@ -2,7 +2,6 @@ package it.unipi.mircv.Index;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class PostingList {
     private final ArrayList<PostingElement> postingList = new ArrayList<>();
@@ -36,7 +35,8 @@ public class PostingList {
         return postingListData;
     }
 
-    public void addPostingList(){
+    private PostingListCompression compress(){
+        PostingListCompression postingListCompression = new PostingListCompression();
 
     }
     @Override
