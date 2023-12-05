@@ -1,5 +1,6 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Query.ScoreFunction;
@@ -18,27 +19,38 @@ public class TestUnitLorenzo {
     static boolean[] endOfPostingListFlag = new boolean[5];
 
     public static void main(String[] args) throws IOException {
-        for (int i = 0; i < 5; i++) postingListBlocks[i] = new PostingListBlock();
+        collectionSize = Integer.MAX_VALUE;
+        for (int i = 0; i < 5; i++) {
+            postingListBlocks[i] = new PostingListBlock();
+            endOfPostingListFlag[i] = false;
+        }
+
+
 
         postingListBlocks[0].addPostingElement(new PostingElement(2,4));
         postingListBlocks[0].addPostingElement(new PostingElement(5,1));
         postingListBlocks[0].addPostingElement(new PostingElement(6,3));
+        postingListBlocks[0].setFields(3);
 
         postingListBlocks[1].addPostingElement(new PostingElement(1,2));
         postingListBlocks[1].addPostingElement(new PostingElement(2,3));
         postingListBlocks[1].addPostingElement(new PostingElement(24,7));
+        postingListBlocks[1].setFields(3);
 
         postingListBlocks[2].addPostingElement(new PostingElement(7,2));
         postingListBlocks[2].addPostingElement(new PostingElement(10,6));
         postingListBlocks[2].addPostingElement(new PostingElement(11,2));
+        postingListBlocks[2].setFields(3);
 
         postingListBlocks[3].addPostingElement(new PostingElement(2,5));
         postingListBlocks[3].addPostingElement(new PostingElement(4,5));
         postingListBlocks[3].addPostingElement(new PostingElement(5,3));
+        postingListBlocks[3].setFields(3);
 
         postingListBlocks[4].addPostingElement(new PostingElement(1,4));
         postingListBlocks[4].addPostingElement(new PostingElement(7,1));
         postingListBlocks[4].addPostingElement(new PostingElement(9,1));
+        postingListBlocks[4].setFields(3);
 
         int[] arraysOfMinDocIds = {1,2,4,5,6,7,9,10,11,24};
         int[] docFreqs = {3,3,3,3,3};
@@ -48,7 +60,6 @@ public class TestUnitLorenzo {
         int count = 0;
         while((minDocId = getMinDocId()) != collectionSize) {
             arraysOfResults[count] = minDocId;
-            System.out.println("boh");
             for (int i =0; i<5;i++)
             {
                 if (postingListBlocks[i].getCurrentDocId() == minDocId)
@@ -67,8 +78,7 @@ public class TestUnitLorenzo {
 
         // Assertion to check if arrays are equal
         Assertions.assertArrayEquals(arraysOfResults, arraysOfMinDocIds); //, "Arrays are not equal");
-        // If the assertion fails, the following code will not be executed
-        //System.out.println("Arrays are equal");
+
 
     }
 
