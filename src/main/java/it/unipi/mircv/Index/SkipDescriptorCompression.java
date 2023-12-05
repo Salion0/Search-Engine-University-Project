@@ -4,28 +4,44 @@ import java.util.ArrayList;
 public class SkipDescriptorCompression {
     private final ArrayList<Integer> maxDocIds;
     private final ArrayList<Long> offsetMaxDocIds;
+    private final ArrayList<Integer> numByteMaxDocIds;
     private final ArrayList<Long> offsetTermFreqs;
-    private long offsetMaxDocIdsEnd;
-    private long offsetTermFreqsEnd;
+    private final ArrayList<Integer> numByteTermFreqs;
+
 
     public SkipDescriptorCompression(){
         maxDocIds = new ArrayList<>();
         offsetMaxDocIds = new ArrayList<>();
+        numByteMaxDocIds = new ArrayList<>();
         offsetTermFreqs = new ArrayList<>();
+        numByteTermFreqs = new ArrayList<>();
     }
     public int size(){
         return maxDocIds.size();
     }
-    public void add(int maxDocId, long offsetDocId, long offsetTermFreq){
+    public void add(int maxDocId, long offsetDocId, int byteLengthDocId, long offsetTermFreq, int byteTermFreq){
         maxDocIds.add(maxDocId);
         offsetMaxDocIds.add(offsetDocId);
+        numByteMaxDocIds.add(byteLengthDocId);
         offsetTermFreqs.add(offsetTermFreq);
+        numByteTermFreqs.add(byteTermFreq);
     }
     public ArrayList<Integer> getMaxDocIds(){
         return maxDocIds;
     }
     public ArrayList<Long> getOffsetMaxDocIds(){
         return offsetMaxDocIds;
+    }
+    public ArrayList<Integer> getNumByteMaxDocIds() {
+        return numByteMaxDocIds;
+    }
+
+    public ArrayList<Long> getOffsetTermFreqs() {
+        return offsetTermFreqs;
+    }
+
+    public ArrayList<Integer> getNumByteTermFreqs() {
+        return numByteTermFreqs;
     }
 
     public long[] nextGEQ(int docId){

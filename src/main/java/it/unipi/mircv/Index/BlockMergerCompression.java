@@ -154,6 +154,7 @@ public class BlockMergerCompression {
             postingListBlocks.get(blockIndex).close();
         }*/
     }
+    //TODO da vedere con Lorenzo
     private void writeToDiskCompression(
                 FileOutputStream fosLexicon, FileOutputStream fosDocId,
                 FileOutputStream fosTermFreq, String term, int docFreq, int collFreq,
@@ -170,7 +171,6 @@ public class BlockMergerCompression {
         // SKIP DESCRIPTORS
         int postingListSize = postingList2Compress.getSize();
 
-        byte[][] bytePostingList;
         //if the posting list is big enough, write the skip descriptor
         if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){ //CASE WITH BLOCKS
             SkipDescriptorCompression skipDescriptorCompression = new SkipDescriptorCompression();
@@ -182,32 +182,57 @@ public class BlockMergerCompression {
                         postingList2Compress.getSomeDocIds(i, i + postingListSizeBlock - 1),
                         postingList2Compress.getSomeTermFreq(i, i + postingListSizeBlock - 1)
                 );
-                int maxDocId = docIdsBlock.get(postingListSizeBlock - 1);
 
-                skipDescriptorCompression.add(maxDocId, offsetToWriteDocId, offsetToWriteTermFreq);
-                postingList2Compress.getBytesCompressed();
-                offsetToWriteDocId += ;
-                offsetToWriteTermFreq += ;
+                byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
+                fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
+                fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
+                int numByteDocIdCompressed = compressedPLB[0].length;
+                int numByteTermFreqCompressed = compressedPLB[1].length;
+
+                skipDescriptorCompression.add(postingList2CompressBlock.getMaxDocId(),
+                        offsetToWriteDocId, numByteDocIdCompressed,
+                        offsetToWriteTermFreq, numByteTermFreqCompressed);
+
+                offsetToWriteDocId += numByteDocIdCompressed;
+                offsetToWriteTermFreq += numByteTermFreqCompressed;
             }
 
-            //the last offset will be written here
-            if (postingListSize%postingListSizeBlock != 0) {
-                int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
-                int offsetMaxDocId = offsetToWrite + postingListSizeBlock*postingListSizeBlock;
-                skipDescriptor.add(maxDocId, offsetMaxDocId);
-            }
+            //the last block will be written here
+            int numberOfMissingPosting = postingListSize%postingListSizeBlock;
+            if (numberOfMissingPosting != 0) {
+                int numberOfPostingProcessed = postingListSizeBlock*postingListSizeBlock;
+                PostingList2 postingList2CompressBlock = new PostingList2(
+                        postingList2Compress.getSomeDocIds(numberOfPostingProcessed, postingListSize - 1),
+                        postingList2Compress.getSomeTermFreq(numberOfPostingProcessed, postingListSize - 1)
+                );
 
-            termBuffer.putLong(offsetDocIdSkipDescriptor);
-            termBuffer.putLong(offsetTermFreqSkipDescriptor);
+                byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
+                fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
+                fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
+                int numByteDocIdCompressed = compressedPLB[0].length;
+                int numByteTermFreqCompressed = compressedPLB[1].length;
 
-            skipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
-            offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
+                skipDescriptorCompression.add(postingList2CompressBlock.getMaxDocId(),
+                        offsetToWriteDocId, numByteDocIdCompressed,
+                        offsetToWriteTermFreq, numByteTermFreqCompressed);
+
+                offsetToWriteDocId += numByteDocIdCompressed;
+                offsetToWriteTermFreq += numByteTermFreqCompressed;
+            } //else we had compressed whole posting list
+
+            termBuffer.putInt(offsetSkipDescriptor);
+
+            skipDescriptorFileHandler.writeSkipDescriptorCompressed(offsetSkipDescriptor, skipDescriptorCompression);
+            offsetSkipDescriptor += skipDescriptorCompression.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
 
         } else { //CASE WITHOUT BLOCKS
             //Write posting list in docIds and termFreq files
-            bytePostingList = postingList2Compress.getBytesCompressed();
-            fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
-            fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
+            byte[][] compressedPLB = postingList2Compress.getBytesCompressed();
+            fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
+            fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
+
+            offsetToWriteDocId += compressedPLB[0].length;;
+            offsetToWriteTermFreq += compressedPLB[1].length;
         }
         fosLexicon.write(termBuffer.array());
     }

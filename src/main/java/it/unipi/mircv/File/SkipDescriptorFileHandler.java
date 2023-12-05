@@ -1,6 +1,7 @@
 package it.unipi.mircv.File;
 
 import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.Index.SkipDescriptorCompression;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,17 +38,17 @@ public class SkipDescriptorFileHandler {
         //la length sarà la radice quadrata della posting list approssimata per eccesso
         //offset è quello logico
         SkipDescriptor skipDescriptor = new SkipDescriptor();
-        ByteBuffer skipDescriptorBuffer = ByteBuffer.allocate(length * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
-        fileChannel.read(skipDescriptorBuffer, (long) offset * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
+        ByteBuffer skipDescriptorBuffer = ByteBuffer.allocate(length * (SKIP_DESC_ENTRY));
+        fileChannel.read(skipDescriptorBuffer, (long) offset * (SKIP_DESC_ENTRY));
         for (int i = 0; i < length; i++){
-            skipDescriptorBuffer.position(i * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
+            skipDescriptorBuffer.position(i * (SKIP_DESC_ENTRY));
             skipDescriptor.add(skipDescriptorBuffer.getInt(), skipDescriptorBuffer.getInt());
         }
         return skipDescriptor;
     }
 
     public void writeSkipDescriptor(int offset, SkipDescriptor skipDescriptor) throws IOException {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(skipDescriptor.size() * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
+        ByteBuffer byteBuffer = ByteBuffer.allocate(skipDescriptor.size() * (SKIP_DESC_ENTRY));
         ArrayList<Integer> maxDocIds = skipDescriptor.getMaxDocIds();
         ArrayList<Integer> offsetMaxDocIds = skipDescriptor.getOffsetMaxDocIds();
 
@@ -57,10 +58,29 @@ public class SkipDescriptorFileHandler {
         }
 
         byteBuffer.rewind();
-        fileChannel.position((long) offset * (DOC_ID_LENGTH + OFFSET_BYTES_LENGTH));
+        fileChannel.position((long) offset * (SKIP_DESC_ENTRY));
         fileChannel.write(byteBuffer);
     }
+    public void writeSkipDescriptorCompressed(int offset, SkipDescriptorCompression skipDescriptorCompression) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(skipDescriptorCompression.size() * (SKIP_DESC_ENTRY_COMPRESSION));
+        ArrayList<Integer> maxDocIds = skipDescriptorCompression.getMaxDocIds();
+        ArrayList<Long> offsetMaxDocIds = skipDescriptorCompression.getOffsetMaxDocIds();
+        ArrayList<Integer> numByteMaxDocIds = skipDescriptorCompression.getNumByteMaxDocIds();
+        ArrayList<Long> getOffsetTermFreqs = skipDescriptorCompression.getOffsetMaxDocIds();
+        ArrayList<Integer> numByteTermFreqs = skipDescriptorCompression.getNumByteTermFreqs();
 
+        for (int i = 0; i < skipDescriptorCompression.size(); i++){
+            byteBuffer.putInt(maxDocIds.get(i));
+            byteBuffer.putLong(offsetMaxDocIds.get(i));
+            byteBuffer.putInt(numByteMaxDocIds.get(i));
+            byteBuffer.putLong(getOffsetTermFreqs.get(i));
+            byteBuffer.putInt(numByteTermFreqs.get(i));
+        }
+
+        byteBuffer.rewind();
+        fileChannel.position((long) offset * (SKIP_DESC_ENTRY_COMPRESSION));
+        fileChannel.write(byteBuffer);
+    }
     public void closeFileChannel() throws IOException {
         randomAccessFile.close();
         fileChannel.close();

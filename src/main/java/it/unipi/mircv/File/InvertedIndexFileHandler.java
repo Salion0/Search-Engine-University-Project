@@ -47,7 +47,7 @@ public class InvertedIndexFileHandler {
 
         for (int i = 0; i < length; i++){
             postingList2Compress.addDocId(docIdBuffer.getInt());
-            postingList2Compress.addDocId(termFreqBuffer.getInt());
+            postingList2Compress.addTermFreq(termFreqBuffer.getInt());
         }
         return postingList2Compress;
     }

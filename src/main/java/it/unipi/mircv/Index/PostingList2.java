@@ -15,7 +15,6 @@ public class PostingList2 {
         this.docIds = docIds;
         this.termFreqs = termFreqs;
     }
-
     public void addDocId(int docId){
         docIds.add(docId);
     }
@@ -32,6 +31,7 @@ public class PostingList2 {
     public ArrayList<Integer> getSomeDocIds(int start, int end){
         return (ArrayList<Integer>) docIds.subList(start, end);
     }
+    public int getMaxDocId(){return docIds.get(docIds.size()-1);}
     public ArrayList<Integer> getTermFreqs() {
         return termFreqs;
     }
