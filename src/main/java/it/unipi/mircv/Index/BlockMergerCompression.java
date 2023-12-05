@@ -5,6 +5,7 @@ import it.unipi.mircv.File.InvertedIndexFileHandler;
 import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Query.ScoreFunction;
+import it.unipi.mircv.compression.Unary;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -132,11 +133,8 @@ public class BlockMergerCompression {
             float termUpperBoundScore = computeTermUpperBound2(documentIndexHandler, postingList2Compress);
 
             //appending term and posting list in final files
-            int[] increments = writeToDiskCompression(fosLexicon, fosDocId, fosTermFreq, minTerm,
+            writeToDiskCompression(fosLexicon, fosDocId, fosTermFreq, minTerm,
                     docFreqSum, collFreqSum, termUpperBoundScore, postingList2Compress);
-
-            offsetToWriteDocId += increments[0];
-            offsetToWriteTermFreq += increments[1];
 
             //update the minTerm
             minTerm = minTermQueue.peek();
@@ -156,7 +154,7 @@ public class BlockMergerCompression {
             postingListBlocks.get(blockIndex).close();
         }*/
     }
-    private int[] writeToDiskCompression(
+    private void writeToDiskCompression(
                 FileOutputStream fosLexicon, FileOutputStream fosDocId,
                 FileOutputStream fosTermFreq, String term, int docFreq, int collFreq,
                 float termUpperBoundScore, PostingList2 postingList2Compress) throws IOException {
@@ -169,24 +167,27 @@ public class BlockMergerCompression {
         termBuffer.putInt(collFreq);
         termBuffer.putFloat(termUpperBoundScore);
 
-        //Write posting list in docIds and termFreq files
-        byte[][] bytePostingList = postingList2Compress.getBytesCompressed();
-        fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
-        fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-
         // SKIP DESCRIPTORS
         int postingListSize = postingList2Compress.getSize();
 
+        byte[][] bytePostingList;
         //if the posting list is big enough, write the skip descriptor
-        if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
+        if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){ //CASE WITH BLOCKS
             SkipDescriptorCompression skipDescriptorCompression = new SkipDescriptorCompression();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
-
             for (int i = 0; i <= postingListSize - postingListSizeBlock; i += postingListSizeBlock){
-                int maxDocId = postingList2Compress.getDocIds().get(i + postingListSizeBlock - 1);
-                int offsetMaxDocId = offsetToWrite + i;
-                skipDescriptor.add(maxDocId, offsetMaxDocId);
+                //int maxDocId = postingList2.getDocIds().get(i + postingListSizeBlock - 1); //prima
+                PostingList2 postingList2CompressBlock = new PostingList2(
+                        postingList2Compress.getSomeDocIds(i, i + postingListSizeBlock - 1),
+                        postingList2Compress.getSomeTermFreq(i, i + postingListSizeBlock - 1)
+                );
+                int maxDocId = docIdsBlock.get(postingListSizeBlock - 1);
+
+                skipDescriptorCompression.add(maxDocId, offsetToWriteDocId, offsetToWriteTermFreq);
+                postingList2Compress.getBytesCompressed();
+                offsetToWriteDocId += ;
+                offsetToWriteTermFreq += ;
             }
 
             //the last offset will be written here
@@ -196,16 +197,19 @@ public class BlockMergerCompression {
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
             }
 
-
             termBuffer.putLong(offsetDocIdSkipDescriptor);
             termBuffer.putLong(offsetTermFreqSkipDescriptor);
 
             skipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);
             offsetSkipDescriptor += skipDescriptor.size(); //aggiorno l'offset che devo inserire nel lexiconEntry,
+
+        } else { //CASE WITHOUT BLOCKS
+            //Write posting list in docIds and termFreq files
+            bytePostingList = postingList2Compress.getBytesCompressed();
+            fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
+            fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
         }
         fosLexicon.write(termBuffer.array());
-
-        return new int[]{bytePostingList[0].length, bytePostingList[1].length};
     }
 
     private float computeTermUpperBound(DocumentIndexFileHandler documentIndexHandler, PostingList postingList) throws IOException {

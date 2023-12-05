@@ -9,6 +9,13 @@ public class PostingList2 {
     private ArrayList<Integer> docIds;
     private ArrayList<Integer> termFreqs;
 
+    public PostingList2(){
+    }
+    public PostingList2(ArrayList<Integer> docIds, ArrayList<Integer> termFreqs) {
+        this.docIds = docIds;
+        this.termFreqs = termFreqs;
+    }
+
     public void addDocId(int docId){
         docIds.add(docId);
     }
@@ -22,8 +29,14 @@ public class PostingList2 {
     public ArrayList<Integer> getDocIds() {
         return docIds;
     }
+    public ArrayList<Integer> getSomeDocIds(int start, int end){
+        return (ArrayList<Integer>) docIds.subList(start, end);
+    }
     public ArrayList<Integer> getTermFreqs() {
         return termFreqs;
+    }
+    public ArrayList<Integer> getSomeTermFreq(int start, int end){
+        return (ArrayList<Integer>) docIds.subList(start, end);
     }
     //TODO test it
     public byte[][] getBytesCompressed(){
@@ -34,7 +47,6 @@ public class PostingList2 {
         return postingListData;
     }
     public int getSize() {return docIds.size();}
-
     public byte[][] getBytes(){
         int bufferSize = docIds.size() * 4;  //num of element times byte qt. for int
         ByteBuffer docIdBuffer = ByteBuffer.allocate(bufferSize);

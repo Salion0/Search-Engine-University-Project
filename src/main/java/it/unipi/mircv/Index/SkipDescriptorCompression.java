@@ -4,12 +4,14 @@ import java.util.ArrayList;
 public class SkipDescriptorCompression {
     private final ArrayList<Integer> maxDocIds;
     private final ArrayList<Long> offsetMaxDocIds;
-    private final ArrayList<Long> offsetTermFreqsAssociated;
+    private final ArrayList<Long> offsetTermFreqs;
+    private long offsetMaxDocIdsEnd;
+    private long offsetTermFreqsEnd;
 
     public SkipDescriptorCompression(){
         maxDocIds = new ArrayList<>();
         offsetMaxDocIds = new ArrayList<>();
-        offsetTermFreqsAssociated = new ArrayList<>();
+        offsetTermFreqs = new ArrayList<>();
     }
     public int size(){
         return maxDocIds.size();
@@ -17,7 +19,7 @@ public class SkipDescriptorCompression {
     public void add(int maxDocId, long offsetDocId, long offsetTermFreq){
         maxDocIds.add(maxDocId);
         offsetMaxDocIds.add(offsetDocId);
-        offsetTermFreqsAssociated.add(offsetTermFreq);
+        offsetTermFreqs.add(offsetTermFreq);
     }
     public ArrayList<Integer> getMaxDocIds(){
         return maxDocIds;
@@ -49,7 +51,7 @@ public class SkipDescriptorCompression {
         //return (low < maxDocIds.size()) ? offsetMaxDocIds.get(low) : -1;
         if (low < maxDocIds.size()) {
             toReturn[0] = offsetMaxDocIds.get(low);
-            toReturn[1] = offsetTermFreqsAssociated.get(low);
+            toReturn[1] = offsetTermFreqs.get(low);
         } else {
             toReturn[0] = -1; //TODO si poò mettere un if prima della ricerca binaria
         }
@@ -60,7 +62,7 @@ public class SkipDescriptorCompression {
     public String toString(){
         String stringToReturn = "";
         for (int i = 0; i <maxDocIds.size(); i++){
-            stringToReturn += "maxDocId: " + maxDocIds.get(i) + " offsetDocId: " + offsetMaxDocIds.get(i) + " offsetTermFreq: " + offsetTermFreqsAssociated.get(i) + "\n";
+            stringToReturn += "maxDocId: " + maxDocIds.get(i) + " offsetDocId: " + offsetMaxDocIds.get(i) + " offsetTermFreq: " + offsetTermFreqs.get(i) + "\n";
         }
         return stringToReturn;
     }
