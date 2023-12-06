@@ -120,7 +120,6 @@ public class BlockMerger {
                     }
                 }
             }
-            System.out.println(offsetToWrite);
             //-------------------------------------------------------------------------------------------------------------
             //compute the termUpperBoundScore
             float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);

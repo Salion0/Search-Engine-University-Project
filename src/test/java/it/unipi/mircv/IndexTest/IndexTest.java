@@ -19,7 +19,6 @@ import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Utils.stemWord;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 public class IndexTest {
     //FILE name ---------------------------
     static String blockFolder = "dataTest/";
@@ -92,20 +91,18 @@ public class IndexTest {
         }
         static Lexicon loadMergedLexicon() throws IOException {
         //constrcuct the lexicon by loading data from the merged file
-
             Lexicon lexicon = new Lexicon();
             InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler(blockFolder+docIdsFile,blockFolder+termFreqsFile);
             LexiconFileHandler lexiconFileHandler = new LexiconFileHandler(blockFolder+lexiconFile,false);
             LexiconEntry le;
             while((le = lexiconFileHandler.nextEntryLexiconFile())!=null){
-                System.out.println("lexicon entry:"+le.getTerm());
                 lexicon.addLexiconEntry(le);
                 PostingList pl = invertedIndexFileHandler.getPostingList(le.getOffset(),le.getDf());
                 lexicon.setPostingList(le.getTerm(),pl);
             }
-
             return lexicon;
         }
+
         @Test
         void createIndexTest() {
             //Test for Index creation on the first three document of the collection.
@@ -116,37 +113,32 @@ public class IndexTest {
             // to create three blocks each one contain the first three document of the collectioncleanFolder
 
             System.out.println("Current Directory: "+System.getProperty("user.dir"));
+
             Utils.loadStopWordList();
             flagStopWordRemoval=true;
             flagStemming=false;
             flagCompressedReading = false;
-            Lexicon testLexicon = null;
-            try{
-                testLexicon = createLexiconTest();
-            }catch (IOException io) {io.printStackTrace();}
-            //INDEXING
-            try
-            {
-                index = new Index(blockFolder,testCollection,true);
-            }
-            catch(Exception io) {System.out.println("IO Exception: Maybe file not found");}
 
-            //MERGING
-            try
-            {
+            Lexicon testLexicon = null;
+            Lexicon mergedLexicon = null;
+
+            try{
+                //CREATING LEXICON TO COMPARE WITH MERGED LEXICON FOR ASSERT
+                testLexicon = createLexiconTest();
+                //INDEXING
+                index = new Index(blockFolder,testCollection,true);
+                //MERGING
                 BlockMerger.path = "dataTest/";
                 BlockMerger.mergeBlocks(index.getNumberOfBlocks());
-            }catch (IOException io) {System.out.println("IO Exception: Maybe file not found");}
-
-            //LOAD MERGED LEXICON
-            Lexicon mergedLexicon = null;
-            try{
+                //LOAD MERGED LEXICON
                 mergedLexicon = loadMergedLexicon();
             }catch(IOException io){io.printStackTrace();}
+
             System.out.println(" ");
             System.out.println("Merged Lexicon:"+lexiconToString(mergedLexicon));
             System.out.println(" ");
             System.out.println("Test lexicon: "+lexiconToString(testLexicon));
+
             assertEquals(lexiconToString(mergedLexicon),lexiconToString(testLexicon));
         }
 

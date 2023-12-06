@@ -140,8 +140,6 @@ public class LexiconFileHandler {
     }
     public LexiconEntry nextEntryLexiconFile() throws IOException {
         // reading the next term with his offset
-        System.out.println("Num Entry:"+numEntry);
-        System.out.println("Lexicon Row:"+lexiconRow); //DEBUG
         if(this.lexiconRow >= numEntry)
             return null;
         ByteBuffer dataBuffer = ByteBuffer.allocate(Config.LEXICON_ENTRY_LENGTH);
