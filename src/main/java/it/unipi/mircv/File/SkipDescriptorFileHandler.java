@@ -46,6 +46,21 @@ public class SkipDescriptorFileHandler {
         }
         return skipDescriptor;
     }
+    public SkipDescriptorCompression readSkipDescriptorCompression(int offset, int length) throws IOException {
+        //la length sarà la radice quadrata della posting list approssimata per eccesso
+        //offset è quello logico
+        SkipDescriptorCompression skipDescriptorCompression = new SkipDescriptorCompression();
+        ByteBuffer skipDescriptorBuffer = ByteBuffer.allocate(length * (SKIP_DESC_ENTRY_COMPRESSION));
+        fileChannel.read(skipDescriptorBuffer, (long) offset * (SKIP_DESC_ENTRY_COMPRESSION));
+        for (int i = 0; i < length; i++){
+            skipDescriptorBuffer.position(i * (SKIP_DESC_ENTRY_COMPRESSION));
+            skipDescriptorCompression.add(skipDescriptorBuffer.getInt(), skipDescriptorBuffer.getLong(),
+                    skipDescriptorBuffer.getInt(), skipDescriptorBuffer.getLong(),
+                    skipDescriptorBuffer.getInt()
+            );
+        }
+        return skipDescriptorCompression;
+    }
 
     public void writeSkipDescriptor(int offset, SkipDescriptor skipDescriptor) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(skipDescriptor.size() * (SKIP_DESC_ENTRY));
@@ -66,7 +81,7 @@ public class SkipDescriptorFileHandler {
         ArrayList<Integer> maxDocIds = skipDescriptorCompression.getMaxDocIds();
         ArrayList<Long> offsetMaxDocIds = skipDescriptorCompression.getOffsetMaxDocIds();
         ArrayList<Integer> numByteMaxDocIds = skipDescriptorCompression.getNumByteMaxDocIds();
-        ArrayList<Long> getOffsetTermFreqs = skipDescriptorCompression.getOffsetMaxDocIds();
+        ArrayList<Long> getOffsetTermFreqs = skipDescriptorCompression.getOffsetTermFreqs();
         ArrayList<Integer> numByteTermFreqs = skipDescriptorCompression.getNumByteTermFreqs();
 
         for (int i = 0; i < skipDescriptorCompression.size(); i++){

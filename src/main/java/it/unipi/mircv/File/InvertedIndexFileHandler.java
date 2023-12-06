@@ -3,12 +3,15 @@ package it.unipi.mircv.File;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.PostingList2;
+import it.unipi.mircv.compression.Unary;
+import it.unipi.mircv.compression.VariableByte;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.compression.Unary.decompress;
 
 public class InvertedIndexFileHandler {
     private final FileChannel docIdChannel;
@@ -29,13 +32,25 @@ public class InvertedIndexFileHandler {
         RandomAccessFile rafTermFreq = new RandomAccessFile(termFreqPath, "rw");
         this.termFreqChannel = rafTermFreq.getChannel();
     }
-    //TODO
-    public PostingListBlock getPostingListCompressed(long startOffsetDocId, long endOffsetDocId, long startOffsetTermFreq, long endOffsetTermFreq){
-        PostingListBlock postingListBlock = new PostingListBlock();
-        ByteBuffer docIdBuffer = ByteBuffer.allocate((int) (endOffsetDocId - startOffsetDocId));
-        ByteBuffer termFreqBuffer = ByteBuffer.allocate((int) (endOffsetTermFreq - startOffsetTermFreq));
+    public PostingListBlock getPostingListCompressed(
+            int numPosting,
+            long startOffsetDocId, int numByteDocId,
+            long startOffsetTermFreq, int numByteTermFreq) throws IOException {
 
-        return null;
+        PostingListBlock postingListBlock = new PostingListBlock();
+        ByteBuffer docIdBuffer = ByteBuffer.allocate(numByteDocId);
+        ByteBuffer termFreqBuffer = ByteBuffer.allocate(numByteTermFreq);
+
+        docIdChannel.read(docIdBuffer, startOffsetDocId);
+        termFreqChannel.read(termFreqBuffer, startOffsetTermFreq);
+        int[] docIds = VariableByte.decompress(docIdBuffer.array());
+        int[] termFreqs = Unary.decompress(numPosting, termFreqBuffer.array());
+
+        for (int i = 0; i < numPosting; i++){
+            postingListBlock.addPostingElement(new PostingElement(docIds[i], termFreqs[i]));
+        }
+        postingListBlock.setFields(numPosting);
+        return postingListBlock;
     }
     public PostingList2 getPostingList2(int offset, int length) throws IOException {
         PostingList2 postingList2Compress = new PostingList2();

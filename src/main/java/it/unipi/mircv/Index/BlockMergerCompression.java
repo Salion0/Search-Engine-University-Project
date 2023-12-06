@@ -220,6 +220,8 @@ public class BlockMergerCompression {
                 offsetToWriteTermFreq += numByteTermFreqCompressed;
             } //else we had compressed whole posting list
 
+            //here the offsetSkipDescriptor is inserted in termBuffer - NUM_BYTE_TO_READ_BYTE_LENGTH + NUM_BYTE_TO_READ_BYTE_LENGTH bytes are skipped
+            termBuffer.position(LEXICON_COMPRESS_ENTRY_LENGTH - OFFSET_SKIP_DESC_BYTES_LENGTH);
             termBuffer.putInt(offsetSkipDescriptor);
 
             skipDescriptorFileHandler.writeSkipDescriptorCompressed(offsetSkipDescriptor, skipDescriptorCompression);
@@ -231,8 +233,14 @@ public class BlockMergerCompression {
             fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
             fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
 
-            offsetToWriteDocId += compressedPLB[0].length;;
-            offsetToWriteTermFreq += compressedPLB[1].length;
+            int numByteDocIdCompressed = compressedPLB[0].length;
+            int numByteTermFreqCompressed = compressedPLB[1].length;
+            //the last OFFSET_SKIP_DESC_BYTES_LENGTH bytes are skipped
+            termBuffer.putInt(numByteDocIdCompressed);
+            termBuffer.putInt(numByteTermFreqCompressed);
+
+            offsetToWriteDocId += numByteDocIdCompressed;
+            offsetToWriteTermFreq += numByteTermFreqCompressed;
         }
         fosLexicon.write(termBuffer.array());
     }

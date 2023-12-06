@@ -34,7 +34,7 @@ public class VariableByte {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public static int decompress(byte[] bytes) {
+    public static int decompressOneValue(byte[] bytes) {
         int result = 0;
         int shift = 0;
         for (byte b : bytes) {
@@ -45,5 +45,29 @@ public class VariableByte {
             }
         }
         return result;
+    }
+
+    public static int[] decompress(byte[] bytes) {
+        ArrayList<Integer> result = new ArrayList<>();
+        int currentIndex = 0;
+
+        while (currentIndex < bytes.length) {
+            int currentResult = 0;
+            int shift = 0;
+
+            while (true) {
+                byte currentByte = bytes[currentIndex];
+                currentResult |= (currentByte & 0x7F) << shift;
+                shift += 7;
+                currentIndex++;
+
+                if ((currentByte & 0x80) == 0) {
+                    result.add(currentResult);
+                    break;
+                }
+            }
+        }
+
+        return result.stream().mapToInt(Integer::intValue).toArray();
     }
 }

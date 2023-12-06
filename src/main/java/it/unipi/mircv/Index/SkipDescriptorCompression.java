@@ -35,7 +35,6 @@ public class SkipDescriptorCompression {
     public ArrayList<Integer> getNumByteMaxDocIds() {
         return numByteMaxDocIds;
     }
-
     public ArrayList<Long> getOffsetTermFreqs() {
         return offsetTermFreqs;
     }
