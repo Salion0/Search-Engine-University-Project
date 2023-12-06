@@ -1,8 +1,8 @@
-package it.unipi.mircv.File;
+package it.unipi.mircv.file;
 
-import it.unipi.mircv.Index.PostingElement;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Index.PostingList2;
+import it.unipi.mircv.index.PostingElement;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.index.PostingList2;
 import it.unipi.mircv.Utils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;

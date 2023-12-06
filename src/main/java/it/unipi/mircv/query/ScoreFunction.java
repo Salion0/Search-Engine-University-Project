@@ -1,4 +1,4 @@
-package it.unipi.mircv.Query;
+package it.unipi.mircv.query;
 
 import static it.unipi.mircv.Config.avgDocLen;
 import static it.unipi.mircv.Config.collectionSize;

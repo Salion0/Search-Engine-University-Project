@@ -1,9 +1,5 @@
-package it.unipi.mircv.Index;
-import java.io.IOException;
+package it.unipi.mircv.index;
 import java.util.ArrayList;
-import java.util.Collections;
-
-import static it.unipi.mircv.Config.stopWords;
 
 public class SkipDescriptor {
     private final ArrayList<Integer> maxDocIds;

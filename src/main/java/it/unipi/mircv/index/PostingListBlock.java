@@ -1,4 +1,4 @@
-package it.unipi.mircv.Index;
+package it.unipi.mircv.index;
 
 public class PostingListBlock extends PostingList
 {
@@ -38,13 +38,13 @@ public class PostingListBlock extends PostingList
 
     public int getDocId(int position){
         if(position >= 0)
-            return getPostingList().get(position).getDocId();
+            return getList().get(position).getDocId();
         else
             return -1;
     }
     public int getTf(int position){
         if(position >= 0)
-            return getPostingList().get(position).getTermFreq();
+            return getList().get(position).getTermFreq();
         else
             return -1;
     }

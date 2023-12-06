@@ -1,4 +1,4 @@
-package it.unipi.mircv.Index;
+package it.unipi.mircv.index;
 
 public class LexiconEntry {
 

@@ -1,7 +1,7 @@
-package it.unipi.mircv.File;
+package it.unipi.mircv.file;
 
 import it.unipi.mircv.Config;
-import it.unipi.mircv.Index.LexiconEntry;
+import it.unipi.mircv.index.LexiconEntry;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -25,14 +25,29 @@ public class LexiconFileHandler {
         this.lexiconRow = 0;
         this.numEntry = (int) ((lexiconFile.size()/(Config.LEXICON_ENTRY_LENGTH)));
     }
-    public LexiconFileHandler(String filePath) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
+    public LexiconFileHandler(String blockFilePath,boolean isABlock) throws IOException {
+        RandomAccessFile raf = new RandomAccessFile(blockFilePath, "rw");
+        this.lexiconFile = raf.getChannel();
+        this.lexiconRow = 0;
+        int entryLength = 0;
+        if(isABlock)
+             entryLength = (Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH);
+        else
+            entryLength = (Config.LEXICON_ENTRY_LENGTH);
+        this.numEntry = (int) lexiconFile.size()/entryLength;
+    }
+
+    public LexiconFileHandler(String blockFilePath) throws IOException {
+        RandomAccessFile raf = new RandomAccessFile(blockFilePath, "rw");
         this.lexiconFile = raf.getChannel();
         this.lexiconRow = 0;
         this.numEntry = (int) ((lexiconFile.size()/(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)));
     }
     public ByteBuffer findTermEntry(String term) throws IOException {
-        //Find a term in the lexicon file by binary search assuming that a=0; b=FileSize; c = center that we calculate at each iteration
+        //Find a term in the lexicon file by binary search assuming that
+        // a=0; b=FileSize; c = center that we calculate at each iteration
+
+
         for(int i=term.length();i<Config.TERM_BYTES_LENGTH;i++){      //ADD BLANKSPACE TO THE STRING
             term = term.concat("\0");
         }
@@ -125,6 +140,8 @@ public class LexiconFileHandler {
     }
     public LexiconEntry nextEntryLexiconFile() throws IOException {
         // reading the next term with his offset
+        System.out.println("Num Entry:"+numEntry);
+        System.out.println("Lexicon Row:"+lexiconRow); //DEBUG
         if(this.lexiconRow >= numEntry)
             return null;
         ByteBuffer dataBuffer = ByteBuffer.allocate(Config.LEXICON_ENTRY_LENGTH);

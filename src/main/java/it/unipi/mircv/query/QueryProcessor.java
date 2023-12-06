@@ -1,16 +1,15 @@
-package it.unipi.mircv.Query;
+package it.unipi.mircv.query;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
 
-import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
 
-import it.unipi.mircv.File.LexiconFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
 
-import it.unipi.mircv.Index.*;
+import it.unipi.mircv.index.*;
 import it.unipi.mircv.Utils;
 
-import javax.swing.text.Document;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;

@@ -1,4 +1,4 @@
-package it.unipi.mircv.Index;
+package it.unipi.mircv.index;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -14,10 +14,9 @@ public class PostingList {
     }
 
     public void addPostingList(PostingList pl){
-        postingList.addAll(pl.getPostingList());
+        postingList.addAll(pl.getList());
     }
-    public ArrayList<PostingElement> getPostingList() {return postingList;}
-
+    public ArrayList<PostingElement> getList() {return postingList;}
     public int getSize() {return postingList.size();}
 
     public byte[][] getBytes(){

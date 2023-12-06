@@ -1,5 +1,5 @@
-package it.unipi.mircv.Index;
-import it.unipi.mircv.File.DocumentIndexFileHandler;
+package it.unipi.mircv.index;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
 
 import java.io.IOException;
 

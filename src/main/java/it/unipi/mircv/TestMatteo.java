@@ -1,7 +1,7 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.IOException;

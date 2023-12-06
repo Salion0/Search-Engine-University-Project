@@ -1,8 +1,6 @@
-package it.unipi.mircv.Index;
+package it.unipi.mircv.index;
 
 import ca.rmen.porterstemmer.PorterStemmer;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unipi.mircv.Utils;
 
 import java.io.*;
@@ -21,17 +19,23 @@ public class Index {
     private final PorterStemmer stemmer = new PorterStemmer();
     private int numberOfBlocks;
     private int currentDocId;
-
+    private boolean debugFlag;
     private int count = 0; //DEBUG
+    private String blockFolder;
+    private String collectionFile;
 
-    public Index(String fileCollectionPath) throws IOException {
+
+    public Index(String blockFolder,String collectionFile,boolean debugFlag) throws IOException {
+        this.blockFolder = blockFolder;
+        this.collectionFile = collectionFile;
+        this.debugFlag = debugFlag;
         //this method remove precedent files
-        cleanFolder("data");
+        cleanFolder(blockFolder);
         loadStopWordList();
 
         BufferedReader reader;
         if (flagCompressedReading) {
-            FileInputStream fis = new FileInputStream("collection.tar.gz");
+            FileInputStream fis = new FileInputStream(collectionFile+".gz");
             GZIPInputStream gzis = new GZIPInputStream(fis);
             InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
             reader = new BufferedReader(inputStreamReader);
@@ -42,7 +46,7 @@ public class Index {
             reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
             reader.skip(values[0].length() - 1); // skip metadata
         }
-        else reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
+        else reader = new BufferedReader(new FileReader(collectionFile)); // vecchio reader prima della Compressed Reading
 
 
         documentIndex = new DocumentIndex();
@@ -64,11 +68,10 @@ public class Index {
     }
 
     private void writeLexiconToBlock(Lexicon lexicon, int blockID) throws IOException {
-        String path = "./data/";
         String fileLexicon = "lexicon" + blockID + ".dat";
         String fileDocIds = "docIds" + blockID+".dat";
         String fileTermFreq = "termFreq" + blockID+".dat";
-        lexicon.toDisk(path,fileLexicon,fileDocIds,fileTermFreq);
+        lexicon.toDisk(this.blockFolder,fileLexicon,fileDocIds,fileTermFreq);
     }
 
     private double freeMemoryPercentage() {
@@ -82,7 +85,7 @@ public class Index {
         BufferedReader readerToReturn = null;
 
         while (true) {
-          /*  count++; //DEBUG*/
+            count++; //DEBUG
 
             if(freeMemoryPercentage() < MEMORY_THRESHOLD_PERC){
                 //poor memory qt available -> break
@@ -90,12 +93,7 @@ public class Index {
                 //System.out.println("Memory leak! Free memory: "+ freeMemoryPercentage()); //DEBUG - print the memory available
                 break;
             }
-            //DEBUG per creare più di un blocco
-/*            if (count == 6 || count == 12){
-                readerToReturn = reader;
-                System.out.println("blocco finito per debug");
-                break;
-            }*/
+
             String line = reader.readLine();
             if (!flagCompressedReading) {
                 if (line == null) {
@@ -118,15 +116,24 @@ public class Index {
               //  System.out.println("Free memory percentage: "+ freeMemoryPercentage());
 
             //parsing and processing the document corresponding
-            String[] values = line.split("\t"); //split document text and docID
+            String[] values = line.split("\t");
             String[] tokens = Utils.tokenization(values[1]);  //take tokens from the text
             String docNo = values[0];
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
-            //DEBUG
-/*            if (count == 20) break; //DEBUG*/
-        }
 
+            //DEBUG per creare più di un blocco
+            if(debugFlag){
+                if (count == 2 || count == 3){
+                    readerToReturn = reader;
+                    System.out.println("blocco finito per debug");
+                    break;
+                }
+            }
+            //DEBUG
+            if(debugFlag){ if(count == 4) break;}
+
+        }
         writeLexiconToBlock(lexicon, blockID);
         return readerToReturn;
     }
@@ -163,18 +170,6 @@ public class Index {
     }
     public int getNumberOfBlocks() {
         return numberOfBlocks;
-    }
-
-    public static String findURLsExample(String inputString) {
-        String pattern = "\\b(?:https?|ftp)://\\S+\\b"; // Matches URLs starting with http://, https://, or ftp://
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(inputString);
-        ArrayList<String> tokens = new ArrayList<String>();
-        while (m.find()) {
-            String url = m.group();
-            System.out.println("Match found: " + url);
-        }
-        return "";
     }
     public DocumentIndex getDocumentIndex() {
         return documentIndex;

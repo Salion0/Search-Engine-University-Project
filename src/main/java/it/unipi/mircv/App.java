@@ -1,12 +1,7 @@
 package it.unipi.mircv;
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.Index.BlockMerger;
-import it.unipi.mircv.Index.Index;
-
-import java.io.*;
-import java.nio.ByteBuffer;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.index.BlockMerger;
+import it.unipi.mircv.index.Index;
 
 import static it.unipi.mircv.Config.*;
 
@@ -21,7 +16,7 @@ public class App
             flagStopWordRemoval=true;
             flagCompressedReading=false;
 
-            Index index = new Index("collection.tsv");
+            Index index = new Index("data/","collection.tsv",false);
 
             BlockMerger blockMerger = new BlockMerger();
             blockMerger.mergeBlocks(index.getNumberOfBlocks());

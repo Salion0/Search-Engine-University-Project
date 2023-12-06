@@ -1,20 +1,17 @@
-package it.unipi.mircv.Query;
+package it.unipi.mircv.query;
 
-import it.unipi.mircv.Config;
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.file.SkipDescriptorFileHandler;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.index.SkipDescriptor;
 
-import javax.swing.text.Document;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.*;
 

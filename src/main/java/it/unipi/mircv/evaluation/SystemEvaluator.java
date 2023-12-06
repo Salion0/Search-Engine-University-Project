@@ -1,8 +1,8 @@
 package it.unipi.mircv.evaluation;
 import it.unipi.mircv.Config.Score;
 import it.unipi.mircv.Config.QueryProcessor;
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.Query.*;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.query.*;
 import it.unipi.mircv.Utils;
 
 import java.io.*;

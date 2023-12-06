@@ -1,4 +1,4 @@
-package it.unipi.mircv.Query;
+package it.unipi.mircv.query;
 import it.unipi.mircv.LRUCache;
 import java.io.IOException;
 

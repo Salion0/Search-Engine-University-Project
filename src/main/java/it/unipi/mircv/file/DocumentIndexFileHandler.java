@@ -1,4 +1,4 @@
-package it.unipi.mircv.File;
+package it.unipi.mircv.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +24,16 @@ public class DocumentIndexFileHandler {
         } else System.out.println("Document Index file founded");
 
         randomAccessFile = new RandomAccessFile(filepath,"rw");
+        fileChannel = randomAccessFile.getChannel();
+        currentPosition = AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH;
+    }
+    public DocumentIndexFileHandler(String filePath) throws IOException {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            if(file.createNewFile()) System.out.println("Document Index file created correctly");
+            else System.out.println("Error in Document Index file creation");
+        } else System.out.println("Document Index file founded");
+        randomAccessFile = new RandomAccessFile(filePath,"rw");
         fileChannel = randomAccessFile.getChannel();
         currentPosition = AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH;
     }

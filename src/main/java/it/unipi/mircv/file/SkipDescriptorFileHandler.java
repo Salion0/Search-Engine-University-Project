@@ -1,7 +1,7 @@
-package it.unipi.mircv.File;
+package it.unipi.mircv.file;
 
-import it.unipi.mircv.Index.SkipDescriptor;
-import it.unipi.mircv.Index.SkipDescriptorCompression;
+import it.unipi.mircv.index.SkipDescriptorCompression;
+import it.unipi.mircv.index.SkipDescriptor;
 
 import java.io.File;
 import java.io.IOException;

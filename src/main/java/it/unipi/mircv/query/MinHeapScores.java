@@ -1,4 +1,4 @@
-package it.unipi.mircv.Query;
+package it.unipi.mircv.query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
