@@ -2,13 +2,17 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
+import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
+import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
 
 import static it.unipi.mircv.Config.collectionSize;
 
@@ -17,6 +21,7 @@ import org.junit.jupiter.api.Assertions;
 
 public class TestUnitLorenzo {
     static PostingListBlock[] postingListBlocks = new PostingListBlock[5];
+    static SkipDescriptor[] skipDescriptors = new SkipDescriptor[5];
     static boolean[] endOfPostingListFlag = new boolean[5];
     static int[] docFreqs = new int[5];
     static int[] numBlockRead = new int[5];
@@ -25,11 +30,13 @@ public class TestUnitLorenzo {
 
     public static void main(String[] args) throws IOException {
 
-        testMinDocId();
-
+        setPostingListBlocksForTesting();
+        //testMinDocId();
+        //testUploadPostingListBlock();
+        //testSortArraysByArrays();
     }
 
-    private void updatePostingListBlock(int i) throws IOException {
+    private static void updatePostingListBlock(int i) throws IOException {
 
         int block_len = 3;
         int elementToRead = docFreqs[i] - block_len*numBlockRead[i];
@@ -64,7 +71,7 @@ public class TestUnitLorenzo {
         return minDocId;
     }
 
-    public static void testUploadPostingListBlock() {
+    public static void testUploadPostingListBlock() throws IOException {
 
         setLongerFirstPostingList();
         setLongerSecondPostingList();
@@ -72,18 +79,29 @@ public class TestUnitLorenzo {
         setLongerFourthPostingList();
         setLongerFifthPostingList();
 
-        int[] arraysOfDocIdsFirstPostingList = {2,5,6,13,14,18,21,24,25,29};
-        int[] arraysOfDocIdsSecondPostingList = {1,2,24,26,28,30,31,33,36,39};
-        int[] arraysOfDocIdsThirdPostingList = {7,10,11,46,50,56,57,58,66,68};
-        int[] arraysOfDocIdsFourthPostingList = {2,4,5,36,37,40,41,44,47,50};
-        int[] arraysOfDocIdsFifthPostingList = {1,7,9,11,12,15,19,20,22,24};
+        int[][] arraysOfResults = new int[5][];
+
+        arraysOfResults[0] = new int[]{2, 5, 6, 13, 14, 18, 21, 24, 25, 29};
+        arraysOfResults[1] = new int[]{1, 2, 24, 26, 28, 30, 31, 33, 36, 39};
+        arraysOfResults[2] = new int[]{7, 10, 11, 46, 50, 56, 57, 58, 66, 68};
+        arraysOfResults[3] = new int[]{2, 4, 5, 36, 37, 40, 41, 44, 47, 50};
+        arraysOfResults[4] = new int[]{1, 7, 9, 11, 12, 15, 19, 20, 22, 24};
 
         int[] arrayOfResults;
         for (int j = 0; j < postingListBlocks.length; j++)
-            arrayOfResults = new int[postingListBlocks.length];
-            for (int i = 0; i < arraysOfDocIdsFourthPostingList.length; i++) {
-                arrayOfResults[i] =
+        {
+            arrayOfResults = new int[arraysOfResults[0].length];
+            for (int i = 0; i < arraysOfResults[0].length; i++)
+            {
+                arrayOfResults[i] = postingListBlocks[j].getCurrentDocId();
+                if (postingListBlocks[j].next() == -1)
+                    updatePostingListBlock(j);
             }
+
+            Assertions.assertArrayEquals(arrayOfResults, arraysOfResults[j]);
+        }
+
+        System.out.println("test on the method uploadPostingListBlock --> SUCCESSFUL");
     }
 
     public static void testMinDocId() {
@@ -111,10 +129,126 @@ public class TestUnitLorenzo {
         }
 
         // Assertion to check if arrays are equal
-        Assertions.assertArrayEquals(arraysOfResults, arraysOfMinDocIds); //, "Arrays are not equal");
+        Assertions.assertArrayEquals(arraysOfResults, arraysOfMinDocIds);
+        System.out.println("test on the method getMinDocID --> SUCCESSFUL");
     }
 
-    public void setPostingListBlocksForTesting() throws IOException {
+    public static void testSortArraysByArrays() throws IOException {
+        setLongerFirstPostingList();
+        setLongerSecondPostingList();
+        setLongerThirdPostingList();
+        setLongerFourthPostingList();
+        setLongerFifthPostingList();
+
+        int count = 0;
+        for (int i = 0; i < 5; i++) {
+            skipDescriptors[i] = new SkipDescriptor();
+            skipDescriptors[i].add(13 + count,4 + count);
+            skipDescriptors[i].add(16 + count,8 + count);
+            skipDescriptors[i].add(120 + count,33 + count);
+            count += 10;
+            //System.out.println(postingListBlocks[i].toString());
+        }
+
+        docFreqs[0] = 1;
+        docFreqs[1] = 50;
+        docFreqs[2] = 20;
+        docFreqs[3] = 10;
+        docFreqs[4] = 60;
+
+        PostingListBlock[] resultsPostingListBlocks = new PostingListBlock[5];
+
+        for (int i = 0; i < 5; i++)
+            resultsPostingListBlocks[i] = new PostingListBlock();
+
+        for (PostingElement postingElement: postingListBlocks[0].getPostingList())
+            resultsPostingListBlocks[0].addPostingElement(postingElement);
+
+        for (PostingElement postingElement: postingListBlocks[4].getPostingList())
+            resultsPostingListBlocks[4].addPostingElement(postingElement);
+
+        for (PostingElement postingElement: postingListBlocks[2].getPostingList())
+            resultsPostingListBlocks[2].addPostingElement(postingElement);
+
+        for (PostingElement postingElement: postingListBlocks[3].getPostingList())
+            resultsPostingListBlocks[1].addPostingElement(postingElement);
+
+        for (PostingElement postingElement: postingListBlocks[1].getPostingList())
+            resultsPostingListBlocks[3].addPostingElement(postingElement);
+
+        int[] resultsDocFreqs = new int[]{1,10,20,50,60};
+        int[] resultsOffsets = new int[]{0,30,20,10,40};
+        SkipDescriptor[] resultsOfSkipDescriptors = new SkipDescriptor[5];
+        for (int i = 0; i < 5; i++)
+            resultsOfSkipDescriptors[i] = new SkipDescriptor();
+
+        resultsOfSkipDescriptors[0].add(13,4);
+        resultsOfSkipDescriptors[0].add(16,8);
+        resultsOfSkipDescriptors[0].add(120,33);
+        resultsOfSkipDescriptors[1].add(43,34);
+        resultsOfSkipDescriptors[1].add(46,38);
+        resultsOfSkipDescriptors[1].add(150,63);
+        resultsOfSkipDescriptors[2].add(33,24);
+        resultsOfSkipDescriptors[2].add(36,28);
+        resultsOfSkipDescriptors[2].add(140,53);
+        resultsOfSkipDescriptors[3].add(23,14);
+        resultsOfSkipDescriptors[3].add(26,18);
+        resultsOfSkipDescriptors[3].add(130,43);
+        resultsOfSkipDescriptors[4].add(53,44);
+        resultsOfSkipDescriptors[4].add(56,48);
+        resultsOfSkipDescriptors[4].add(160,73);
+
+        sortArraysByArray(docFreqs,offsets,skipDescriptors,postingListBlocks);
+
+        Assertions.assertArrayEquals(resultsDocFreqs, docFreqs);
+        Assertions.assertArrayEquals(resultsOffsets, offsets);
+        for (int i = 0; i < 5; i++) {
+            Assertions.assertArrayEquals(skipDescriptors[i].getMaxDocIds().toArray(new Integer[0]),
+                    resultsOfSkipDescriptors[i].getMaxDocIds().toArray(new Integer[0]));
+
+            Assertions.assertArrayEquals(postingListBlocks[i].getPostingList().toArray(),
+                    resultsPostingListBlocks[i].getPostingList().toArray());
+
+            //System.out.println(resultsPostingListBlocks[i].getPostingList());
+        }
+
+        System.out.println("test on the method sortArraysByArrays --> SUCCESSFUL");
+    }
+
+    public static void sortArraysByArray(int[] arrayToSort, int[] offsets,
+                                         SkipDescriptor[] skipDescriptors, PostingListBlock[] plBlocks){
+
+        Integer[] indexes = new Integer[arrayToSort.length];
+        for (int i = 0; i < indexes.length; i++) {
+            indexes[i] = i;
+        }
+
+        Arrays.sort(indexes, Comparator.comparingInt(i -> arrayToSort[i]));
+
+        for (int i = 0; i < arrayToSort.length; i++) {
+            if (indexes[i] != i) {
+                int temp = arrayToSort[i];
+                arrayToSort[i] = arrayToSort[indexes[i]];
+                arrayToSort[indexes[i]] = temp;
+
+                temp = offsets[i];
+                offsets[i] = offsets[indexes[i]];
+                offsets[indexes[i]] = temp;
+
+                SkipDescriptor tempSkipDescriptor = skipDescriptors[i];
+                skipDescriptors[i] = skipDescriptors[indexes[i]];
+                skipDescriptors[indexes[i]] = tempSkipDescriptor;
+
+                PostingListBlock postingListBlock = plBlocks[i];
+                plBlocks[i] = plBlocks[indexes[i]];
+                plBlocks[indexes[i]] = postingListBlock;
+
+                indexes[indexes[i]] = indexes[i];
+            }
+        }
+    }
+
+    public static void setPostingListBlocksForTesting() throws IOException {
 
         invertedIndexHandler = new InvertedIndexHandler();
         collectionSize = Integer.MAX_VALUE;
