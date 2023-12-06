@@ -1,23 +1,19 @@
 package it.unipi.mircv;
 
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.Index.BlockMerger;
-import it.unipi.mircv.Index.Index;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Query.*;
-import it.unipi.mircv.evaluation.SystemEvaluator;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.index.BlockMerger;
+import it.unipi.mircv.index.Index;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.query.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Config.QueryProcessor.CONJUNCTIVE;
-import static it.unipi.mircv.Config.QueryProcessor.DISJUNCTIVE;
-import static it.unipi.mircv.Config.Score.BM25;
 import static it.unipi.mircv.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
@@ -174,7 +170,7 @@ public class TestLorenzo {
     }
 
     public static void testCompressedReading() throws IOException {
-        Index index = new Index("");
+        Index index = new Index("","",false);
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger();
         blockMerger.mergeBlocks(numberOfBlocks);

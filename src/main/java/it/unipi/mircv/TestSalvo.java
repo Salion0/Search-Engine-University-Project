@@ -1,7 +1,7 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.Index.LexiconEntry;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.index.LexiconEntry;
 
 import java.io.IOException;
 

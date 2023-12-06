@@ -1,12 +1,9 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
-import javax.swing.text.Document;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import static it.unipi.mircv.Config.QueryProcessor.*;

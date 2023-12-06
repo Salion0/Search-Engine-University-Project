@@ -1,5 +1,5 @@
 package it.unipi.mircv;
-import it.unipi.mircv.Query.QueryProcessor;
+import it.unipi.mircv.query.QueryProcessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
