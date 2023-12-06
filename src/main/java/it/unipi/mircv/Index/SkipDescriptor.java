@@ -40,7 +40,7 @@ public class SkipDescriptor {
         {
             int mid = low + (high - low) / 2;
             int midValue = maxDocIds.get(mid);
-            if (midValue <= docId)
+            if (midValue < docId) // cambiato da <= a <
                 low = mid + 1; // Discard the left half
             else
                 high = mid; // Include the current mid index in the search space

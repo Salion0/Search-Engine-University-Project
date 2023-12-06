@@ -2,6 +2,7 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
+import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
@@ -9,10 +10,8 @@ import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Objects;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 import static it.unipi.mircv.Config.collectionSize;
 
@@ -26,7 +25,10 @@ public class TestUnitLorenzo {
     static int[] docFreqs = new int[5];
     static int[] numBlockRead = new int[5];
     static InvertedIndexHandler invertedIndexHandler;
+    static SkipDescriptorFileHandler skipDescriptorFileHandler;
     static int[] offsets = new int[5];
+    static HashMap<Float, ArrayList<Integer>> score2DocIdMap;
+    static PriorityQueue<Float> topScores;
 
     public static void main(String[] args) throws IOException {
 
@@ -34,6 +36,8 @@ public class TestUnitLorenzo {
         //testMinDocId();
         //testUploadPostingListBlock();
         //testSortArraysByArrays();
+        //testNextGEQ();
+        //testCurrentDocIdInPostingList();
     }
 
     private static void updatePostingListBlock(int i) throws IOException {
@@ -104,6 +108,35 @@ public class TestUnitLorenzo {
         System.out.println("test on the method uploadPostingListBlock --> SUCCESSFUL");
     }
 
+    public static boolean currentDocIdInPostingList(int indexTerm, int currentDocId){
+        do{
+            if(postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
+            if(postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) return false;
+        } while (postingListBlocks[indexTerm].next() != -1);
+        return false;
+    }
+
+    public static void testMinHeap() {
+        float[] arrayOfScores = new float[]{ 3.422F, 0.134F, 9.199F, 5.444F, 6.125F, 0.134F, 4.231F, 5.444F, 0.134F};
+    }
+    public static void testCurrentDocIdInPostingList() {
+        setLongerFirstPostingList();
+        setLongerSecondPostingList();
+        setLongerThirdPostingList();
+        setLongerFourthPostingList();
+        setLongerFifthPostingList();
+
+        Assertions.assertTrue(currentDocIdInPostingList(0, 2));
+        Assertions.assertFalse(currentDocIdInPostingList(0, -1));
+        Assertions.assertTrue(currentDocIdInPostingList(0, 29));
+        Assertions.assertTrue(currentDocIdInPostingList(1, 26));
+        Assertions.assertTrue(currentDocIdInPostingList(2, 10));
+        Assertions.assertFalse(currentDocIdInPostingList(3, 52));
+        Assertions.assertTrue(currentDocIdInPostingList(4, 22));
+
+        System.out.println("test on the method currentDocIdInPostingList --> SUCCESSFUL");
+    }
+
     public static void testMinDocId() {
 
         int[] arraysOfMinDocIds = {1,2,4,5,6,7,9,10,11,24};
@@ -131,6 +164,49 @@ public class TestUnitLorenzo {
         // Assertion to check if arrays are equal
         Assertions.assertArrayEquals(arraysOfResults, arraysOfMinDocIds);
         System.out.println("test on the method getMinDocID --> SUCCESSFUL");
+    }
+
+    public static void testNextGEQ() throws IOException {
+        LexiconHandler lexiconHandler = new LexiconHandler();
+        setLongerFirstPostingList();
+        setLongerSecondPostingList();
+        postingListBlocks[1].addPostingElement(new PostingElement(50,1));
+        postingListBlocks[1].addPostingElement(new PostingElement(51,1));
+        postingListBlocks[1].addPostingElement(new PostingElement(52,1));
+        postingListBlocks[2].addPostingElement(new PostingElement(46,1));
+
+        for (int i = 0; i < 5; i++)
+            skipDescriptors[i] = new SkipDescriptor();
+            //System.out.println(postingListBlocks[i].getPostingList());
+
+        // {2, 5, 6, 13, 14, 18, 21, 24, 25, 29}; first PostingList
+        // {1, 2, 24, 26, 28, 30, 31, 33, 36, 39, 50, 51, 52}; second PostingList
+        // {7, 10, 11, 46}; third PostingList
+
+
+        skipDescriptors[0].add(6,0);
+        skipDescriptors[0].add(18, 3);
+        skipDescriptors[0].add(25, 6);
+        skipDescriptors[0].add(29, 9);
+
+        skipDescriptors[1].add(24,0);
+        skipDescriptors[1].add(30,3);
+        skipDescriptors[1].add(36,6);
+        skipDescriptors[1].add(51,9);
+
+        skipDescriptors[2].add(10,0);
+        skipDescriptors[2].add(46,2);
+
+        Assertions.assertEquals(skipDescriptors[0].nextGEQ(4),0);
+        Assertions.assertEquals(skipDescriptors[0].nextGEQ(33),-1);
+        Assertions.assertEquals(skipDescriptors[0].nextGEQ(29),9);
+        Assertions.assertEquals(skipDescriptors[1].nextGEQ(30),3);
+        Assertions.assertEquals(skipDescriptors[1].nextGEQ(2),0);
+        Assertions.assertEquals(skipDescriptors[1].nextGEQ(0),0);
+        Assertions.assertEquals(skipDescriptors[2].nextGEQ(11),2);
+        Assertions.assertEquals(skipDescriptors[2].nextGEQ(46),2);
+
+        System.out.println("test on the method nextGEQ --> SUCCESSFUL");
     }
 
     public static void testSortArraysByArrays() throws IOException {
@@ -352,5 +428,10 @@ public class TestUnitLorenzo {
         postingListBlocks[4].setFields(10);
         docFreqs[4] = 10;
         offsets[4] = 40;
+    }
+
+    public static void printAllPostingLists() {
+        for (int i = 0; i < 5; i++)
+            System.out.println(postingListBlocks[i].getPostingList());
     }
 }
