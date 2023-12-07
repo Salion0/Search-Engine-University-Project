@@ -38,7 +38,6 @@ public class SkipDescriptorCompression {
     public ArrayList<Long> getOffsetTermFreqs() {
         return offsetTermFreqs;
     }
-
     public ArrayList<Integer> getNumByteTermFreqs() {
         return numByteTermFreqs;
     }
@@ -48,7 +47,7 @@ public class SkipDescriptorCompression {
             if(maxDocIds.get(i) > docId) return offsetMaxDocIds.get(i);
         return -1;
         */
-        long[] toReturn = new long[2];
+        long[] toReturn = new long[5];
 
         // Custom binary search to find the index of the first integer greater than the input
         int low = 0;
@@ -57,7 +56,7 @@ public class SkipDescriptorCompression {
         {
             int mid = low + (high - low) / 2;
             long midValue = maxDocIds.get(mid);
-            if (midValue <= docId)
+            if (midValue <= docId) //TODO forse qua ci va < e non <= --- cit.LoreMazze
                 low = mid + 1; // Discard the left half
             else
                 high = mid; // Include the current mid index in the search space
@@ -67,8 +66,13 @@ public class SkipDescriptorCompression {
         if (low < maxDocIds.size()) {
             toReturn[0] = offsetMaxDocIds.get(low);
             toReturn[1] = offsetTermFreqs.get(low);
+            toReturn[2] = numByteMaxDocIds.get(low);
+            toReturn[3] = numByteTermFreqs.get(low);
+            // toReturn[4] it's a flag to check if we are in the last block
+            if (low == (maxDocIds.size() - 1)) toReturn[4] = 1;
+            else toReturn[4] = -1;
         } else {
-            toReturn[0] = -1; //TODO si poò mettere un if prima della ricerca binaria
+            toReturn[0] = -1; //TODO si può fare prima della ricerca binaria
         }
         return toReturn;
     }

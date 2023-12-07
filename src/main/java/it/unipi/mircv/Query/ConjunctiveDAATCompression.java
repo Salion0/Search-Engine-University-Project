@@ -19,6 +19,7 @@ public class ConjunctiveDAATCompression {
     protected final long[] offsetsTermFreq;
     protected final PostingListBlock[] postingListBlocks;
     protected final SkipDescriptorCompression[] skipDescriptorsCompression;
+    protected final int[] numPostingPerBlock;
     protected final DocumentIndexFileHandler documentIndexFileHandler;
     protected final InvertedIndexFileHandler invertedIndexFileHandler;
     protected float currentDocScore;
@@ -36,6 +37,7 @@ public class ConjunctiveDAATCompression {
         docFreqs = new int[numTermQuery];
         offsetsDocId = new long[numTermQuery];
         offsetsTermFreq = new long[numTermQuery];
+        numPostingPerBlock = new int[numTermQuery];
 
         skipDescriptorsCompression = new SkipDescriptorCompression[numTermQuery];
 
@@ -54,29 +56,43 @@ public class ConjunctiveDAATCompression {
             else{
                 skipDescriptorsCompression[i] = null;
 
-                postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(docFreqs[i],
+                postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
+                        docFreqs[i],
                         offsetsDocId[i], lexiconFileHandler.getNumByteDocId(entryBuffer),
                         offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
             }
         }
-        //TODO anzichè ordinare 300 array basterebbe ordinare gli entryBuffer facendo una prima get della sola docfreq
-        sortArraysByArray(docFreqs, offsetsDocId, offsetsTermFreq, skipDescriptorsCompression, postingListBlocks);
+        //TODO anzichè ordinare 300 array basterebbe ordinare gli entryBuffer facendo una prima get della sola docfreq come ho fatto per numPostingPerBlock
+        sortArraysByArray(docFreqs, offsetsDocId, offsetsTermFreq,
+                skipDescriptorsCompression, postingListBlocks);
+
+        for(int i = 0; i< numTermQuery; i++){
+            numPostingPerBlock[i] = (int) Math.sqrt(docFreqs[0]);
+        }
+
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         int postingCount = 0;
+        int numBlockProcessed = 0;
         int currentDocId;
-        long[] offsetNextGEQ;
+        long[] returnNextGEQ;
         boolean docIdInAllPostingLists;
+        int elemToRead;
 
-        if(skipDescriptorsCompression[0] != null)
-            uploadPostingListBlockCompression(0, postingCount, POSTING_LIST_BLOCK_LENGTH); //load the first posting list block
+        if(skipDescriptorsCompression[0] != null){ //load the first posting list block
+            loadPostingListBlockCompression(0,
+                    docFreqs[0],
+                    offsetsDocId[0], offsetsTermFreq[0],
+                    skipDescriptorsCompression[0].getNumByteMaxDocIds().get(0),
+                    skipDescriptorsCompression[0].getNumByteTermFreqs().get(0));
+        }
         //else -> it was already loaded
 
         while(postingCount < docFreqs[0]){
-            currentDocId = postingListBlocks[0].getCurrentDocId();
             postingCount++;
+            currentDocId = postingListBlocks[0].getCurrentDocId();
             currentDocScore = 0;
             currentDocLen = 0;
             docIdInAllPostingLists = true;
@@ -85,20 +101,28 @@ public class ConjunctiveDAATCompression {
             for (int i = 1; i < numTermQuery; i++) {
                 //if skipDescriptors[i] is not null load a posting list block by block
                 if(skipDescriptorsCompression[i] != null){
-                    offsetNextGEQ = skipDescriptorsCompression[i].nextGEQ(currentDocId); // get the nextGEQ of the current posting list
-                    if(offsetNextGEQ[0] == -1)
+                    returnNextGEQ = skipDescriptorsCompression[i].nextGEQ(currentDocId); // get the nextGEQ of the current posting list
+                    if(returnNextGEQ[0] == -1)
                     {
                         return heapScores.getTopDocIdReversed();
-                        //docIdNotInAllPostingLists = true;
-                        //break;
                     }
                     else
-                    {
-                        //TODO questo si può portare fuori da qui e mettere un array globale così ogni volta sipuò evitare di calcolarlo
-                        int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
-                        if (!(postingListBlocks[i].getMaxDocID() > currentDocId                  // controllo il range del currentDocId per vedere
-                                && postingListBlocks[i].getMinDocID() < currentDocId)) // se siamo nello stesso blocco di prima
-                            uploadPostingListBlockCompression(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
+                    {   //int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
+                        //controllo il range del currentDocId per vedere se siamo nello stesso blocco di prima, se sì non ha senso ricaricarlo
+                        if (!(postingListBlocks[i].getMaxDocID() > currentDocId
+                                && postingListBlocks[i].getMinDocID() < currentDocId)){
+                            //check if the block is the last one, and if it has less than (sqrt()) element
+                            if(returnNextGEQ[4] == 1 && docFreqs[i]%numPostingPerBlock[i] != 0){
+                                elemToRead = docFreqs[i]%numPostingPerBlock[i];
+                            } else elemToRead = numPostingPerBlock[i];
+                            loadPostingListBlockCompression(i,
+                                    elemToRead,
+                                    returnNextGEQ[0],
+                                    returnNextGEQ[1],
+                                    (int) returnNextGEQ[2],
+                                    (int) returnNextGEQ[3]
+                            );
+                        }
                     }
                 }
 
@@ -110,14 +134,32 @@ public class ConjunctiveDAATCompression {
                     break;
                 }
             }
-
             if(docIdInAllPostingLists) {
                 updateCurrentDocScore(0);
                 heapScores.insertIntoPriorityQueue(currentDocScore, currentDocId);
             }
-
-            if (postingListBlocks[0].next() == -1)
-                uploadPostingListBlockCompression(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
+            if (postingListBlocks[0].next() == -1) {
+                numBlockProcessed ++;
+                //numBlockProcessed is equal to the index that we have to use to get the next block
+                if (numBlockProcessed < numPostingPerBlock[0]){
+                    //there is another block to load
+                    elemToRead = numPostingPerBlock[0];
+                }
+                else if(numBlockProcessed == numPostingPerBlock[0] && numBlockProcessed % numPostingPerBlock[0] != 0){
+                    //there is another INCOMPLETE block to load
+                    elemToRead = numBlockProcessed % numPostingPerBlock[0];
+                }else{
+                    //there are no more blocks to load
+                    continue;
+                }
+                loadPostingListBlockCompression(0,
+                        elemToRead,
+                        skipDescriptorsCompression[0].getOffsetMaxDocIds().get(numBlockProcessed),
+                        skipDescriptorsCompression[0].getOffsetTermFreqs().get(numBlockProcessed),
+                        skipDescriptorsCompression[0].getNumByteMaxDocIds().get(numBlockProcessed),
+                        skipDescriptorsCompression[0].getNumByteTermFreqs().get(numBlockProcessed)
+                );
+            }
         }
         return heapScores.getTopDocIdReversed();
     }
@@ -138,28 +180,11 @@ public class ConjunctiveDAATCompression {
         }
         currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
     }
-    protected void uploadPostingListBlockCompression(int indexTerm, int readElement, int blockSize) throws IOException {
-        postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
-                docFreqs[indexTerm],
-                offsetsDocId, offsetsTermFreq
-                offsets[indexTerm] + readElement,
-                docFreqs[indexTerm] - readElement
-        );
+    protected void loadPostingListBlockCompression(int indexTerm, int numPosting, long offsetMaxDocId, long offsetTermFreq,
+                                                   int numByteDocId, int numByteTermFreq) throws IOException {
 
-
-
-        if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    docFreqs[indexTerm] - readElement
-            );
-        }
-        else {
-            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    blockSize
-            );
-        }
+        postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingListCompressed(
+                numPosting, offsetMaxDocId, numByteDocId, offsetTermFreq, numByteTermFreq);
     }
     /*
     protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
@@ -176,7 +201,8 @@ public class ConjunctiveDAATCompression {
             );
         }
     }*/
-    protected static void sortArraysByArray(int[] arrayToSort, long[] array1, long[] array2, SkipDescriptorCompression[] array3, PostingListBlock[] array4){
+    protected static void sortArraysByArray(int[] arrayToSort,long[] array1, long[] array2,
+                                            SkipDescriptorCompression[] array3, PostingListBlock[] array4) {
         // Sort all the input arrays according to the elements of the first array
         // Initialize an array of indexes to keep track of the original positions of the elements
         Integer[] indexes = new Integer[arrayToSort.length];

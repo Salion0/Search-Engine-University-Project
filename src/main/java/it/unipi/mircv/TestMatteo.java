@@ -29,7 +29,6 @@ public class TestMatteo {
             Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
         }
 
-
         System.out.println(documentIndexHandler.readDocumentLength(8000000));
         System.out.println(Config.docsLen[8000000]);
 
