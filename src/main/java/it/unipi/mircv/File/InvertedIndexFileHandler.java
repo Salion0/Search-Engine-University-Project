@@ -60,6 +60,9 @@ public class InvertedIndexFileHandler {
         docIdChannel.read(docIdBuffer, (long) offset * DOC_ID_LENGTH);
         termFreqChannel.read(termFreqBuffer, (long) offset * TERM_FREQ_LENGTH);
 
+        docIdBuffer.position(0);
+        termFreqBuffer.position(0);
+
         for (int i = 0; i < length; i++){
             postingList2Compress.addDocId(docIdBuffer.getInt());
             postingList2Compress.addTermFreq(termFreqBuffer.getInt());
@@ -68,8 +71,8 @@ public class InvertedIndexFileHandler {
     }
     public PostingListBlock getPostingList(int offset, int length) throws IOException {
         PostingListBlock postingListBlock = new PostingListBlock();
-        ByteBuffer docIdBuffer = ByteBuffer.allocate(DOC_ID_LENGTH*length);
-        ByteBuffer termFreqBuffer = ByteBuffer.allocate(TERM_FREQ_LENGTH*length);
+        ByteBuffer docIdBuffer = ByteBuffer.allocate(DOC_ID_LENGTH * length);
+        ByteBuffer termFreqBuffer = ByteBuffer.allocate(TERM_FREQ_LENGTH * length);
 
         docIdChannel.read(docIdBuffer, (long) offset * DOC_ID_LENGTH);
         termFreqChannel.read(termFreqBuffer, (long) offset * TERM_FREQ_LENGTH);

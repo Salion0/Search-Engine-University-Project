@@ -6,10 +6,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class PostingList2 {
-    private ArrayList<Integer> docIds;
-    private ArrayList<Integer> termFreqs;
+    private final ArrayList<Integer> docIds;
+    private final ArrayList<Integer> termFreqs;
 
     public PostingList2(){
+        docIds = new ArrayList<Integer>();
+        termFreqs = new ArrayList<Integer>();
     }
     public PostingList2(ArrayList<Integer> docIds, ArrayList<Integer> termFreqs) {
         this.docIds = docIds;
@@ -29,15 +31,16 @@ public class PostingList2 {
         return docIds;
     }
     public ArrayList<Integer> getSomeDocIds(int start, int end){
-        return (ArrayList<Integer>) docIds.subList(start, end);
+        return new ArrayList<>(docIds.subList(start, end));
+    }
+    public ArrayList<Integer> getSomeTermFreq(int start, int end){
+        return  new ArrayList<>(termFreqs.subList(start, end));
     }
     public int getMaxDocId(){return docIds.get(docIds.size()-1);}
     public ArrayList<Integer> getTermFreqs() {
         return termFreqs;
     }
-    public ArrayList<Integer> getSomeTermFreq(int start, int end){
-        return (ArrayList<Integer>) docIds.subList(start, end);
-    }
+
     //TODO test it
     public byte[][] getBytesCompressed(){
         byte[][] postingListData = new byte[2][];
@@ -65,7 +68,9 @@ public class PostingList2 {
     public String toString(){
         StringBuilder string = new StringBuilder();
         for (int i = 0; i < docIds.size(); i++){
+            string.append(" | ");
             string.append(docIds.get(i));
+            string.append("-");
             string.append(termFreqs.get(i));
         }
         return string.toString();
