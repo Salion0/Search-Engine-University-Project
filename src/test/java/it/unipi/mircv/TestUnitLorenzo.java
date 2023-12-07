@@ -7,6 +7,7 @@ import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.Query.MinHeapScores;
 import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class TestUnitLorenzo {
         //testSortArraysByArrays();
         //testNextGEQ();
         //testCurrentDocIdInPostingList();
+        testMinHeap();
     }
 
     private static void updatePostingListBlock(int i) throws IOException {
@@ -117,8 +119,30 @@ public class TestUnitLorenzo {
     }
 
     public static void testMinHeap() {
-        float[] arrayOfScores = new float[]{ 3.422F, 0.134F, 9.199F, 5.444F, 6.125F, 0.134F, 4.231F, 5.444F, 0.134F};
+        float[] arrayOfScores = new float[]{ 3.422f, 0.134f, 9.199f, 5.444f, 6.125f, 0.134f, 4.231f, 5.444f, 0.134f};
+        int[] docIds = new int[]{78,23,15,10,30,55,100,21,3};
+        MinHeapScores heapScores = new MinHeapScores();
+        for (int i = 0; i < arrayOfScores.length; i++)
+            heapScores.insertIntoPriorityQueue(arrayOfScores[i],docIds[i]);
+
+        ArrayList<Integer> rankedDocIds = new ArrayList<>(List.of(23, 55, 3, 78, 100, 10, 21, 30, 15));
+        ArrayList<Integer> resultDocIds = heapScores.getTopDocIdReversed();
+        Assertions.assertEquals(rankedDocIds,resultDocIds);
+
+        float[] secondArrayOfScores = new float[]{3.422f, 0.134f, 9.199f, 5.444f, 6.125f, 0.134f, 4.231f, 5.444f, 0.134f,
+                                    1f,2f,3f,4f,5f,6f,7f,8f,9f,10f,11f,12f,13f,14f,15f,16f,17f,18f,19f,20f,21f};
+        int[] secondDocIds = new int[]{78,23,15,10,30,55,100,21,3,1000,1001,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,
+                            2100,2200,2300,2400,2500,2600,2700,2800,2900};
+        MinHeapScores secondHeapScores = new MinHeapScores();
+        for (int i = 0; i < secondArrayOfScores.length; i++)
+            secondHeapScores.insertIntoPriorityQueue(secondArrayOfScores[i],secondDocIds[i]);
+
+        ArrayList<Integer> secondRankedDocIds = new ArrayList<>(List.of(10, 21, 1400, 30, 1500, 1600, 1700, 15, 1800, 1900, 2000,
+                2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900));
+        ArrayList<Integer> secondResultDocIds = secondHeapScores.getTopDocIdReversed();
+        Assertions.assertEquals(secondRankedDocIds,secondResultDocIds);
     }
+
     public static void testCurrentDocIdInPostingList() {
         setLongerFirstPostingList();
         setLongerSecondPostingList();

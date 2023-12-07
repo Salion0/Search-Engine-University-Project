@@ -53,12 +53,12 @@ public class TestLorenzo {
         }
 
 
-        //testNewConjunctive("manhattan project");
+        testNewConjunctive("manhattan project");
         //testNoPriorityQueueDisjunctive("diet 100");
 
         //InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
         //System.out.println(invertedIndexHandler.getPostingList(0,20));
-        checkLexiconEntry("sparklers");
+        //checkLexiconEntry("sparklers");
 
         //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");
 
