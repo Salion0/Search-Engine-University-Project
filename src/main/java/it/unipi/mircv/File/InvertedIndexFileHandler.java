@@ -3,6 +3,7 @@ package it.unipi.mircv.File;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.PostingList2;
+import it.unipi.mircv.Utils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 
@@ -46,6 +47,7 @@ public class InvertedIndexFileHandler {
         docIdChannel.read(docIdBuffer, startOffsetDocId);
         termFreqChannel.read(termFreqBuffer, startOffsetTermFreq);
         int[] docIds = VariableByte.decompress(docIdBuffer.array());
+        Utils.printReverseBytes(termFreqBuffer.array());
         int[] termFreqs = Unary.decompress(numPosting, termFreqBuffer.array());
 
         for (int i = 0; i < numPosting; i++){

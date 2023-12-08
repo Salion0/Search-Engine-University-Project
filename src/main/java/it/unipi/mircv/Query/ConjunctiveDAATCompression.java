@@ -44,6 +44,7 @@ public class ConjunctiveDAATCompression {
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconFileHandler.findTermEntryCompression(queryTerms[i]);
             docFreqs[i] = lexiconFileHandler.getDfCompression(entryBuffer);
+            System.out.println("docFreqs[i]: " + docFreqs[i]);
             offsetsDocId[i] = lexiconFileHandler.getOffsetDocIdCompression(entryBuffer);
             offsetsTermFreq[i] = lexiconFileHandler.getOffsetTermFreqCompression(entryBuffer);
 
@@ -150,11 +151,11 @@ public class ConjunctiveDAATCompression {
             if (postingListBlocks[0].next() == -1 && skipDescriptorsCompression[0] != null) {
                 numBlockProcessed ++;
                 //numBlockProcessed is equal to the index that we have to use to get the next block
-                if (numBlockProcessed < numPostingPerBlock[0]){
+                if (numBlockProcessed < skipDescriptorsCompression[0].size()-1){
                     //there is another block to load
                     elemToRead = numPostingPerBlock[0];
                 }
-                else if(numBlockProcessed == numPostingPerBlock[0] && docFreqs[0] % numPostingPerBlock[0] != 0){
+                else if(numBlockProcessed == skipDescriptorsCompression[0].size()-1 && docFreqs[0] % numPostingPerBlock[0] != 0){
                     //there is another INCOMPLETE block to load
                     elemToRead = docFreqs[0] % (numPostingPerBlock[0]);
                 }else{
@@ -162,7 +163,7 @@ public class ConjunctiveDAATCompression {
                     continue;
                 }
                 System.out.println("elemToRead: " + elemToRead);
-
+                System.out.println("numBlockProcessed: " + numBlockProcessed);
                 loadPostingListBlockCompression(0,
                         elemToRead,
                         skipDescriptorsCompression[0].getOffsetMaxDocIds().get(numBlockProcessed),

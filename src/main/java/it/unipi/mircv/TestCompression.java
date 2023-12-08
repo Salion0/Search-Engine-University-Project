@@ -5,6 +5,7 @@ import it.unipi.mircv.File.InvertedIndexFileHandler;
 import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.*;
+import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.ConjunctiveDAATCompression;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class TestCompression {
 
 
         Index index = new Index("test_collection.tsv");
-        BlockMergerCompression blockMergerCompression = new BlockMergerCompression();
+        BlockMerger blockMergerCompression = new BlockMerger();
         blockMergerCompression.mergeBlocks(index.getNumberOfBlocks());
 
         InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
@@ -60,10 +61,10 @@ public class TestCompression {
         System.out.println("nextGEQresult[3]: " + nextGEQresult[3]);
         System.out.println("nextGEQresult[4]: " + nextGEQresult[4]);
         PostingListBlock postingListBlock1 = invertedIndexFileHandler.getPostingListCompressed(
-                6,
-                417000,
-                12,
-                62240,
+                7,
+                4581,
+                14,
+                504,
                 1
         );
         System.out.println(postingListBlock1);
@@ -85,7 +86,7 @@ public class TestCompression {
         //----------------------------------------------------------------------------------------------
         System.out.println("------------query------------------------");
         String[] query = new String[]{"10", "100"};
-        ConjunctiveDAATCompression conjunctiveDAATCompression = new ConjunctiveDAATCompression(query);
+        ConjunctiveDAAT conjunctiveDAATCompression = new ConjunctiveDAAT(query);
         ArrayList<Integer> result = conjunctiveDAATCompression.processQuery();
 
         for (String s: documentIndexHandler.getDocNoREVERSE(result)) {

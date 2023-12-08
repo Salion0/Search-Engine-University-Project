@@ -46,7 +46,7 @@ public class ConjunctiveDAAT {
 
             if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
-                        lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
+                        lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil((float) docFreqs[i] / (int) Math.sqrt(docFreqs[i])));
                 postingListBlocks[i] = new PostingListBlock();
                 postingListBlocks[i].setDummyFields();
             }
