@@ -18,6 +18,7 @@ import java.util.*;
 import static it.unipi.mircv.Config.collectionSize;
 import static it.unipi.mircv.Utils.removeStopWords;
 
+import it.unipi.mircv.Query.ScoreFunction;
 import org.junit.jupiter.api.Assertions;
 
 
@@ -41,25 +42,40 @@ public class TestUnitLorenzo {
 
         setPostingListBlocksForTesting();
         //testMinDocId();
-        //testUploadPostingListBlock();
+        testUploadPostingListBlock();
         //testSortArraysByArrays();
         //testNextGEQ();
         //testCurrentDocIdInPostingList();
         //testMinHeap();
         //testConjunctiveResults();
-        testBM25();
+        //testBM25();
+
+        //System.out.println(getPostingListFromLexiconEntry("sudduth"));
+        //System.out.println(getPostingListFromLexiconEntry("dziena"));
+        //System.out.println(getPostingListFromLexiconEntry("pirrie"));
     }
 
     public static void testBM25() throws IOException {
         PostingListBlock testPL1 = getPostingListFromLexiconEntry("sudduth");
         PostingListBlock testPL2 = getPostingListFromLexiconEntry("dziena");
+
         checkLexiconEntry("dziena",2841806);
         int[] tf = new int[]{1,1,1,2};
         int[] docLen = new int[]{27,27,43,35};
         int[] docFreq = new int[]{4,4,4,4};
-        int count = 0;
-        for (PostingElement postingElement: testPL2.getPostingList())
-            checkLexiconEntry("dziena",postingElement.getDocId());
+        float avgDocLen = 28.248545f;
+        int N = 2147483647;
+        System.out.println(collectionSize);
+        // compute BM25 with wolframAplha w.r.t the formula in the slides
+        float[] actualResults = new float[]{3.56281f,3.56281f,2.82751f,4.63261f};
+        float[] predictedResult = new float[4];
+        for (int i = 0; i < 4; i++)
+            predictedResult[i] = ScoreFunction.BM25(tf[i],docLen[i],docFreq[i]);
+
+        for (int i = 0; i < 4; i++)
+            Assertions.assertEquals((int) (actualResults[i]*1000),(int) (predictedResult[i]*1000));
+
+        System.out.println("test on the method BM25 --> SUCCESSFUL");
     }
 
     public static void testConjunctiveResults() throws IOException {
@@ -108,33 +124,48 @@ public class TestUnitLorenzo {
 
     public static void testUploadPostingListBlock() throws IOException {
 
-        setLongerFirstPostingList();
-        setLongerSecondPostingList();
-        setLongerThirdPostingList();
-        setLongerFourthPostingList();
-        setLongerFifthPostingList();
+        postingListBlocks = new PostingListBlock[3];
+        postingListBlocks[0] = getPostingListFromLexiconEntry("sudduth");
+        postingListBlocks[1] = getPostingListFromLexiconEntry("dziena");
+        postingListBlocks[2] = getPostingListFromLexiconEntry("pirrie");
 
-        int[][] arraysOfResults = new int[5][];
+        ArrayList<Integer> arraysOfResults0 = new ArrayList<>(List.of(291994, 291995, 291998, 692579, 692584,
+                990762, 1071792, 1844589, 3455857, 4085808, 4729425, 6474840, 8658624, 8841671, 8841673, 8841676));
+        ArrayList<Integer> arraysOfResults1 = new ArrayList<>(List.of(2841806, 3882369, 5216942, 8658624));
+        ArrayList<Integer> arraysOfResults2 = new ArrayList<>(List.of(2266703, 2567627, 2803592, 3360531, 4620807,
+                4727576, 4727583, 4783957, 5032046, 5103580, 5115638, 5780718, 5953688, 6999868, 8368448, 8658652, 8658655));
 
-        arraysOfResults[0] = new int[]{2, 5, 6, 13, 14, 18, 21, 24, 25, 29};
-        arraysOfResults[1] = new int[]{1, 2, 24, 26, 28, 30, 31, 33, 36, 39};
-        arraysOfResults[2] = new int[]{7, 10, 11, 46, 50, 56, 57, 58, 66, 68};
-        arraysOfResults[3] = new int[]{2, 4, 5, 36, 37, 40, 41, 44, 47, 50};
-        arraysOfResults[4] = new int[]{1, 7, 9, 11, 12, 15, 19, 20, 22, 24};
+        ArrayList<Integer> arrayOfPrediction0 = new ArrayList<>();
+        ArrayList<Integer> arrayOfPrediction1 = new ArrayList<>();
+        ArrayList<Integer> arrayOfPrediction2 = new ArrayList<>();
+        int count = 0;
 
-        int[] arrayOfResults;
-        for (int j = 0; j < postingListBlocks.length; j++)
+        for (int i = 0; i < postingListBlocks[count].getPostingList().size(); i++)
         {
-            arrayOfResults = new int[arraysOfResults[0].length];
-            for (int i = 0; i < arraysOfResults[0].length; i++)
-            {
-                arrayOfResults[i] = postingListBlocks[j].getCurrentDocId();
-                if (postingListBlocks[j].next() == -1)
-                    updatePostingListBlock(j);
-            }
-
-            Assertions.assertArrayEquals(arrayOfResults, arraysOfResults[j]);
+            arrayOfPrediction0.add(postingListBlocks[count].getCurrentDocId());
+            if (postingListBlocks[count].next() == -1)
+                updatePostingListBlock(count);
         }
+
+        count++;
+        for (int i = 0; i < postingListBlocks[count].getPostingList().size(); i++)
+        {
+            arrayOfPrediction1.add(postingListBlocks[count].getCurrentDocId());
+            if (postingListBlocks[count].next() == -1)
+                updatePostingListBlock(count);
+        }
+
+        count++;
+        for (int i = 0; i < postingListBlocks[count].getPostingList().size(); i++)
+        {
+            arrayOfPrediction2.add(postingListBlocks[count].getCurrentDocId());
+            if (postingListBlocks[count].next() == -1)
+                updatePostingListBlock(count);
+        }
+
+        Assertions.assertEquals(arraysOfResults0,arrayOfPrediction0);
+        Assertions.assertEquals(arraysOfResults1,arrayOfPrediction1);
+        Assertions.assertEquals(arraysOfResults2,arrayOfPrediction2);
 
         System.out.println("test on the method uploadPostingListBlock --> SUCCESSFUL");
     }
