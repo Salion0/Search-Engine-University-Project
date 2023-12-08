@@ -47,20 +47,16 @@ public class TestLorenzo {
         //testMaxScoreDisjunctive("");
         //testConjunctive("diet detox");
         //testMaxScore("diet detox");
-        for (int i = 0; i < 2; i++) {
-            //testConjunctive("100 10");
-            //testConjunctiveCache("100 10 diet", docLenCache);
-        }
 
 
-        //testNewConjunctive("10 100 ");
+        //testNewConjunctive("railroad workers");
         //testNewConjunctive("10 100 1000");
         //testNoPriorityQueueDisjunctive("diet 100");
 
         //InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
         //System.out.println(invertedIndexHandler.getPostingList(0,20));
-        //checkLexiconEntry("chepesiuk");
-        //checkLexiconEntry("sudduth");
+        //checkLexiconEntry("railroad");
+        checkLexiconEntry("workers");
         //checkLexiconEntry("dziena");
 
         //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");

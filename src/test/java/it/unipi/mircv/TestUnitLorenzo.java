@@ -1,11 +1,14 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingElement;
+import it.unipi.mircv.Index.PostingList;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.MinHeapScores;
 
 import java.io.IOException;
@@ -13,6 +16,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import static it.unipi.mircv.Config.collectionSize;
+import static it.unipi.mircv.Utils.removeStopWords;
 
 import org.junit.jupiter.api.Assertions;
 
@@ -30,6 +34,11 @@ public class TestUnitLorenzo {
 
     public static void main(String[] args) throws IOException {
 
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        Utils.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+
         setPostingListBlocksForTesting();
         //testMinDocId();
         //testUploadPostingListBlock();
@@ -37,11 +46,29 @@ public class TestUnitLorenzo {
         //testNextGEQ();
         //testCurrentDocIdInPostingList();
         //testMinHeap();
+        //testConjunctiveResults();
+        testBM25();
+    }
+
+    public static void testBM25() throws IOException {
+        PostingListBlock testPL1 = getPostingListFromLexiconEntry("sudduth");
+        PostingListBlock testPL2 = getPostingListFromLexiconEntry("dziena");
+        checkLexiconEntry("dziena",2841806);
+        int[] tf = new int[]{1,1,1,2};
+        int[] docLen = new int[]{27,27,43,35};
+        int[] docFreq = new int[]{4,4,4,4};
+        int count = 0;
+        for (PostingElement postingElement: testPL2.getPostingList())
+            checkLexiconEntry("dziena",postingElement.getDocId());
     }
 
     public static void testConjunctiveResults() throws IOException {
-        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
-        PostingListBlock
+        PostingListBlock testPL1 = getPostingListFromLexiconEntry("sudduth");
+        PostingListBlock testPL2 = getPostingListFromLexiconEntry("dziena");
+        System.out.println(testPL1);
+        System.out.println(testPL2);
+        ArrayList<Integer> actualResults = new ArrayList<>(List.of(8658624));
+        Assertions.assertEquals(actualResults,testNewConjunctive("sudduth dziena"));
     }
 
     private static void updatePostingListBlock(int i) throws IOException {
@@ -502,6 +529,19 @@ public class TestUnitLorenzo {
         offsets[4] = 40;
     }
 
+    public static ArrayList<Integer> testNewConjunctive(String string) throws IOException {
+        long startTime = System.currentTimeMillis();
+        String[] queryTerms = string.split(" ");
+        queryTerms = removeStopWords(queryTerms);
+        ConjunctiveDAAT newConjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+        ArrayList<Integer> results = newConjunctiveDAAT.processQuery();
+        System.out.println(results);
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("NEW-CONJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
+        return results;
+    }
+
     public static PostingListBlock getPostingListFromLexiconEntry(String string) throws IOException {
         LexiconHandler lexiconHandler = new LexiconHandler();
         InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
@@ -512,6 +552,22 @@ public class TestUnitLorenzo {
         float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
         PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
         return postingListBlock;
+    }
+
+    public static void checkLexiconEntry(String string, int docId) throws IOException {
+        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        LexiconHandler lexiconHandler = new LexiconHandler();
+        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
+        String term = lexiconHandler.getTerm(entryBuffer);
+        int documentFrequency = lexiconHandler.getDf(entryBuffer);
+        int offset = lexiconHandler.getOffset(entryBuffer);
+        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+        PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
+        System.out.println("term = " + string);
+        System.out.println("postingList = " + postingListBlock);
+        System.out.println("documentLength = " + documentIndexHandler.readDocumentLength(docId));
+        System.out.println("documentFrequency = " + documentFrequency);
     }
 
     public static void printAllPostingLists() {
