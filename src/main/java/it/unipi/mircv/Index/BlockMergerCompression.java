@@ -188,7 +188,6 @@ public class BlockMergerCompression {
                         postingList2Compress.getSomeDocIds(i, i + postingListSizeBlock),
                         postingList2Compress.getSomeTermFreq(i, i + postingListSizeBlock)
                 );
-                System.out.println("ITERATION: " + i + " postingList2CompressBlock: " + postingList2CompressBlock);
 
                 byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
                 fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
@@ -199,6 +198,8 @@ public class BlockMergerCompression {
                 skipDescriptorCompression.add(postingList2CompressBlock.getMaxDocId(),
                         offsetToWriteDocId, numByteDocIdCompressed,
                         offsetToWriteTermFreq, numByteTermFreqCompressed);
+                System.out.println("ITERATION: " + i + " postingList2CompressBlock: " + postingList2CompressBlock);
+                System.out.println("ITERATION: " + i + " skipDescriptorCompression: " + skipDescriptorCompression);
 
                 offsetToWriteDocId += numByteDocIdCompressed;
                 offsetToWriteTermFreq += numByteTermFreqCompressed;
@@ -207,12 +208,12 @@ public class BlockMergerCompression {
             //the last block will be written here
             int numberOfMissingPosting = postingListSize%postingListSizeBlock;
             if (numberOfMissingPosting != 0) {
-                int numberOfPostingProcessed = postingListSizeBlock*postingListSizeBlock;
+                int numberOfPostingProcessed = postingListSize - numberOfMissingPosting;
                 PostingList2 postingList2CompressBlock = new PostingList2(
-                        postingList2Compress.getSomeDocIds(numberOfPostingProcessed, postingListSize), //TODO questo +postingListSizeBlock qui torna
+                        postingList2Compress.getSomeDocIds(numberOfPostingProcessed, postingListSize),
                         postingList2Compress.getSomeTermFreq(numberOfPostingProcessed , postingListSize)
                 );
-                System.out.println("ITERATION last: postingList2CompressBlock: " + postingList2CompressBlock);
+
                 byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
                 fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
                 fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
@@ -222,6 +223,9 @@ public class BlockMergerCompression {
                 skipDescriptorCompression.add(postingList2CompressBlock.getMaxDocId(),
                         offsetToWriteDocId, numByteDocIdCompressed,
                         offsetToWriteTermFreq, numByteTermFreqCompressed);
+
+                System.out.println("ITERATION last: postingList2CompressBlock: " + postingList2CompressBlock);
+                System.out.println("ITERATION last: skipDescriptorCompression: " + skipDescriptorCompression);
 
                 offsetToWriteDocId += numByteDocIdCompressed;
                 offsetToWriteTermFreq += numByteTermFreqCompressed;

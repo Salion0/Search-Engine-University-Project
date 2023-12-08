@@ -117,7 +117,12 @@ public class BlockMerger {
                     }
                 }
             }
-            System.out.println(offsetToWrite);
+            System.out.println("-----------------------------------");
+            System.out.println("minTerm: " + minTerm);
+            System.out.println("docFreqSum: " + docFreqSum);
+            System.out.println("collFreqSum: "+ collFreqSum);
+            System.out.println(postingList);
+            System.out.println("offsetToWrite: " + offsetToWrite);
             //-------------------------------------------------------------------------------------------------------------
             //compute the termUpperBoundScore
             float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
@@ -163,13 +168,13 @@ public class BlockMerger {
         byte[][] bytePostingList = postingList.getBytes();
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-        System.out.println();
 
 
         int postingListSize = postingList.getSize();
 
         //if the posting list is big enough, write the skip descriptor
         if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
+            System.out.println("SONO ENTRATO NEL IF DELLO SKIP DESC postingListSize: " + postingListSize);
             SkipDescriptor skipDescriptor = new SkipDescriptor();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
@@ -177,13 +182,15 @@ public class BlockMerger {
                 int maxDocId = postingList.getPostingList().get(i + postingListSizeBlock - 1).getDocId();
                 int offsetMaxDocId = offsetToWrite + i;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
+                System.out.println("ITERATION: " + i + " skipDescriptor: " + skipDescriptor);
             }
 
             //the last offset will be written here
             if (postingListSize%postingListSizeBlock != 0) {
                 int maxDocId = postingList.getPostingList().get(postingListSize - 1).getDocId();
-                int offsetMaxDocId = offsetToWrite + postingListSizeBlock*postingListSizeBlock;
+                int offsetMaxDocId = offsetToWrite + postingListSize - postingListSize%postingListSizeBlock;
                 skipDescriptor.add(maxDocId, offsetMaxDocId);
+                System.out.println("ITERATION last: skipDescriptor: " + skipDescriptor);
             }
 
             termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH

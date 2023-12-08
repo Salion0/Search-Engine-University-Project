@@ -44,7 +44,7 @@ public class SkipDescriptorCompression {
 
     public long[] nextGEQ(int docId){
         /*for(int i = 0; i < maxDocIds.size(); i++)
-            if(maxDocIds.get(i) > docId) return offsetMaxDocIds.get(i);
+            if(maxDocIds.get(i) >= docId) return offsetMaxDocIds.get(i);
         return -1;
         */
         long[] toReturn = new long[5];
@@ -56,7 +56,7 @@ public class SkipDescriptorCompression {
         {
             int mid = low + (high - low) / 2;
             long midValue = maxDocIds.get(mid);
-            if (midValue <= docId) //TODO forse qua ci va < e non <= --- cit.LoreMazze
+            if (midValue < docId) //TODO forse qua ci va < e non <= --- cit.LoreMazze
                 low = mid + 1; // Discard the left half
             else
                 high = mid; // Include the current mid index in the search space
@@ -69,11 +69,25 @@ public class SkipDescriptorCompression {
             toReturn[2] = numByteMaxDocIds.get(low);
             toReturn[3] = numByteTermFreqs.get(low);
             // toReturn[4] it's a flag to check if we are in the last block
-            if (low == (maxDocIds.size() - 1)) toReturn[4] = 1;
+            if (low == (maxDocIds.size()-1)) toReturn[4] = 1; // c'era -1 nell'if
             else toReturn[4] = -1;
         } else {
             toReturn[0] = -1; //TODO si può fare prima della ricerca binaria
         }
         return toReturn;
+    }
+
+    @Override
+    public String toString(){
+        String stringToReturn = "";
+        for (int i = 0; i <maxDocIds.size(); i++){
+            stringToReturn += "maxDocId: " + maxDocIds.get(i) + " --> " +" offset: " +
+                    offsetMaxDocIds.get(i) + " " +
+                    offsetTermFreqs.get(i) + " " +
+                    numByteMaxDocIds.get(i) + " " +
+                    numByteTermFreqs.get(i) +
+                    "\t";
+        }
+        return stringToReturn;
     }
 }

@@ -1,12 +1,15 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.File.InvertedIndexFileHandler;
 import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.*;
+import it.unipi.mircv.Query.ConjunctiveDAATCompression;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
 
@@ -23,7 +26,7 @@ public class TestCompression {
 
         InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
-        ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("10");
+        ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("workers");
 
         int docFreq = lexiconFileHandler.getDfCompression(byteBuffer);
         int collFreq = lexiconFileHandler.getCfCompression(byteBuffer);
@@ -45,10 +48,49 @@ public class TestCompression {
                 offsetDocIdCompression, numByteDocId,
                 offsetTermFreqCompression, numByteTermFreq
         );
-        System.out.println(postingListBlock);
+        System.out.println("postingListBlock: " + postingListBlock);
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         SkipDescriptorCompression skipDescriptorCompression = skipDescriptorFileHandler.readSkipDescriptorCompression(offsetSkipDesc, (int) Math.ceil(Math.sqrt(docFreq)));
-        System.out.println(skipDescriptorCompression.size());
+        System.out.println("skipDescriptorCompression size: " + skipDescriptorCompression.size());
+        System.out.println("maxDocIds: " + skipDescriptorCompression.getMaxDocIds());
+        long[] nextGEQresult = skipDescriptorCompression.nextGEQ(8711);
+        System.out.println("nextGEQresult[0]: " + nextGEQresult[0]);
+        System.out.println("nextGEQresult[1]: " + nextGEQresult[1]);
+        System.out.println("nextGEQresult[2]: " + nextGEQresult[2]);
+        System.out.println("nextGEQresult[3]: " + nextGEQresult[3]);
+        System.out.println("nextGEQresult[4]: " + nextGEQresult[4]);
+        PostingListBlock postingListBlock1 = invertedIndexFileHandler.getPostingListCompressed(
+                6,
+                417000,
+                12,
+                62240,
+                1
+        );
+        System.out.println(postingListBlock1);
+
+
+        //--------------------CARICO LE DOC LEN--------------------------------------------------------
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+
+        //TestLorenzo.checkLexiconEntry("diet");
+
+        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
+        Config.docsLen = new int[Config.collectionSize];
+        for (int i = 0; i < Config.collectionSize; i++){
+            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
+        }
+        //----------------------------------------------------------------------------------------------
+        System.out.println("------------query------------------------");
+        String[] query = new String[]{"10", "100"};
+        ConjunctiveDAATCompression conjunctiveDAATCompression = new ConjunctiveDAATCompression(query);
+        ArrayList<Integer> result = conjunctiveDAATCompression.processQuery();
+
+        for (String s: documentIndexHandler.getDocNoREVERSE(result)) {
+            System.out.println(s);
+        }
 
     }
 }

@@ -11,7 +11,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.compression.Unary.decompress;
+
 
 public class InvertedIndexFileHandler {
     private final FileChannel docIdChannel;

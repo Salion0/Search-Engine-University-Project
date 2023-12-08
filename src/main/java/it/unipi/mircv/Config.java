@@ -36,7 +36,7 @@ public class Config {
     public static final String DOC_ID_FILE = "data/docIds.dat";
     public static final String POSTING_LIST_DESC_FILE = "data/postingListDesc.dat";
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
-    public static final int MIN_NUM_POSTING_TO_SKIP = 10; // vecchio valore era 10
+    public static final int MIN_NUM_POSTING_TO_SKIP = 5; // vecchio valore era 10
     public static final int CACHE_SIZE = 100000; //Expressed in number of entries
 
     // ************************* FLAG ********************************************

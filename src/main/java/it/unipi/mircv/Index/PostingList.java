@@ -37,11 +37,12 @@ public class PostingList {
     @Override
     public String toString(){
         StringBuilder string = new StringBuilder();
-        for (PostingElement pe : postingList){
-            string.append(pe.toString()).append("\t");
+        for (PostingElement postingElement : postingList) {
+            string.append(" | ");
+            string.append(postingElement.getDocId());
+            string.append("-");
+            string.append(postingElement.getTermFreq());
         }
         return string.toString();
     }
-
-
 }

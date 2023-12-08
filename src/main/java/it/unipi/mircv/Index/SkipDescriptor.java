@@ -28,7 +28,7 @@ public class SkipDescriptor {
     }
     public int nextGEQ(int docId){
         /*for(int i = 0; i < maxDocIds.size(); i++)
-            if(maxDocIds.get(i) > docId) return offsetMaxDocIds.get(i);
+            if(maxDocIds.get(i) >= docId) return offsetMaxDocIds.get(i);
         return -1;
         */
         // Custom binary search to find the index of the first integer greater than the input
@@ -38,7 +38,7 @@ public class SkipDescriptor {
         {
             int mid = low + (high - low) / 2;
             int midValue = maxDocIds.get(mid);
-            if (midValue <= docId)
+            if (midValue < docId)
                 low = mid + 1; // Discard the left half
             else
                 high = mid; // Include the current mid index in the search space
@@ -51,7 +51,7 @@ public class SkipDescriptor {
     public String toString(){
         String stringToReturn = "";
         for (int i = 0; i <maxDocIds.size(); i++){
-            stringToReturn += "maxDocId: " + maxDocIds.get(i) + " --> " + " offset: " + offsetMaxDocIds.get(i) + "\n";
+            stringToReturn += "maxDocId: " + maxDocIds.get(i) + " --> " + " offset: " + offsetMaxDocIds.get(i) + "\t";
         }
         return stringToReturn;
     }
