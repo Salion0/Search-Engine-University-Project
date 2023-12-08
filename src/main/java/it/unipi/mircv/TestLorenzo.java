@@ -20,7 +20,7 @@ public class TestLorenzo {
     public static void main(String[] args) throws IOException {
         flagCompressedReading = false;
         flagStemming = false;
-        flagStopWordRemoval = false;
+        flagStopWordRemoval = true;
 
         //testCompressedReading();
         String forLexiconTest = "";
@@ -53,12 +53,15 @@ public class TestLorenzo {
         }
 
 
-        testNewConjunctive("manhattan project");
+        //testNewConjunctive("10 100 ");
+        //testNewConjunctive("10 100 1000");
         //testNoPriorityQueueDisjunctive("diet 100");
 
         //InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
         //System.out.println(invertedIndexHandler.getPostingList(0,20));
-        //checkLexiconEntry("sparklers");
+        //checkLexiconEntry("chepesiuk");
+        //checkLexiconEntry("sudduth");
+        //checkLexiconEntry("dziena");
 
         //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");
 

@@ -127,8 +127,8 @@ public class ConjunctiveDAAT {
     protected void updateCurrentDocScore(int index) throws IOException {
         if (index == 1) {
             //AIUDOO
-            //currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
-            currentDocLen = docsLen[postingListBlocks[index].getCurrentDocId()];
+            currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
+            //currentDocLen = docsLen[postingListBlocks[index].getCurrentDocId()];
         }
         currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
     }

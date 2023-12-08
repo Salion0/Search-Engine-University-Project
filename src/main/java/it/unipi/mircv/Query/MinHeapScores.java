@@ -83,7 +83,7 @@ public class MinHeapScores {
 
         Float prevScore = 0f;
 
-        System.out.println(score2DocIdMap); //DEBUG
+        //System.out.println(score2DocIdMap); //DEBUG
         while((score = topScores.poll()) != null){
             if(score.equals(prevScore)) continue;
             prevScore = score;
@@ -99,4 +99,8 @@ public class MinHeapScores {
             topScores.offer((float) 0);
         topDocCount = quantity;
     } // PER MAX-SCORE
+
+    public HashMap<Float, ArrayList<Integer>> getScore2DocIdMap() { // for TestUnit purpose
+        return score2DocIdMap;
+    }
 }

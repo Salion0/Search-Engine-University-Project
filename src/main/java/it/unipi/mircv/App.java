@@ -13,7 +13,7 @@ public class App
     public static void main( String[] args ) throws IOException {
         flagCompressedReading = false;
         flagStemming = false;
-        flagStopWordRemoval = false;
+        flagStopWordRemoval = true;
         Index index = new Index("test_collection.tsv");
         int numberOfBlocks = index.getNumberOfBlocks();
         BlockMerger blockMerger = new BlockMerger(numberOfBlocks);

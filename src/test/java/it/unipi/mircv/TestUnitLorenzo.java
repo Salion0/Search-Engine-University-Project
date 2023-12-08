@@ -1,6 +1,5 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
 import it.unipi.mircv.File.InvertedIndexHandler;
 import it.unipi.mircv.File.LexiconHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
@@ -8,7 +7,6 @@ import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.MinHeapScores;
-import it.unipi.mircv.Query.ScoreFunction;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -29,7 +27,6 @@ public class TestUnitLorenzo {
     static SkipDescriptorFileHandler skipDescriptorFileHandler;
     static int[] offsets = new int[5];
     static HashMap<Float, ArrayList<Integer>> score2DocIdMap;
-    static PriorityQueue<Float> topScores;
 
     public static void main(String[] args) throws IOException {
 
@@ -39,7 +36,12 @@ public class TestUnitLorenzo {
         //testSortArraysByArrays();
         //testNextGEQ();
         //testCurrentDocIdInPostingList();
-        testMinHeap();
+        //testMinHeap();
+    }
+
+    public static void testConjunctiveResults() throws IOException {
+        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        PostingListBlock
     }
 
     private static void updatePostingListBlock(int i) throws IOException {
@@ -124,7 +126,30 @@ public class TestUnitLorenzo {
         MinHeapScores heapScores = new MinHeapScores();
         for (int i = 0; i < arrayOfScores.length; i++)
             heapScores.insertIntoPriorityQueue(arrayOfScores[i],docIds[i]);
+        HashMap<Float, ArrayList<Integer>> testMap = heapScores.getScore2DocIdMap();
+        Assertions.assertEquals(testMap.size(),6);
+        Assertions.assertEquals(heapScores.getDocId(0.134f),new ArrayList<>(List.of(23,55,3)));
+        Assertions.assertEquals(heapScores.getDocId(3.422f),new ArrayList<>(List.of(78)));
+        Assertions.assertNull(heapScores.getDocId(1f));
+        Assertions.assertEquals(0.134f,heapScores.getMinScore());
 
+        score2DocIdMap = testMap;
+        removeDocIdFromMap(5.444f);
+        removeDocIdFromMap(0.134f);
+        removeDocIdFromMap(0.134f);
+        Assertions.assertEquals(score2DocIdMap.size(),6);
+        Assertions.assertEquals(score2DocIdMap.get(5.444f), new ArrayList<>(List.of(10)));
+        Assertions.assertEquals(score2DocIdMap.get(0.134f), new ArrayList<>(List.of(23)));
+        removeDocIdFromMap(5.444f);
+        removeDocIdFromMap(0.134f);
+        Assertions.assertEquals(score2DocIdMap.size(),4);
+        Assertions.assertNull(score2DocIdMap.get(5.444f));
+        Assertions.assertNull(score2DocIdMap.get(0.134f));
+
+
+        heapScores = new MinHeapScores();
+        for (int i = 0; i < arrayOfScores.length; i++)
+            heapScores.insertIntoPriorityQueue(arrayOfScores[i],docIds[i]);
         ArrayList<Integer> rankedDocIds = new ArrayList<>(List.of(23, 55, 3, 78, 100, 10, 21, 30, 15));
         ArrayList<Integer> resultDocIds = heapScores.getTopDocIdReversed();
         Assertions.assertEquals(rankedDocIds,resultDocIds);
@@ -141,6 +166,29 @@ public class TestUnitLorenzo {
                 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900));
         ArrayList<Integer> secondResultDocIds = secondHeapScores.getTopDocIdReversed();
         Assertions.assertEquals(secondRankedDocIds,secondResultDocIds);
+
+        int[] thirdDocIds = new int[]{20,1,10,15,130,40};
+        float[] thirdArrayOfScores = new float[]{3.422f, 3.422f, 3.422f, 3.422f, 3.422f, 3.422f};
+        ArrayList<Integer> thirdRankedDocIds = new ArrayList<>(List.of(20,1,10,15,130,40));
+        MinHeapScores thirdHeapScores = new MinHeapScores();
+        for (int i = 0; i < thirdDocIds.length; i++)
+            thirdHeapScores.insertIntoPriorityQueue(thirdArrayOfScores[i],thirdDocIds[i]);
+
+        Assertions.assertEquals(thirdHeapScores.getScore2DocIdMap().size(),1);
+        ArrayList<Integer> thirdResultDocIds = thirdHeapScores.getTopDocIdReversed();
+        Assertions.assertEquals(thirdRankedDocIds,thirdResultDocIds);
+
+        System.out.println("test on the class MinHeapScores --> SUCCESSFUL");
+    }
+
+    private static void removeDocIdFromMap(float score){
+        ArrayList<Integer> docIds = score2DocIdMap.get(score);
+        if(docIds.size()>1){ //if there are more than 1 docIDs associated to the score then remove only one
+            docIds.remove(docIds.size()-1);
+        }
+        else{ //if there is only one element then remove the tuple from the hashmap
+            score2DocIdMap.remove(score);
+        }
     }
 
     public static void testCurrentDocIdInPostingList() {
@@ -452,6 +500,18 @@ public class TestUnitLorenzo {
         postingListBlocks[4].setFields(10);
         docFreqs[4] = 10;
         offsets[4] = 40;
+    }
+
+    public static PostingListBlock getPostingListFromLexiconEntry(String string) throws IOException {
+        LexiconHandler lexiconHandler = new LexiconHandler();
+        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
+        String term = lexiconHandler.getTerm(entryBuffer);
+        int documentFrequency = lexiconHandler.getDf(entryBuffer);
+        int offset = lexiconHandler.getOffset(entryBuffer);
+        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+        PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
+        return postingListBlock;
     }
 
     public static void printAllPostingLists() {
