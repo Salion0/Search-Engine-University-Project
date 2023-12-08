@@ -159,7 +159,7 @@ public class BlockMergerCompression {
             postingListBlocks.get(blockIndex).close();
         }*/
     }
-    //TODO controllare
+    //TODO qua mi funziona senza il -1 da ricontrollare anche senza compresion
     private void writeToDiskCompression(
                 FileOutputStream fosLexicon, FileOutputStream fosDocId,
                 FileOutputStream fosTermFreq, String term, int docFreq, int collFreq,
@@ -209,10 +209,10 @@ public class BlockMergerCompression {
             if (numberOfMissingPosting != 0) {
                 int numberOfPostingProcessed = postingListSizeBlock*postingListSizeBlock;
                 PostingList2 postingList2CompressBlock = new PostingList2(
-                        postingList2Compress.getSomeDocIds(numberOfPostingProcessed, postingListSize),
-                        postingList2Compress.getSomeTermFreq(numberOfPostingProcessed, postingListSize)
+                        postingList2Compress.getSomeDocIds(numberOfPostingProcessed, postingListSize), //TODO questo +postingListSizeBlock qui torna
+                        postingList2Compress.getSomeTermFreq(numberOfPostingProcessed , postingListSize)
                 );
-
+                System.out.println("ITERATION last: postingList2CompressBlock: " + postingList2CompressBlock);
                 byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
                 fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
                 fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq

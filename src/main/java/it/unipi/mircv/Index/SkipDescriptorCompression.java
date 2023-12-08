@@ -76,13 +76,4 @@ public class SkipDescriptorCompression {
         }
         return toReturn;
     }
-
-    @Override
-    public String toString(){
-        String stringToReturn = "";
-        for (int i = 0; i <maxDocIds.size(); i++){
-            stringToReturn += "maxDocId: " + maxDocIds.get(i) + " offsetDocId: " + offsetMaxDocIds.get(i) + " offsetTermFreq: " + offsetTermFreqs.get(i) + "\n";
-        }
-        return stringToReturn;
-    }
 }

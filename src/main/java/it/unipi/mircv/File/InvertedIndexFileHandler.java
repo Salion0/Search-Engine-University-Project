@@ -37,6 +37,8 @@ public class InvertedIndexFileHandler {
             long startOffsetDocId, int numByteDocId,
             long startOffsetTermFreq, int numByteTermFreq) throws IOException {
 
+        if(numByteDocId == 0 || numByteTermFreq == 0) return null;
+
         PostingListBlock postingListBlock = new PostingListBlock();
         ByteBuffer docIdBuffer = ByteBuffer.allocate(numByteDocId);
         ByteBuffer termFreqBuffer = ByteBuffer.allocate(numByteTermFreq);
