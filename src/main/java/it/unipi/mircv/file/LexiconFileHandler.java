@@ -25,8 +25,9 @@ public class LexiconFileHandler {
         this.lexiconRow = 0;
         this.numEntry = (int) ((lexiconFile.size()/(Config.LEXICON_ENTRY_LENGTH)));
     }
-    public LexiconFileHandler(String blockFilePath,boolean isABlock) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(blockFilePath, "rw");
+
+    public LexiconFileHandler(String filePath,boolean isABlock) throws IOException {
+        RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
         this.lexiconFile = raf.getChannel();
         this.lexiconRow = 0;
         int entryLength = 0;
@@ -37,12 +38,6 @@ public class LexiconFileHandler {
         this.numEntry = (int) lexiconFile.size()/entryLength;
     }
 
-    public LexiconFileHandler(String blockFilePath) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(blockFilePath, "rw");
-        this.lexiconFile = raf.getChannel();
-        this.lexiconRow = 0;
-        this.numEntry = (int) ((lexiconFile.size()/(Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH)));
-    }
     public ByteBuffer findTermEntry(String term) throws IOException {
         //Find a term in the lexicon file by binary search assuming that
         // a=0; b=FileSize; c = center that we calculate at each iteration

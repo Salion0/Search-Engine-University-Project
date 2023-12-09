@@ -65,7 +65,6 @@ public class Lexicon {
             entryBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH);
             entryBuffer.putInt(treeMap.get(term).getDf());
             entryBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH);
-
             entryBuffer.putInt(treeMap.get(term).getCf());
 
 
@@ -77,7 +76,6 @@ public class Lexicon {
             byte[][] bytePostingList = getPostingList(term).getBytes();
             fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
             fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
-
         }
         fosLexicon.close();
         fosDocId.close();
@@ -108,5 +106,16 @@ public class Lexicon {
     }
     public void setPostingList(String term,PostingList pl){
         treeMap.get(term).setPostingList(pl);
+    }
+
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        for(String term: treeMap.keySet()){
+            stringBuilder.append("Term: "+treeMap.get(term).getTerm()+"\n")
+                    .append("Posting List: "+ getPostingList(term)+"\n")
+                    .append("DF: "+getDf(term)+"\n")
+                    .append("CF: "+getCf(term)+"\n");
+        }
+        return stringBuilder.toString();
     }
 }

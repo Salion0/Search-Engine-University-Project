@@ -21,12 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IndexTest {
     //FILE name ---------------------------
-    static String blockFolder = "dataTest/";
+    static String blockFolder = "dataTest/spimiTest/";
     static String testCollection = "collection_for_test.tsv";
     static String lexiconFile = "lexicon.dat";
     static String docIdsFile = "docIds.dat";
     static String termFreqsFile = "termFreq.dat";
-    static String documentIndexFile  = "documentIndex.dat";
     // ---------------------------
 
     static Index index;

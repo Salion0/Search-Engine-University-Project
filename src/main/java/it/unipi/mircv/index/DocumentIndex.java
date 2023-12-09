@@ -15,6 +15,10 @@ public class DocumentIndex {
         documentIndexFileHandler = new DocumentIndexFileHandler();
         this.numberOfDocuments = 0;
     }
+    public DocumentIndex(String filePath) throws IOException {
+        documentIndexFileHandler = new DocumentIndexFileHandler(filePath);
+        this.numberOfDocuments = 0;
+    }
 
     public void add(String docNo, int docLength) throws IOException {
         documentIndexFileHandler.writeEntry(docNo, docLength);
@@ -25,6 +29,9 @@ public class DocumentIndex {
     public void addAverageDocumentLength() throws IOException {
         documentIndexFileHandler.writeAverageDocumentLength(numberOfTokens / (float) numberOfDocuments, numberOfDocuments);
         documentIndexFileHandler.closeFileChannel();
+    }
+    public int getNumDocs(){
+        return numberOfDocuments;
     }
 
 }

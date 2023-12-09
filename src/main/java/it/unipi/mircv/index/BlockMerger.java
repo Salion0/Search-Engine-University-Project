@@ -23,9 +23,11 @@ public class BlockMerger {
     private static ArrayList<InvertedIndexFileHandler> postingListBlocks = new ArrayList<>();
     private static ArrayList<LexiconEntry> currentBlockEntry = new ArrayList<>();
     private static ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
+
     private static PriorityQueue<String> minTermQueue = new PriorityQueue();
     private static int postingListOffset = 0;  //offset to write in the final lexicon file for each term
     private static int offsetSkipDescriptor = 0;
+
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;
     private static String path="data/";
 
@@ -41,7 +43,7 @@ public class BlockMerger {
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         //initialize the document index file handler
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler(path+"documentIndex.dat");
         //read the collection size and the average document length
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
@@ -52,7 +54,7 @@ public class BlockMerger {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat");
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
                     path+"docIds"+blockIndex+".dat",
                     path+"termFreq"+blockIndex+".dat");
