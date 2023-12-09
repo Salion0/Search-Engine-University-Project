@@ -4,9 +4,6 @@ import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.File.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
-import javax.swing.text.Document;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import static it.unipi.mircv.Config.QueryProcessor.*;
@@ -42,7 +39,7 @@ public class TestMatteo {
 
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT, BM25,true, false);
 
         //testing PL Descriptor
 

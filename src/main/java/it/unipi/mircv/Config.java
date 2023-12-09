@@ -43,6 +43,9 @@ public class Config {
     public static boolean flagCompressedReading;
     public static boolean flagStopWordRemoval;
     public static boolean flagStemming;
-    public enum QueryProcessor { DISJUNCTIVE, CONJUNCTIVE, DISJUNCTIVE_MAX_SCORE, CONJUNCTIVE_MAX_SCORE }
+    public enum QueryProcessor {
+        DISJUNCTIVE_DAAT, CONJUNCTIVE_DAAT, DISJUNCTIVE_MAX_SCORE,
+        DISJUNCTIVE_DAAT_C, CONJUNCTIVE_DAAT_C, DISJUNCTIVE_MAX_SCORE_C
+    }
     public enum Score{ BM25, FTIDF }
 }

@@ -15,7 +15,7 @@ public class DisjunctiveDAAT {
     private final int numTermQuery;
     private final DocumentIndexFileHandler documentIndexHandler;
     private final InvertedIndexFileHandler invertedIndexHandler;
-    private PostingListBlock[] postingListBlocks;
+    private final PostingListBlock[] postingListBlocks;
     private final int[] numBlockRead;
     private final int[] docFreqs;
     private final int[] offsets;
@@ -47,7 +47,7 @@ public class DisjunctiveDAAT {
             else  //else posting list length is greather than block size
                 postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i],POSTING_LIST_BLOCK_LENGTH);
 
-            numBlockRead[i]++;
+            numBlockRead[i] = 1;
         }
     }
 

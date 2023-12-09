@@ -7,10 +7,13 @@ import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.*;
 import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.ConjunctiveDAATCompression;
+import it.unipi.mircv.Query.DisjunctiveDAAT;
+import it.unipi.mircv.Query.DisjunctiveDAATCompression;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static it.unipi.mircv.Config.*;
 
@@ -20,11 +23,12 @@ public class TestCompression {
         flagStopWordRemoval = true;
         flagCompressedReading = false;
 
-
-        Index index = new Index("test_collection.tsv");
-        BlockMerger blockMergerCompression = new BlockMerger();
+        long startTime = System.currentTimeMillis();
+        Index index = new Index("collection.tsv");
+        BlockMergerCompression blockMergerCompression = new BlockMergerCompression();
         blockMergerCompression.mergeBlocks(index.getNumberOfBlocks());
-
+        System.out.println(System.currentTimeMillis() - startTime);
+        /*
         InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
         ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("workers");
@@ -85,13 +89,13 @@ public class TestCompression {
         }
         //----------------------------------------------------------------------------------------------
         System.out.println("------------query------------------------");
-        String[] query = new String[]{"10", "100"};
-        ConjunctiveDAAT conjunctiveDAATCompression = new ConjunctiveDAAT(query);
+        String[] query = new String[]{"railroad", "workers"};
+        DisjunctiveDAAT conjunctiveDAATCompression = new DisjunctiveDAAT(query);
         ArrayList<Integer> result = conjunctiveDAATCompression.processQuery();
 
         for (String s: documentIndexHandler.getDocNoREVERSE(result)) {
             System.out.println(s);
         }
-
+        */
     }
 }

@@ -8,16 +8,12 @@ import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Query.*;
-import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Config.QueryProcessor.CONJUNCTIVE;
-import static it.unipi.mircv.Config.QueryProcessor.DISJUNCTIVE;
-import static it.unipi.mircv.Config.Score.BM25;
 import static it.unipi.mircv.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 

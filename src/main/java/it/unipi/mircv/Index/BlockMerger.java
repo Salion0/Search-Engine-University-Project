@@ -25,7 +25,7 @@ public class BlockMerger {
     private static ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
     private static PriorityQueue<String> minTermQueue = new PriorityQueue();
     private static int offsetSkipDescriptor = 0;
-    private static SkipDescriptorFileHandler skipDescriptorFileHandler;
+    private SkipDescriptorFileHandler skipDescriptorFileHandler;
     private static String path="data/";
 
     public void mergeBlocks(int numberOfBlocks) throws IOException {

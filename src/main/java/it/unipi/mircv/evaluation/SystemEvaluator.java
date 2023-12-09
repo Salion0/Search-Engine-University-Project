@@ -76,17 +76,23 @@ public class SystemEvaluator {
         ArrayList<Integer> results = new ArrayList<>(MAX_NUM_DOC_RETRIEVED);
 
         switch (queryProcessor) {
-            case DISJUNCTIVE -> {
+            case DISJUNCTIVE_DAAT -> {
                 results = new DisjunctiveDAAT(queryTerms).processQuery();
             }
-            case CONJUNCTIVE -> {
+            case CONJUNCTIVE_DAAT -> {
                 results = new ConjunctiveDAAT(queryTerms).processQuery();
             }
             case DISJUNCTIVE_MAX_SCORE -> {
                 results = new MaxScoreDisjunctive(queryTerms).computeMaxScore();
             }
-            case CONJUNCTIVE_MAX_SCORE -> {
-                results = new MaxScore(queryTerms).computeMaxScore();
+            case DISJUNCTIVE_DAAT_C -> {
+                results = new DisjunctiveDAATCompression(queryTerms).processQuery();
+            }
+            case CONJUNCTIVE_DAAT_C -> {
+                results = new ConjunctiveDAATCompression(queryTerms).processQuery();
+            }
+            case DISJUNCTIVE_MAX_SCORE_C -> {
+                results = new MaxScoreDisjunctiveCompression(queryTerms).computeMaxScore();
             }
         }
         return documentIndexHandler.getDocNoREVERSE(results);
@@ -105,17 +111,23 @@ public class SystemEvaluator {
         ArrayList<Integer> results = new ArrayList<>(MAX_NUM_DOC_RETRIEVED);
 
         switch (queryProcessor) {
-            case DISJUNCTIVE -> {
+            case DISJUNCTIVE_DAAT -> {
                 results = new DisjunctiveDAAT(queryTerms).processQuery();
             }
-            case CONJUNCTIVE -> {
+            case CONJUNCTIVE_DAAT -> {
                 results = new ConjunctiveDAAT(queryTerms).processQuery();
             }
             case DISJUNCTIVE_MAX_SCORE -> {
                 results = new MaxScoreDisjunctive(queryTerms).computeMaxScore();
             }
-            case CONJUNCTIVE_MAX_SCORE -> {
-                results = new MaxScore(queryTerms).computeMaxScore();
+            case DISJUNCTIVE_DAAT_C -> {
+                results = new DisjunctiveDAATCompression(queryTerms).processQuery();
+            }
+            case CONJUNCTIVE_DAAT_C -> {
+                results = new ConjunctiveDAATCompression(queryTerms).processQuery();
+            }
+            case DISJUNCTIVE_MAX_SCORE_C -> {
+                results = new MaxScoreDisjunctiveCompression(queryTerms).computeMaxScore();
             }
         }
 
