@@ -9,6 +9,7 @@ import it.unipi.mircv.Query.ConjunctiveDAAT;
 import it.unipi.mircv.Query.ConjunctiveDAATCompression;
 import it.unipi.mircv.Query.DisjunctiveDAAT;
 import it.unipi.mircv.Query.DisjunctiveDAATCompression;
+import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Config.QueryProcessor.*;
+import static it.unipi.mircv.Config.Score.BM25;
 
 public class TestCompression {
     public static void main(String[] args) throws IOException {
@@ -23,12 +26,13 @@ public class TestCompression {
         flagStopWordRemoval = true;
         flagCompressedReading = false;
 
+        /*
         long startTime = System.currentTimeMillis();
         Index index = new Index("collection.tsv");
         BlockMergerCompression blockMergerCompression = new BlockMergerCompression();
         blockMergerCompression.mergeBlocks(index.getNumberOfBlocks());
         System.out.println(System.currentTimeMillis() - startTime);
-        /*
+        */
         InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
         ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("workers");
@@ -64,14 +68,6 @@ public class TestCompression {
         System.out.println("nextGEQresult[2]: " + nextGEQresult[2]);
         System.out.println("nextGEQresult[3]: " + nextGEQresult[3]);
         System.out.println("nextGEQresult[4]: " + nextGEQresult[4]);
-        PostingListBlock postingListBlock1 = invertedIndexFileHandler.getPostingListCompressed(
-                7,
-                4581,
-                14,
-                504,
-                1
-        );
-        System.out.println(postingListBlock1);
 
 
         //--------------------CARICO LE DOC LEN--------------------------------------------------------
@@ -90,12 +86,18 @@ public class TestCompression {
         //----------------------------------------------------------------------------------------------
         System.out.println("------------query------------------------");
         String[] query = new String[]{"railroad", "workers"};
-        DisjunctiveDAAT conjunctiveDAATCompression = new DisjunctiveDAAT(query);
+        DisjunctiveDAATCompression conjunctiveDAATCompression = new DisjunctiveDAATCompression(query);
         ArrayList<Integer> result = conjunctiveDAATCompression.processQuery();
 
         for (String s: documentIndexHandler.getDocNoREVERSE(result)) {
             System.out.println(s);
         }
-        */
+
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25, true, false);
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25, true, false);
+
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctive_c.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25,true, false);
+        SystemEvaluator.createFileQueryResults("queryResult/conjunctive_c.txt","query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C, BM25,true, false);
+
     }
 }
