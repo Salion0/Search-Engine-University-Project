@@ -78,8 +78,8 @@ public class DisjunctiveDAAT {
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
             //AIUDOO
-            //int documentLength = documentIndexHandler.readDocumentLength(minDocId);
-            int documentLength = docsLen[minDocId];
+            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            //int documentLength = docsLen[minDocId];
             for (int i =0; i<numTermQuery;i++)
             {
                 if (postingListBlocks[i].getCurrentDocId() == minDocId)

@@ -41,10 +41,10 @@ public class TestLorenzo {
         //System.out.println(docLenCache.get(1));
 
 
-        //testNewDisjunctive("");
+        //testNewDisjunctive("10 100");
         //testOldDisjunctive("");
-        //testNoPriorityQueueDisjunctive("");
-        //testMaxScoreDisjunctive("");
+        testNoPriorityQueueDisjunctive("10 100");
+        testMaxScoreDisjunctive("10 100");
         //testConjunctive("diet detox");
         //testMaxScore("diet detox");
 
@@ -56,7 +56,7 @@ public class TestLorenzo {
         //InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
         //System.out.println(invertedIndexHandler.getPostingList(0,20));
         //checkLexiconEntry("railroad");
-        checkLexiconEntry("workers");
+        //checkLexiconEntry("workers");
         //checkLexiconEntry("dziena");
 
         //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");

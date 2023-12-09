@@ -109,8 +109,8 @@ public class MaxScoreDisjunctive {
         {
             score = 0;
             //AIUDOOO
-            //minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
-            minDocIdDocumentLength = docsLen[minCurrentDocId];
+            minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
+            //minDocIdDocumentLength = docsLen[minCurrentDocId];
             next = Integer.MAX_VALUE;
 
             // ESSENTIAL LISTS

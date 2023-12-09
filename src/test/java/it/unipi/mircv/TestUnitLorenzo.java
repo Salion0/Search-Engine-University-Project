@@ -8,8 +8,7 @@ import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingList;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
-import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.MinHeapScores;
+import it.unipi.mircv.Query.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,7 +17,6 @@ import java.util.*;
 import static it.unipi.mircv.Config.collectionSize;
 import static it.unipi.mircv.Utils.removeStopWords;
 
-import it.unipi.mircv.Query.ScoreFunction;
 import org.junit.jupiter.api.Assertions;
 
 
@@ -31,7 +29,6 @@ public class TestUnitLorenzo {
     static InvertedIndexHandler invertedIndexHandler;
     static SkipDescriptorFileHandler skipDescriptorFileHandler;
     static int[] offsets = new int[5];
-    static HashMap<Float, ArrayList<Integer>> score2DocIdMap;
 
     public static void main(String[] args) throws IOException {
 
@@ -39,43 +36,51 @@ public class TestUnitLorenzo {
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
-
         setPostingListBlocksForTesting();
-        //testMinDocId();
-        testUploadPostingListBlock();
+
+        //testUploadPostingListBlock();
         //testSortArraysByArrays();
         //testNextGEQ();
         //testCurrentDocIdInPostingList();
-        //testMinHeap();
         //testConjunctiveResults();
-        //testBM25();
+        testMaxScore();
+
 
         //System.out.println(getPostingListFromLexiconEntry("sudduth"));
         //System.out.println(getPostingListFromLexiconEntry("dziena"));
         //System.out.println(getPostingListFromLexiconEntry("pirrie"));
     }
 
-    public static void testBM25() throws IOException {
-        PostingListBlock testPL1 = getPostingListFromLexiconEntry("sudduth");
-        PostingListBlock testPL2 = getPostingListFromLexiconEntry("dziena");
+    public static void testMaxScore() throws IOException {
 
-        checkLexiconEntry("dziena",2841806);
-        int[] tf = new int[]{1,1,1,2};
-        int[] docLen = new int[]{27,27,43,35};
-        int[] docFreq = new int[]{4,4,4,4};
-        float avgDocLen = 28.248545f;
-        int N = 2147483647;
-        System.out.println(collectionSize);
-        // compute BM25 with wolframAplha w.r.t the formula in the slides
-        float[] actualResults = new float[]{3.56281f,3.56281f,2.82751f,4.63261f};
-        float[] predictedResult = new float[4];
-        for (int i = 0; i < 4; i++)
-            predictedResult[i] = ScoreFunction.BM25(tf[i],docLen[i],docFreq[i]);
+        String[] querys = new String[]{"10 100","railroad workers","caries detection system"};
 
-        for (int i = 0; i < 4; i++)
-            Assertions.assertEquals((int) (actualResults[i]*1000),(int) (predictedResult[i]*1000));
+        for (int i = 0; i < 3; i++)
+        {
+            String string = querys[i];
 
-        System.out.println("test on the method BM25 --> SUCCESSFUL");
+            long startTime = System.currentTimeMillis();
+            String[] queryTerms = string.split(" ");
+            queryTerms = removeStopWords(queryTerms);
+            MaxScoreDisjunctive maxScore = new MaxScoreDisjunctive(queryTerms);
+            ArrayList<Integer> results = maxScore.computeMaxScore();
+            System.out.println(results);
+            long endTime = System.currentTimeMillis();
+            long elapsedTime = endTime - startTime;
+
+            startTime = System.currentTimeMillis();
+            queryTerms = string.split(" ");
+            queryTerms = removeStopWords(queryTerms);
+            DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
+            ArrayList<Integer> results2 = disjunctiveDAAT.processQuery();
+            //System.out.println(results2);
+            endTime = System.currentTimeMillis();
+            long elapsedTime2 = endTime - startTime;
+
+            //Assertions.assertEquals(results, results2);
+            System.out.println("DISJUNCTIVE finished in " + (float) elapsedTime2 / 1000 + "sec");
+            System.out.println("MAX-SCORE finished in " + (float) elapsedTime / 1000 + "sec");
+        }
     }
 
     public static void testConjunctiveResults() throws IOException {
@@ -85,6 +90,8 @@ public class TestUnitLorenzo {
         System.out.println(testPL2);
         ArrayList<Integer> actualResults = new ArrayList<>(List.of(8658624));
         Assertions.assertEquals(actualResults,testNewConjunctive("sudduth dziena"));
+
+        System.out.println("test on the method testConjunctiveResults --> SUCCESSFUL");
     }
 
     private static void updatePostingListBlock(int i) throws IOException {
@@ -107,21 +114,6 @@ public class TestUnitLorenzo {
 
     }
 
-
-    private static int getMinDocId() {
-        int minDocId = collectionSize;  //valore che indica che le posting list sono state raggiunte
-
-        //find the current min doc id in the posting lists of the query terms
-        for (int i = 0; i < 5; i++){
-            if (endOfPostingListFlag[i]) continue;
-            int currentDocId = postingListBlocks[i].getCurrentDocId();
-            if(currentDocId<minDocId){
-                minDocId = currentDocId;
-            }
-        }
-        return minDocId;
-    }
-
     public static void testUploadPostingListBlock() throws IOException {
 
         postingListBlocks = new PostingListBlock[3];
@@ -134,6 +126,10 @@ public class TestUnitLorenzo {
         ArrayList<Integer> arraysOfResults1 = new ArrayList<>(List.of(2841806, 3882369, 5216942, 8658624));
         ArrayList<Integer> arraysOfResults2 = new ArrayList<>(List.of(2266703, 2567627, 2803592, 3360531, 4620807,
                 4727576, 4727583, 4783957, 5032046, 5103580, 5115638, 5780718, 5953688, 6999868, 8368448, 8658652, 8658655));
+
+        docFreqs[0] = arraysOfResults0.size();
+        docFreqs[1] = arraysOfResults1.size();
+        docFreqs[2] = arraysOfResults2.size();
 
         ArrayList<Integer> arrayOfPrediction0 = new ArrayList<>();
         ArrayList<Integer> arrayOfPrediction1 = new ArrayList<>();
@@ -178,76 +174,6 @@ public class TestUnitLorenzo {
         return false;
     }
 
-    public static void testMinHeap() {
-        float[] arrayOfScores = new float[]{ 3.422f, 0.134f, 9.199f, 5.444f, 6.125f, 0.134f, 4.231f, 5.444f, 0.134f};
-        int[] docIds = new int[]{78,23,15,10,30,55,100,21,3};
-        MinHeapScores heapScores = new MinHeapScores();
-        for (int i = 0; i < arrayOfScores.length; i++)
-            heapScores.insertIntoPriorityQueue(arrayOfScores[i],docIds[i]);
-        HashMap<Float, ArrayList<Integer>> testMap = heapScores.getScore2DocIdMap();
-        Assertions.assertEquals(testMap.size(),6);
-        Assertions.assertEquals(heapScores.getDocId(0.134f),new ArrayList<>(List.of(23,55,3)));
-        Assertions.assertEquals(heapScores.getDocId(3.422f),new ArrayList<>(List.of(78)));
-        Assertions.assertNull(heapScores.getDocId(1f));
-        Assertions.assertEquals(0.134f,heapScores.getMinScore());
-
-        score2DocIdMap = testMap;
-        removeDocIdFromMap(5.444f);
-        removeDocIdFromMap(0.134f);
-        removeDocIdFromMap(0.134f);
-        Assertions.assertEquals(score2DocIdMap.size(),6);
-        Assertions.assertEquals(score2DocIdMap.get(5.444f), new ArrayList<>(List.of(10)));
-        Assertions.assertEquals(score2DocIdMap.get(0.134f), new ArrayList<>(List.of(23)));
-        removeDocIdFromMap(5.444f);
-        removeDocIdFromMap(0.134f);
-        Assertions.assertEquals(score2DocIdMap.size(),4);
-        Assertions.assertNull(score2DocIdMap.get(5.444f));
-        Assertions.assertNull(score2DocIdMap.get(0.134f));
-
-
-        heapScores = new MinHeapScores();
-        for (int i = 0; i < arrayOfScores.length; i++)
-            heapScores.insertIntoPriorityQueue(arrayOfScores[i],docIds[i]);
-        ArrayList<Integer> rankedDocIds = new ArrayList<>(List.of(23, 55, 3, 78, 100, 10, 21, 30, 15));
-        ArrayList<Integer> resultDocIds = heapScores.getTopDocIdReversed();
-        Assertions.assertEquals(rankedDocIds,resultDocIds);
-
-        float[] secondArrayOfScores = new float[]{3.422f, 0.134f, 9.199f, 5.444f, 6.125f, 0.134f, 4.231f, 5.444f, 0.134f,
-                                    1f,2f,3f,4f,5f,6f,7f,8f,9f,10f,11f,12f,13f,14f,15f,16f,17f,18f,19f,20f,21f};
-        int[] secondDocIds = new int[]{78,23,15,10,30,55,100,21,3,1000,1001,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,
-                            2100,2200,2300,2400,2500,2600,2700,2800,2900};
-        MinHeapScores secondHeapScores = new MinHeapScores();
-        for (int i = 0; i < secondArrayOfScores.length; i++)
-            secondHeapScores.insertIntoPriorityQueue(secondArrayOfScores[i],secondDocIds[i]);
-
-        ArrayList<Integer> secondRankedDocIds = new ArrayList<>(List.of(10, 21, 1400, 30, 1500, 1600, 1700, 15, 1800, 1900, 2000,
-                2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900));
-        ArrayList<Integer> secondResultDocIds = secondHeapScores.getTopDocIdReversed();
-        Assertions.assertEquals(secondRankedDocIds,secondResultDocIds);
-
-        int[] thirdDocIds = new int[]{20,1,10,15,130,40};
-        float[] thirdArrayOfScores = new float[]{3.422f, 3.422f, 3.422f, 3.422f, 3.422f, 3.422f};
-        ArrayList<Integer> thirdRankedDocIds = new ArrayList<>(List.of(20,1,10,15,130,40));
-        MinHeapScores thirdHeapScores = new MinHeapScores();
-        for (int i = 0; i < thirdDocIds.length; i++)
-            thirdHeapScores.insertIntoPriorityQueue(thirdArrayOfScores[i],thirdDocIds[i]);
-
-        Assertions.assertEquals(thirdHeapScores.getScore2DocIdMap().size(),1);
-        ArrayList<Integer> thirdResultDocIds = thirdHeapScores.getTopDocIdReversed();
-        Assertions.assertEquals(thirdRankedDocIds,thirdResultDocIds);
-
-        System.out.println("test on the class MinHeapScores --> SUCCESSFUL");
-    }
-
-    private static void removeDocIdFromMap(float score){
-        ArrayList<Integer> docIds = score2DocIdMap.get(score);
-        if(docIds.size()>1){ //if there are more than 1 docIDs associated to the score then remove only one
-            docIds.remove(docIds.size()-1);
-        }
-        else{ //if there is only one element then remove the tuple from the hashmap
-            score2DocIdMap.remove(score);
-        }
-    }
 
     public static void testCurrentDocIdInPostingList() {
         setLongerFirstPostingList();
@@ -267,34 +193,6 @@ public class TestUnitLorenzo {
         System.out.println("test on the method currentDocIdInPostingList --> SUCCESSFUL");
     }
 
-    public static void testMinDocId() {
-
-        int[] arraysOfMinDocIds = {1,2,4,5,6,7,9,10,11,24};
-        int[] docFreqs = {3,3,3,3,3};
-        int[] arraysOfResults = new int[arraysOfMinDocIds.length];
-
-        int minDocId;
-        int count = 0;
-        while((minDocId = getMinDocId()) != collectionSize) {
-            arraysOfResults[count] = minDocId;
-            for (int i =0; i<5;i++)
-            {
-                if (postingListBlocks[i].getCurrentDocId() == minDocId)
-                {
-                    docFreqs[i]--;
-                    if (docFreqs[i] == 0)
-                        endOfPostingListFlag[i] = true;
-                    else
-                        postingListBlocks[i].next();
-                }
-            }
-            count++;
-        }
-
-        // Assertion to check if arrays are equal
-        Assertions.assertArrayEquals(arraysOfResults, arraysOfMinDocIds);
-        System.out.println("test on the method getMinDocID --> SUCCESSFUL");
-    }
 
     public static void testNextGEQ() throws IOException {
         LexiconHandler lexiconHandler = new LexiconHandler();
@@ -339,120 +237,7 @@ public class TestUnitLorenzo {
         System.out.println("test on the method nextGEQ --> SUCCESSFUL");
     }
 
-    public static void testSortArraysByArrays() throws IOException {
-        setLongerFirstPostingList();
-        setLongerSecondPostingList();
-        setLongerThirdPostingList();
-        setLongerFourthPostingList();
-        setLongerFifthPostingList();
-
-        int count = 0;
-        for (int i = 0; i < 5; i++) {
-            skipDescriptors[i] = new SkipDescriptor();
-            skipDescriptors[i].add(13 + count,4 + count);
-            skipDescriptors[i].add(16 + count,8 + count);
-            skipDescriptors[i].add(120 + count,33 + count);
-            count += 10;
-            //System.out.println(postingListBlocks[i].toString());
-        }
-
-        docFreqs[0] = 1;
-        docFreqs[1] = 50;
-        docFreqs[2] = 20;
-        docFreqs[3] = 10;
-        docFreqs[4] = 60;
-
-        PostingListBlock[] resultsPostingListBlocks = new PostingListBlock[5];
-
-        for (int i = 0; i < 5; i++)
-            resultsPostingListBlocks[i] = new PostingListBlock();
-
-        for (PostingElement postingElement: postingListBlocks[0].getPostingList())
-            resultsPostingListBlocks[0].addPostingElement(postingElement);
-
-        for (PostingElement postingElement: postingListBlocks[4].getPostingList())
-            resultsPostingListBlocks[4].addPostingElement(postingElement);
-
-        for (PostingElement postingElement: postingListBlocks[2].getPostingList())
-            resultsPostingListBlocks[2].addPostingElement(postingElement);
-
-        for (PostingElement postingElement: postingListBlocks[3].getPostingList())
-            resultsPostingListBlocks[1].addPostingElement(postingElement);
-
-        for (PostingElement postingElement: postingListBlocks[1].getPostingList())
-            resultsPostingListBlocks[3].addPostingElement(postingElement);
-
-        int[] resultsDocFreqs = new int[]{1,10,20,50,60};
-        int[] resultsOffsets = new int[]{0,30,20,10,40};
-        SkipDescriptor[] resultsOfSkipDescriptors = new SkipDescriptor[5];
-        for (int i = 0; i < 5; i++)
-            resultsOfSkipDescriptors[i] = new SkipDescriptor();
-
-        resultsOfSkipDescriptors[0].add(13,4);
-        resultsOfSkipDescriptors[0].add(16,8);
-        resultsOfSkipDescriptors[0].add(120,33);
-        resultsOfSkipDescriptors[1].add(43,34);
-        resultsOfSkipDescriptors[1].add(46,38);
-        resultsOfSkipDescriptors[1].add(150,63);
-        resultsOfSkipDescriptors[2].add(33,24);
-        resultsOfSkipDescriptors[2].add(36,28);
-        resultsOfSkipDescriptors[2].add(140,53);
-        resultsOfSkipDescriptors[3].add(23,14);
-        resultsOfSkipDescriptors[3].add(26,18);
-        resultsOfSkipDescriptors[3].add(130,43);
-        resultsOfSkipDescriptors[4].add(53,44);
-        resultsOfSkipDescriptors[4].add(56,48);
-        resultsOfSkipDescriptors[4].add(160,73);
-
-        sortArraysByArray(docFreqs,offsets,skipDescriptors,postingListBlocks);
-
-        Assertions.assertArrayEquals(resultsDocFreqs, docFreqs);
-        Assertions.assertArrayEquals(resultsOffsets, offsets);
-        for (int i = 0; i < 5; i++) {
-            Assertions.assertArrayEquals(skipDescriptors[i].getMaxDocIds().toArray(new Integer[0]),
-                    resultsOfSkipDescriptors[i].getMaxDocIds().toArray(new Integer[0]));
-
-            Assertions.assertArrayEquals(postingListBlocks[i].getPostingList().toArray(),
-                    resultsPostingListBlocks[i].getPostingList().toArray());
-
-            //System.out.println(resultsPostingListBlocks[i].getPostingList());
-        }
-
-        System.out.println("test on the method sortArraysByArrays --> SUCCESSFUL");
-    }
-
-    public static void sortArraysByArray(int[] arrayToSort, int[] offsets,
-                                         SkipDescriptor[] skipDescriptors, PostingListBlock[] plBlocks){
-
-        Integer[] indexes = new Integer[arrayToSort.length];
-        for (int i = 0; i < indexes.length; i++) {
-            indexes[i] = i;
-        }
-
-        Arrays.sort(indexes, Comparator.comparingInt(i -> arrayToSort[i]));
-
-        for (int i = 0; i < arrayToSort.length; i++) {
-            if (indexes[i] != i) {
-                int temp = arrayToSort[i];
-                arrayToSort[i] = arrayToSort[indexes[i]];
-                arrayToSort[indexes[i]] = temp;
-
-                temp = offsets[i];
-                offsets[i] = offsets[indexes[i]];
-                offsets[indexes[i]] = temp;
-
-                SkipDescriptor tempSkipDescriptor = skipDescriptors[i];
-                skipDescriptors[i] = skipDescriptors[indexes[i]];
-                skipDescriptors[indexes[i]] = tempSkipDescriptor;
-
-                PostingListBlock postingListBlock = plBlocks[i];
-                plBlocks[i] = plBlocks[indexes[i]];
-                plBlocks[indexes[i]] = postingListBlock;
-
-                indexes[indexes[i]] = indexes[i];
-            }
-        }
-    }
+    // ******************** down here some crafted objects for testing are set **************************
 
     public static void setPostingListBlocksForTesting() throws IOException {
 
@@ -583,22 +368,6 @@ public class TestUnitLorenzo {
         float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
         PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
         return postingListBlock;
-    }
-
-    public static void checkLexiconEntry(String string, int docId) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
-        ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
-        String term = lexiconHandler.getTerm(entryBuffer);
-        int documentFrequency = lexiconHandler.getDf(entryBuffer);
-        int offset = lexiconHandler.getOffset(entryBuffer);
-        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
-        PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
-        System.out.println("term = " + string);
-        System.out.println("postingList = " + postingListBlock);
-        System.out.println("documentLength = " + documentIndexHandler.readDocumentLength(docId));
-        System.out.println("documentFrequency = " + documentFrequency);
     }
 
     public static void printAllPostingLists() {
