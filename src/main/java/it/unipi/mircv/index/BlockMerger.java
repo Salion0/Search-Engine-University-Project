@@ -42,7 +42,7 @@ public class BlockMerger {
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         //initialize the document index file handler
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler(path+"documentIndex.dat");
         //read the collection size and the average document length
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
@@ -53,7 +53,7 @@ public class BlockMerger {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat");
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
                     path+"docIds"+blockIndex+".dat",
                     path+"termFreq"+blockIndex+".dat");
@@ -169,7 +169,6 @@ public class BlockMerger {
         fosDocId.write(bytePostingList[0]); //append to precedent PostingList docID
         fosTermFreq.write(bytePostingList[1]); //append to precedent PostingList termFreq
         System.out.println();
-
 
         int postingListSize = postingList.getSize();
 

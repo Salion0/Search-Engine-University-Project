@@ -19,29 +19,28 @@ public class TestMatteo {
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
         //TestLorenzo.checkLexiconEntry("diet");
-
         //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
-        Config.docsLen = new int[Config.collectionSize];
+        //provare a sostituire con metodo loadAllDocumentLengths
+
+        long startTime2 = System.currentTimeMillis();
+        Config.docsLen = documentIndexHandler.loadAllDocumentLengths();
+        System.out.println("Time to load all docs with loadAllDocumentlength() : " + (System.currentTimeMillis() - startTime2) + " ms");
+
+       int max = 0;
         for (int i = 0; i < Config.collectionSize; i++){
-            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
+            max = Math.max(Config.docsLen[i],max);
         }
-
-
-        System.out.println(documentIndexHandler.readDocumentLength(8000000));
-        System.out.println(Config.docsLen[8000000]);
+        System.out.println("Max doc length: " + max);
+        /*        for(int i = 0; i < Config.collectionSize; i++){
+            System.out.println("DocId: " + i + " len: " + Config.docsLen[i]);
+        }*/
 
 /*        System.out.println(SystemEvaluator.testQueryTime("manhattan project", DISJUNCTIVE, BM25,
                 true, false ));*/
 
-        InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
-        System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
-
-
-
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
-
+        //SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE, BM25,true, false);
         //testing PL Descriptor
 
 

@@ -1,5 +1,6 @@
 package it.unipi.mircv.file;
 
+import it.unipi.mircv.Config;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -7,23 +8,22 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-
 import static it.unipi.mircv.Config.*;
 
 public class DocumentIndexFileHandler {
     private final FileChannel fileChannel;
     private final RandomAccessFile randomAccessFile;
     long currentPosition;
-    String filepath = "data/documentIndex.dat";
+    String filePath = "data/documentIndex.dat";
 
     public DocumentIndexFileHandler() throws IOException {
-        File file = new File(filepath);
+        File file = new File(this.filePath);
         if (!file.exists()) {
             if(file.createNewFile()) System.out.println("Document Index file created correctly");
             else System.out.println("Error in Document Index file creation");
         } else System.out.println("Document Index file founded");
 
-        randomAccessFile = new RandomAccessFile(filepath,"rw");
+        randomAccessFile = new RandomAccessFile(this.filePath,"rw");
         fileChannel = randomAccessFile.getChannel();
         currentPosition = AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH;
     }
@@ -67,7 +67,38 @@ public class DocumentIndexFileHandler {
         buffer.position(0);
         return buffer.getInt();
     }
+    public int[] loadAllDocumentLengths() throws IOException {
+        int[] docsLen = new int[Config.collectionSize];
+        ByteBuffer buffer = ByteBuffer.allocate(
+                (DOCLENGTH_BYTES_LENGTH+DOCNO_BYTES_LENGTH) * Config.collectionSize
+        );
+        System.out.print(buffer.limit());
+        fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
+        fileChannel.read(buffer);
+        buffer.position(DOCNO_BYTES_LENGTH); //skip first docno
+        for(int i = 0; buffer.position()+ DOCNO_BYTES_LENGTH < buffer.limit(); i++) {
+            docsLen[i] = buffer.getInt();
+            buffer.position(buffer.position() + DOCNO_BYTES_LENGTH);
+        }
+        return docsLen;
+    }
 
+    public int[] loadAllDocumentLengths(int collectionSize) throws IOException {
+        int[] docsLen = new int[collectionSize];
+        ByteBuffer buffer = ByteBuffer.allocate(
+                (DOCLENGTH_BYTES_LENGTH+DOCNO_BYTES_LENGTH) * collectionSize
+        );
+        fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
+        fileChannel.read(buffer);
+        buffer.position(0); //skip first docno
+        System.out.println("buffer limit: " + buffer.limit());
+        for(int i = 0; (buffer.position()+DOCNO_BYTES_LENGTH)<buffer.limit(); i++) {
+            buffer.position(buffer.position() + DOCNO_BYTES_LENGTH);
+            docsLen[i] = buffer.getInt();
+            System.out.println("docId: " + i + " docLen: " + docsLen[i]);
+        }
+        return docsLen;
+    }
     public float readAvgDocLen() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH);
         fileChannel.position(0);
