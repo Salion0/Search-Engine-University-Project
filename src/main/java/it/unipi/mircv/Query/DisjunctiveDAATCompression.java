@@ -57,8 +57,6 @@ public class DisjunctiveDAATCompression {
                 numPostingPerBlock[i] = (int) Math.sqrt(docFreqs[i]);
                 skipDescriptorsCompression[i] = skipDescriptorFileHandler.readSkipDescriptorCompression(
                         lexiconFileHandler.getOffsetSkipDescCompression(entryBuffer), (int) Math.ceil((float) docFreqs[i] / (int) Math.sqrt(docFreqs[i])));
-                System.out.println("skipDescriptorsCompression SIZE : " + skipDescriptorsCompression[i].size());
-                System.out.println("skipDescriptorsCompression" + skipDescriptorsCompression[i]);
                 postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
                         numPostingPerBlock[i],
                         offsetsDocId[i], skipDescriptorsCompression[i].getNumByteMaxDocIds().get(0),
@@ -71,7 +69,6 @@ public class DisjunctiveDAATCompression {
                         docFreqs[i],
                         offsetsDocId[i], lexiconFileHandler.getNumByteDocId(entryBuffer),
                         offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
-                System.out.println(postingListBlocks[0]);
             }
 
             numBlockRead[i] = 1;
@@ -144,7 +141,6 @@ public class DisjunctiveDAATCompression {
 
             else if(numBlockRead[i] == skipDescriptorsCompression[i].size()-1 && docFreqs[i] % numPostingPerBlock[i] != 0){
                 //there is another INCOMPLETE block to load
-                System.out.println(docFreqs[i] % numPostingPerBlock[i]);
                 postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
                         docFreqs[i] % numPostingPerBlock[i],
                         skipDescriptorsCompression[i].getOffsetMaxDocIds().get(numBlockRead[i]),

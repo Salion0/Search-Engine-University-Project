@@ -125,13 +125,6 @@ public class BlockMergerCompression {
                     }
                 }
             }
-            System.out.println("-----------------------------------");
-            System.out.println("minTerm: " + minTerm);
-            System.out.println("docFreqSum: " + docFreqSum);
-            System.out.println("collFreqSum: "+ collFreqSum);
-            System.out.println(postingList2Compress);
-            System.out.println("offsetToWriteDocId:" + offsetToWriteDocId);
-            System.out.println("offsetToWriteTermFreq: " + offsetToWriteTermFreq);
 
             //-------------------------------------------------------------------------------------------------------------
             //compute the termUpperBoundScore
@@ -178,7 +171,6 @@ public class BlockMergerCompression {
 
         //if the posting list is big enough, write the skip descriptor
         if (postingListSize > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){ //CASE WITH BLOCKS
-            System.out.println("SONO ENTRATO NEL IF DELLO SKIP DESC postingListSize: " + postingListSize);
             SkipDescriptorCompression skipDescriptorCompression = new SkipDescriptorCompression();
             int postingListSizeBlock = (int) Math.sqrt(postingListSize);
 
@@ -198,8 +190,6 @@ public class BlockMergerCompression {
                 skipDescriptorCompression.add(postingList2CompressBlock.getMaxDocId(),
                         offsetToWriteDocId, numByteDocIdCompressed,
                         offsetToWriteTermFreq, numByteTermFreqCompressed);
-                System.out.println("ITERATION: " + i + " postingList2CompressBlock: " + postingList2CompressBlock);
-                System.out.println("ITERATION: " + i + " skipDescriptorCompression: " + skipDescriptorCompression);
 
                 offsetToWriteDocId += numByteDocIdCompressed;
                 offsetToWriteTermFreq += numByteTermFreqCompressed;
@@ -223,9 +213,6 @@ public class BlockMergerCompression {
                 skipDescriptorCompression.add(postingList2CompressBlock.getMaxDocId(),
                         offsetToWriteDocId, numByteDocIdCompressed,
                         offsetToWriteTermFreq, numByteTermFreqCompressed);
-
-                System.out.println("ITERATION last: postingList2CompressBlock: " + postingList2CompressBlock);
-                System.out.println("ITERATION last: skipDescriptorCompression: " + skipDescriptorCompression);
 
                 offsetToWriteDocId += numByteDocIdCompressed;
                 offsetToWriteTermFreq += numByteTermFreqCompressed;

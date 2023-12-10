@@ -46,9 +46,7 @@ public class InvertedIndexFileHandler {
 
         docIdChannel.read(docIdBuffer, startOffsetDocId);
         termFreqChannel.read(termFreqBuffer, startOffsetTermFreq);
-        Utils.printReverseBytes(docIdBuffer.array());
-        Utils.printReverseBytes(termFreqBuffer.array());
-        System.out.println(numPosting);
+
         int[] docIds = VariableByte.decompress(docIdBuffer.array());
         int[] termFreqs = Unary.decompress(numPosting, termFreqBuffer.array());
 

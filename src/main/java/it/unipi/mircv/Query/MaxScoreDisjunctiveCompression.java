@@ -56,8 +56,6 @@ public class MaxScoreDisjunctiveCompression {
             if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
                 skipDescriptorsCompression[i] = skipDescriptorFileHandler.readSkipDescriptorCompression(
                         lexiconFileHandler.getOffsetSkipDescCompression(entryBuffer), (int) Math.ceil((float) docFreqs[i] / (int) Math.sqrt(docFreqs[i])));
-                System.out.println("skipDescriptorsCompression SIZE : " + skipDescriptorsCompression[i].size());
-                System.out.println("skipDescriptorsCompression" + skipDescriptorsCompression[i]);
                 postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
                         (int) Math.sqrt(docFreqs[i]),
                         offsetsDocId[i], skipDescriptorsCompression[i].getNumByteMaxDocIds().get(0),
@@ -70,7 +68,6 @@ public class MaxScoreDisjunctiveCompression {
                         docFreqs[i],
                         offsetsDocId[i], lexiconFileHandler.getNumByteDocId(entryBuffer),
                         offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
-                System.out.println(postingListBlocks[0]);
             }
 
             numBlockRead[i] = 1;
@@ -131,39 +128,6 @@ public class MaxScoreDisjunctiveCompression {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                     if (postingListBlocks[i].next() == - 1)
                     {
-                        System.out.println("ho finito un blocco");
-                        System.out.println("docFreq: " + docFreqs[i]);
-                        System.out.println("skipDescsize: " + skipDescriptorsCompression[i].size());
-                        System.out.println("numBlockRead: " + numBlockRead[i]);
-                        System.out.println("numPostingPerBlock: " + numPostingPerBlock[i]);
-                        /*System.out.println("OffsetMaxDocIds()" + skipDescriptorsCompression[i].getOffsetMaxDocIds().get(numBlockRead[i]));
-                        System.out.println("NumByteDocId()" + skipDescriptorsCompression[i].getNumByteMaxDocIds().get(numBlockRead[i]));
-                        System.out.println("OffsetTermFreq()" + skipDescriptorsCompression[i].getOffsetTermFreqs().get(numBlockRead[i]));
-                        System.out.println("NumByteTerm" + skipDescriptorsCompression[i].getNumByteTermFreqs().get(numBlockRead[i]));
-
-
-                        if(skipDescriptorsCompression[i] != null){
-                            if (numBlockRead[i] == skipDescriptorsCompression[i].size()){
-                                endOfPostingListFlag[i] = true;
-                            }else{
-                                int termToRead = numPostingPerBlock[i];
-                                System.out.println("numBlock:" + numBlockRead[i]);
-                                System.out.println("size: " + skipDescriptorsCompression[i].size());
-                                if (numBlockRead[i] == skipDescriptorsCompression[i].size()-1)
-                                    termToRead = docFreqs[i] % numPostingPerBlock[i];
-                                loadPostingListBlockCompression(i,
-                                        termToRead,
-                                        offsetsDocId[i],
-                                        offsetsTermFreq[i],
-                                        skipDescriptorsCompression[i].getNumByteMaxDocIds().get(numBlockRead[i]),
-                                        skipDescriptorsCompression[i].getNumByteTermFreqs().get(numBlockRead[i])
-                                );
-                            }
-                        }else endOfPostingListFlag[i] = true;
-
-                        numBlockRead[i] ++;
-
-                         */
                         if (skipDescriptorsCompression[i] == null){
                             endOfPostingListFlag[i] = true;
                         }else{
@@ -182,7 +146,6 @@ public class MaxScoreDisjunctiveCompression {
 
                             else if(numBlockRead[i] == skipDescriptorsCompression[i].size()-1 && docFreqs[i] % numPostingPerBlock[i] != 0){
                                 //there is another INCOMPLETE block to load
-                                System.out.println(docFreqs[i] % numPostingPerBlock[i]);
                                 postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
                                         docFreqs[i] % numPostingPerBlock[i],
                                         skipDescriptorsCompression[i].getOffsetMaxDocIds().get(numBlockRead[i]),
@@ -212,7 +175,6 @@ public class MaxScoreDisjunctiveCompression {
                     returnNextGEQ = skipDescriptorsCompression[i].nextGEQ(minCurrentDocId); // get the nextGEQ of the current posting list
                     if(returnNextGEQ[0] == -1)
                     {
-                        System.out.println("il borski s'è fermato qui");
                         return heapScores.getTopDocIdReversed();
                     }
                     else
@@ -249,7 +211,6 @@ public class MaxScoreDisjunctiveCompression {
                 pivot++;
 
             minCurrentDocId = next;
-            //System.out.println("minCurrentDocId = " + minCurrentDocId);
         }
 
         return heapScores.getTopDocIdReversed();

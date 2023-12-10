@@ -44,15 +44,12 @@ public class ConjunctiveDAATCompression {
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconFileHandler.findTermEntryCompression(queryTerms[i]);
             docFreqs[i] = lexiconFileHandler.getDfCompression(entryBuffer);
-            System.out.println("docFreqs[i]: " + docFreqs[i]);
             offsetsDocId[i] = lexiconFileHandler.getOffsetDocIdCompression(entryBuffer);
             offsetsTermFreq[i] = lexiconFileHandler.getOffsetTermFreqCompression(entryBuffer);
 
             if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
                 skipDescriptorsCompression[i] = skipDescriptorFileHandler.readSkipDescriptorCompression(
                         lexiconFileHandler.getOffsetSkipDescCompression(entryBuffer), (int) Math.ceil((float) docFreqs[i] / (int) Math.sqrt(docFreqs[i])));
-                System.out.println("skipDescriptorsCompression SIZE : " + skipDescriptorsCompression[i].size());
-                System.out.println("skipDescriptorsCompression" + skipDescriptorsCompression[i]);
                 postingListBlocks[i] = new PostingListBlock();
                 postingListBlocks[i].setDummyFields();
             }
@@ -63,7 +60,6 @@ public class ConjunctiveDAATCompression {
                         docFreqs[i],
                         offsetsDocId[i], lexiconFileHandler.getNumByteDocId(entryBuffer),
                         offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
-                System.out.println(postingListBlocks[0]);
             }
         }
         //TODO anzichè ordinare 300 array basterebbe ordinare gli entryBuffer facendo una prima get della sola docfreq come ho fatto per numPostingPerBlock
@@ -72,7 +68,6 @@ public class ConjunctiveDAATCompression {
 
         for(int i = 0; i< numTermQuery; i++){
             numPostingPerBlock[i] = (int) Math.sqrt(docFreqs[i]);
-            System.out.println("numPostingPerBlock[i]: " +numPostingPerBlock[i]);
         }
     }
 
@@ -100,8 +95,6 @@ public class ConjunctiveDAATCompression {
             currentDocScore = 0;
             currentDocLen = 0;
             docIdInAllPostingLists = true;
-            System.out.println("postingCount:" + postingCount);
-            System.out.println("currentDocId: " + currentDocId);
 
             //calculate the partial score for the other posting list if they contain the currentDocId
             for (int i = 1; i < numTermQuery; i++) {
@@ -110,7 +103,6 @@ public class ConjunctiveDAATCompression {
                     returnNextGEQ = skipDescriptorsCompression[i].nextGEQ(currentDocId); // get the nextGEQ of the current posting list
                     if(returnNextGEQ[0] == -1)
                     {
-                        System.out.println("il borski s'è fermato qui");
                         return heapScores.getTopDocIdReversed();
                     }
                     else
@@ -162,8 +154,6 @@ public class ConjunctiveDAATCompression {
                     //there are no more blocks to load
                     continue;
                 }
-                System.out.println("elemToRead: " + elemToRead);
-                System.out.println("numBlockProcessed: " + numBlockProcessed);
                 loadPostingListBlockCompression(0,
                         elemToRead,
                         skipDescriptorsCompression[0].getOffsetMaxDocIds().get(numBlockProcessed),
@@ -178,7 +168,6 @@ public class ConjunctiveDAATCompression {
 
     protected boolean currentDocIdIsInPostingList(int indexTerm, int currentDocId){
         do{
-            System.out.println("ciclo in doc id: " + postingListBlocks[indexTerm].getCurrentDocId());
             if(postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
             if(postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) return false;
         } while (postingListBlocks[indexTerm].next() != -1);
