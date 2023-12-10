@@ -5,10 +5,7 @@ import it.unipi.mircv.Utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import static it.unipi.mircv.Config.*;
@@ -71,7 +68,7 @@ public class Index {
         String fileLexicon = "lexicon" + blockID + ".dat";
         String fileDocIds = "docIds" + blockID+".dat";
         String fileTermFreq = "termFreq" + blockID+".dat";
-        lexicon.toDisk(this.blockFolder,fileLexicon,fileDocIds,fileTermFreq);
+        lexicon.toBlock(this.blockFolder,fileLexicon,fileDocIds,fileTermFreq);
     }
 
     private double freeMemoryPercentage() {
