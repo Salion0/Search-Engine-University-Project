@@ -83,7 +83,7 @@ public class MinHeapScores {
 
         Float prevScore = 0f;
 
-        //System.out.println(score2DocIdMap); //DEBUG
+        System.out.println(score2DocIdMap); //DEBUG
         while((score = topScores.poll()) != null){
             if(score.equals(prevScore)) continue;
             prevScore = score;

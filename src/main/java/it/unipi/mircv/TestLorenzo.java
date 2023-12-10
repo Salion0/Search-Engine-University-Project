@@ -43,8 +43,8 @@ public class TestLorenzo {
 
         //testNewDisjunctive("10 100");
         //testOldDisjunctive("");
-        testNoPriorityQueueDisjunctive("10 100");
-        testMaxScoreDisjunctive("10 100");
+        //testNoPriorityQueueDisjunctive("10 100");
+        testMaxScoreDisjunctive("railroad workers");
         //testConjunctive("diet detox");
         //testMaxScore("diet detox");
 

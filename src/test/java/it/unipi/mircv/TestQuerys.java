@@ -39,6 +39,8 @@ public class TestQuerys {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
+
+
         DisjunctiveDAAT noPriorityQueueDisjunctive = new DisjunctiveDAAT(queryTerms);
         ArrayList<Integer> results = noPriorityQueueDisjunctive.processQuery();
         System.out.println(results);
