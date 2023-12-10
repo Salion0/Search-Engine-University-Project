@@ -6,6 +6,7 @@ import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.Index.SkipDescriptorCompression;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,70 +19,75 @@ import static it.unipi.mircv.Config.*;
 public class MaxScoreDisjunctiveCompression {
     private int numTermQuery;
     private final int[] docFreqs;
-    private final int[] offsets;
-    private final int[] numElementsRead; // count the numbers of element read for each posting list
+    private final long[] offsetsDocId;
+    private final long[] offsetsTermFreq;
+    private final int[] numBlockRead;
+    private final int[] numPostingPerBlock;
     private final float[] upperBoundScores;
     private final boolean[] endOfPostingListFlag;
     private final PostingListBlock[] postingListBlocks;
-    private final SkipDescriptor[] skipDescriptors;
+    private final SkipDescriptorCompression[] skipDescriptorsCompression;
     private final DocumentIndexFileHandler documentIndexHandler;
-    private final InvertedIndexFileHandler invertedIndexHandler;
+    private final InvertedIndexFileHandler invertedIndexFileHandler;
 
     public MaxScoreDisjunctiveCompression(String[] queryTerms) throws IOException {
-        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
         documentIndexHandler = new DocumentIndexFileHandler();
-        invertedIndexHandler = new InvertedIndexFileHandler();
+        invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         numTermQuery = queryTerms.length;
 
         postingListBlocks = new PostingListBlock[numTermQuery];
         docFreqs = new int[numTermQuery];
-        offsets = new int[numTermQuery];
-        numElementsRead = new int[postingListBlocks.length]; // count the numbers of element read for each posting list
+        offsetsDocId = new long[numTermQuery];
+        offsetsTermFreq = new long[numTermQuery];
+        numBlockRead = new int[numTermQuery];
         endOfPostingListFlag = new boolean[postingListBlocks.length];
         upperBoundScores = new float[numTermQuery];
-        skipDescriptors = new SkipDescriptor[numTermQuery];
+        skipDescriptorsCompression = new SkipDescriptorCompression[numTermQuery];
+        numPostingPerBlock = new int[numTermQuery];
 
         for (int i = 0; i < numTermQuery; i++) {
-            ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
-            docFreqs[i] = lexiconHandler.getDf(entryBuffer);
-            offsets[i] = lexiconHandler.getOffset(entryBuffer);
-            upperBoundScores[i] = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+            ByteBuffer entryBuffer = lexiconFileHandler.findTermEntryCompression(queryTerms[i]);
+            docFreqs[i] = lexiconFileHandler.getDfCompression(entryBuffer);
+            offsetsDocId[i] = lexiconFileHandler.getOffsetDocIdCompression(entryBuffer);
+            offsetsTermFreq[i] = lexiconFileHandler.getOffsetTermFreqCompression(entryBuffer);
+            upperBoundScores[i] = lexiconFileHandler.getTermUpperBoundScoreCompression(entryBuffer);
+            if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
+                skipDescriptorsCompression[i] = skipDescriptorFileHandler.readSkipDescriptorCompression(
+                        lexiconFileHandler.getOffsetSkipDescCompression(entryBuffer), (int) Math.ceil((float) docFreqs[i] / (int) Math.sqrt(docFreqs[i])));
+                System.out.println("skipDescriptorsCompression SIZE : " + skipDescriptorsCompression[i].size());
+                System.out.println("skipDescriptorsCompression" + skipDescriptorsCompression[i]);
+                postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
+                        (int) Math.sqrt(docFreqs[i]),
+                        offsetsDocId[i], skipDescriptorsCompression[i].getNumByteMaxDocIds().get(0),
+                        offsetsTermFreq[i], skipDescriptorsCompression[i].getNumByteTermFreqs().get(0));
+            }
+            else{
+                skipDescriptorsCompression[i] = null;
 
-            if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP))
-            {
-                skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
-                        lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil(Math.sqrt(docFreqs[i])));
-                if (POSTING_LIST_BLOCK_LENGTH > docFreqs[i])
-                    postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
-                else
-                    postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], POSTING_LIST_BLOCK_LENGTH);
+                postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
+                        docFreqs[i],
+                        offsetsDocId[i], lexiconFileHandler.getNumByteDocId(entryBuffer),
+                        offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
+                System.out.println(postingListBlocks[0]);
             }
-            else
-            {
-                skipDescriptors[i] = null;
-                postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
-            }
+
+            numBlockRead[i] = 1;
         }
 
-        sortArraysByArray(upperBoundScores, docFreqs, offsets, skipDescriptors, postingListBlocks);
+        sortArraysByArray(upperBoundScores, docFreqs, offsetsDocId, offsetsTermFreq, skipDescriptorsCompression, postingListBlocks);
+
+        for(int i = 0; i < numTermQuery; i++){
+            numPostingPerBlock[i] = (int) Math.sqrt(docFreqs[i]);
+        }
     }
 
-    private void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
+    protected void loadPostingListBlockCompression(int indexTerm, int numPosting, long offsetMaxDocId, long offsetTermFreq,
+                                                   int numByteDocId, int numByteTermFreq) throws IOException {
 
-        if ((docFreqs[indexTerm] - readElement) < blockSize) {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    docFreqs[indexTerm] - readElement
-            );
-            //numElementsRead[indexTerm] += (docFreqs[indexTerm] - readElement);
-        }
-        else {
-            postingListBlocks[indexTerm] = invertedIndexHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    blockSize);
-            //numElementsRead[indexTerm] += blockSize;
-        }
+        postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingListCompressed(
+                numPosting, offsetMaxDocId, numByteDocId, offsetTermFreq, numByteTermFreq);
     }
 
     // ************************  -- MAX SCORE --   ****************************************
@@ -102,6 +108,9 @@ public class MaxScoreDisjunctiveCompression {
         int minDocIdDocumentLength; // optimization to avoid reading document length more than one time
         int countFinishedPostingLists = 0;
         minCurrentDocId = getMinCurrentDocId(); // get the mi docId between the current element of all posting lists
+        long[] returnNextGEQ;
+        int elemToRead;
+
 
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
@@ -114,20 +123,79 @@ public class MaxScoreDisjunctiveCompression {
             // ESSENTIAL LISTS
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
-                if (endOfPostingListFlag[i] == true)
+                if (endOfPostingListFlag[i])
                     continue;
 
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
                     score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
-                    numElementsRead[i]++;
                     if (postingListBlocks[i].next() == - 1)
                     {
-                        //uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH); // load another block
-                        if (numElementsRead[i] >= docFreqs[i]) // check if the entire posting list is finished
+                        System.out.println("ho finito un blocco");
+                        System.out.println("docFreq: " + docFreqs[i]);
+                        System.out.println("skipDescsize: " + skipDescriptorsCompression[i].size());
+                        System.out.println("numBlockRead: " + numBlockRead[i]);
+                        System.out.println("numPostingPerBlock: " + numPostingPerBlock[i]);
+                        /*System.out.println("OffsetMaxDocIds()" + skipDescriptorsCompression[i].getOffsetMaxDocIds().get(numBlockRead[i]));
+                        System.out.println("NumByteDocId()" + skipDescriptorsCompression[i].getNumByteMaxDocIds().get(numBlockRead[i]));
+                        System.out.println("OffsetTermFreq()" + skipDescriptorsCompression[i].getOffsetTermFreqs().get(numBlockRead[i]));
+                        System.out.println("NumByteTerm" + skipDescriptorsCompression[i].getNumByteTermFreqs().get(numBlockRead[i]));
+
+
+                        if(skipDescriptorsCompression[i] != null){
+                            if (numBlockRead[i] == skipDescriptorsCompression[i].size()){
+                                endOfPostingListFlag[i] = true;
+                            }else{
+                                int termToRead = numPostingPerBlock[i];
+                                System.out.println("numBlock:" + numBlockRead[i]);
+                                System.out.println("size: " + skipDescriptorsCompression[i].size());
+                                if (numBlockRead[i] == skipDescriptorsCompression[i].size()-1)
+                                    termToRead = docFreqs[i] % numPostingPerBlock[i];
+                                loadPostingListBlockCompression(i,
+                                        termToRead,
+                                        offsetsDocId[i],
+                                        offsetsTermFreq[i],
+                                        skipDescriptorsCompression[i].getNumByteMaxDocIds().get(numBlockRead[i]),
+                                        skipDescriptorsCompression[i].getNumByteTermFreqs().get(numBlockRead[i])
+                                );
+                            }
+                        }else endOfPostingListFlag[i] = true;
+
+                        numBlockRead[i] ++;
+
+                         */
+                        if (skipDescriptorsCompression[i] == null){
                             endOfPostingListFlag[i] = true;
-                        else
-                            uploadPostingListBlock(i, numElementsRead[i], POSTING_LIST_BLOCK_LENGTH); // load another block
+                        }else{
+                            //numBlockProcessed is equal to the index that we have to use to get the next block
+
+                            if (numBlockRead[i] < skipDescriptorsCompression[i].size()-1){//there is another block to load
+                                postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
+                                        numPostingPerBlock[i],
+                                        skipDescriptorsCompression[i].getOffsetMaxDocIds().get(numBlockRead[i]),
+                                        skipDescriptorsCompression[i].getNumByteMaxDocIds().get(numBlockRead[i]),
+                                        skipDescriptorsCompression[i].getOffsetTermFreqs().get(numBlockRead[i]),
+                                        skipDescriptorsCompression[i].getNumByteTermFreqs().get(numBlockRead[i])
+                                );
+                                numBlockRead[i]++;
+                            }
+
+                            else if(numBlockRead[i] == skipDescriptorsCompression[i].size()-1 && docFreqs[i] % numPostingPerBlock[i] != 0){
+                                //there is another INCOMPLETE block to load
+                                System.out.println(docFreqs[i] % numPostingPerBlock[i]);
+                                postingListBlocks[i] = invertedIndexFileHandler.getPostingListCompressed(
+                                        docFreqs[i] % numPostingPerBlock[i],
+                                        skipDescriptorsCompression[i].getOffsetMaxDocIds().get(numBlockRead[i]),
+                                        skipDescriptorsCompression[i].getNumByteMaxDocIds().get(numBlockRead[i]),
+                                        skipDescriptorsCompression[i].getOffsetTermFreqs().get(numBlockRead[i]),
+                                        skipDescriptorsCompression[i].getNumByteTermFreqs().get(numBlockRead[i])
+                                );
+                                numBlockRead[i]++;
+                            }else{
+                                //there are no more blocks to load
+                                endOfPostingListFlag[i] = true;
+                            }
+                        }
                     }
                 }
                 if (postingListBlocks[i].getCurrentDocId() < next)
@@ -140,15 +208,32 @@ public class MaxScoreDisjunctiveCompression {
                 if (score + documentUpperBounds[i] <= minScoreInHeap)
                     break;
 
-                if (skipDescriptors[i] != null) {
-                    int offsetNextGEQ = skipDescriptors[i].nextGEQ(minCurrentDocId); // get the nextGEQ of the current posting list
-                    if (offsetNextGEQ != -1)
+                if(skipDescriptorsCompression[i] != null){
+                    returnNextGEQ = skipDescriptorsCompression[i].nextGEQ(minCurrentDocId); // get the nextGEQ of the current posting list
+                    if(returnNextGEQ[0] == -1)
                     {
+                        System.out.println("il borski s'è fermato qui");
+                        return heapScores.getTopDocIdReversed();
+                    }
+                    else
+                    {   //int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
+                        //controllo il range del currentDocId per vedere se siamo nello stesso blocco di prima, se sì non ha senso ricaricarlo
                         if (!(postingListBlocks[i].getMaxDocID() > minCurrentDocId
-                                && postingListBlocks[i].getMinDocID() < minCurrentDocId))
-                        {
-                            uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), (int) Math.sqrt(docFreqs[i]));
-                            numElementsRead[i] = offsetNextGEQ - offsets[i];
+                                && postingListBlocks[i].getMinDocID() < minCurrentDocId)){
+
+                            elemToRead = numPostingPerBlock[i];
+                            //check if the block is the last one, and if it has less than (sqrt()) elements.
+                            // This if statement must be performed after elemToRead = numPostingPerBlock[i];
+                            if(returnNextGEQ[4] == 1 && docFreqs[i]%numPostingPerBlock[i] != 0){
+                                elemToRead = docFreqs[i]%numPostingPerBlock[i];
+                            }
+                            loadPostingListBlockCompression(i,
+                                    elemToRead,
+                                    returnNextGEQ[0],
+                                    returnNextGEQ[1],
+                                    (int) returnNextGEQ[2],
+                                    (int) returnNextGEQ[3]
+                            );
                         }
                     }
                 }
@@ -174,7 +259,6 @@ public class MaxScoreDisjunctiveCompression {
         do {
             if (postingListBlocks[indexTerm].getCurrentDocId() == currentDocId) return true;
             if (postingListBlocks[indexTerm].getCurrentDocId() > currentDocId) return false;
-            numElementsRead[indexTerm]++;
         } while (postingListBlocks[indexTerm].next() != -1);
         return false;
     }
@@ -189,8 +273,8 @@ public class MaxScoreDisjunctiveCompression {
     }
 
 
-    public static void sortArraysByArray(float[] arrayToSort, int[] otherArray, int[] otherOtherArray,
-                                         SkipDescriptor[] otherOtherOtherArray, PostingListBlock[] otherOtherOtherOtherArray) {
+    public static void sortArraysByArray(float[] arrayToSort, int[] otherArray, long[] offsetsDocId, long[] offsetsTermFreq,
+                                         SkipDescriptorCompression[] otherOtherOtherArray, PostingListBlock[] otherOtherOtherOtherArray) {
 
         Integer[] indexes = new Integer[arrayToSort.length];
         for (int i = 0; i < indexes.length; i++) {
@@ -208,11 +292,15 @@ public class MaxScoreDisjunctiveCompression {
                 otherArray[i] = otherArray[indexes[i]];
                 otherArray[indexes[i]] = temp1;
 
-                temp1 = otherOtherArray[i];
-                otherOtherArray[i] = otherOtherArray[indexes[i]];
-                otherOtherArray[indexes[i]] = temp1;
+                long offset = offsetsDocId[i];
+                offsetsDocId[i] = offsetsDocId[indexes[i]];
+                offsetsDocId[indexes[i]] = offset;
 
-                SkipDescriptor tempSkipDescriptor = otherOtherOtherArray[i];
+                offset = offsetsTermFreq[i];
+                offsetsTermFreq[i] = offsetsTermFreq[indexes[i]];
+                offsetsTermFreq[indexes[i]] = offset;
+
+                SkipDescriptorCompression tempSkipDescriptor = otherOtherOtherArray[i];
                 otherOtherOtherArray[i] = otherOtherOtherArray[indexes[i]];
                 otherOtherOtherArray[indexes[i]] = tempSkipDescriptor;
 

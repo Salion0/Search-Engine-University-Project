@@ -5,10 +5,7 @@ import it.unipi.mircv.File.InvertedIndexFileHandler;
 import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.*;
-import it.unipi.mircv.Query.ConjunctiveDAAT;
-import it.unipi.mircv.Query.ConjunctiveDAATCompression;
-import it.unipi.mircv.Query.DisjunctiveDAAT;
-import it.unipi.mircv.Query.DisjunctiveDAATCompression;
+import it.unipi.mircv.Query.*;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.IOException;
@@ -33,41 +30,7 @@ public class TestCompression {
         blockMergerCompression.mergeBlocks(index.getNumberOfBlocks());
         System.out.println(System.currentTimeMillis() - startTime);
         */
-        InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
-        LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
-        ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("workers");
 
-        int docFreq = lexiconFileHandler.getDfCompression(byteBuffer);
-        int collFreq = lexiconFileHandler.getCfCompression(byteBuffer);
-        long offsetDocIdCompression = lexiconFileHandler.getOffsetDocIdCompression(byteBuffer);
-        long offsetTermFreqCompression = lexiconFileHandler.getOffsetTermFreqCompression(byteBuffer);
-        int numByteDocId = lexiconFileHandler.getNumByteDocId(byteBuffer);
-        int numByteTermFreq = lexiconFileHandler.getNumByteTermFreq(byteBuffer);
-        int offsetSkipDesc = lexiconFileHandler.getOffsetSkipDescCompression(byteBuffer);
-        System.out.println("docFreq: " + docFreq);
-        System.out.println("collFreq: " + collFreq);
-        System.out.println("offsetDocIdCompression: " + offsetDocIdCompression);
-        System.out.println("offsetTermFreqCompression: " + offsetTermFreqCompression);
-        System.out.println("numByteDocId: " + numByteDocId);
-        System.out.println("numByteTermFreq: " + numByteTermFreq);
-        System.out.println("offsetSkipDesc: " + offsetSkipDesc);
-
-        PostingListBlock postingListBlock = invertedIndexFileHandler.getPostingListCompressed(
-                docFreq,
-                offsetDocIdCompression, numByteDocId,
-                offsetTermFreqCompression, numByteTermFreq
-        );
-        System.out.println("postingListBlock: " + postingListBlock);
-        SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
-        SkipDescriptorCompression skipDescriptorCompression = skipDescriptorFileHandler.readSkipDescriptorCompression(offsetSkipDesc, (int) Math.ceil(Math.sqrt(docFreq)));
-        System.out.println("skipDescriptorCompression size: " + skipDescriptorCompression.size());
-        System.out.println("maxDocIds: " + skipDescriptorCompression.getMaxDocIds());
-        long[] nextGEQresult = skipDescriptorCompression.nextGEQ(8711);
-        System.out.println("nextGEQresult[0]: " + nextGEQresult[0]);
-        System.out.println("nextGEQresult[1]: " + nextGEQresult[1]);
-        System.out.println("nextGEQresult[2]: " + nextGEQresult[2]);
-        System.out.println("nextGEQresult[3]: " + nextGEQresult[3]);
-        System.out.println("nextGEQresult[4]: " + nextGEQresult[4]);
 
 
         //--------------------CARICO LE DOC LEN--------------------------------------------------------
@@ -86,18 +49,21 @@ public class TestCompression {
         //----------------------------------------------------------------------------------------------
         System.out.println("------------query------------------------");
         String[] query = new String[]{"railroad", "workers"};
-        DisjunctiveDAATCompression conjunctiveDAATCompression = new DisjunctiveDAATCompression(query);
-        ArrayList<Integer> result = conjunctiveDAATCompression.processQuery();
+        MaxScoreDisjunctiveCompression queryProcessor = new MaxScoreDisjunctiveCompression(query);
+        ArrayList<Integer> result = queryProcessor.computeMaxScore();
 
         for (String s: documentIndexHandler.getDocNoREVERSE(result)) {
             System.out.println(s);
         }
 
+        /*
         SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25, true, false);
         SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25, true, false);
 
         SystemEvaluator.createFileQueryResults("queryResult/disjunctive_c.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25,true, false);
         SystemEvaluator.createFileQueryResults("queryResult/conjunctive_c.txt","query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C, BM25,true, false);
 
+
+         */
     }
 }

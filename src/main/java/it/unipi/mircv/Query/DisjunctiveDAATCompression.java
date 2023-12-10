@@ -41,8 +41,8 @@ public class DisjunctiveDAATCompression {
         offsetsDocId = new long[numTermQuery];
         offsetsTermFreq = new long[numTermQuery];
         numBlockRead = new int[numTermQuery];
-        endOfPostingListFlag = new boolean[numTermQuery];
         skipDescriptorsCompression = new SkipDescriptorCompression[numTermQuery];
+        endOfPostingListFlag = new boolean[numTermQuery];
         numPostingPerBlock = new int[numTermQuery];
 
         //-------------INITIALIZE TERM STATISTICS------------------//
@@ -128,7 +128,6 @@ public class DisjunctiveDAATCompression {
     private void updatePostingListBlock(int i) throws IOException {
         // read the subsequent block
         if (skipDescriptorsCompression[i] == null){
-            System.out.println("finita " + i);
             endOfPostingListFlag[i] = true;
         }else{
             //numBlockProcessed is equal to the index that we have to use to get the next block
