@@ -33,6 +33,7 @@ public class LexiconFileHandler {
              entryLength = (Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH + Config.COLLECTIONFREQ_BYTES_LENGTH);
         else
             entryLength = (Config.LEXICON_ENTRY_LENGTH);
+
         this.numEntry = (int) lexiconFile.size()/entryLength;
     }
 
@@ -77,7 +78,7 @@ public class LexiconFileHandler {
     }
     public LexiconEntry nextBlockEntryLexiconFile() throws IOException {
         // reading the next term with his offset
-        if(this.lexiconRow >= numEntry)
+       if(this.lexiconRow >= numEntry)
             return null;
         ByteBuffer dataBuffer = ByteBuffer.allocate(
                 Config.TERM_BYTES_LENGTH + Config.OFFSET_BYTES_LENGTH + Config.DOCUMFREQ_BYTES_LENGTH
@@ -92,7 +93,6 @@ public class LexiconFileHandler {
         le.setCf(getCf(dataBuffer));
         le.setDf(getDf(dataBuffer));
         le.setOffset(getOffset(dataBuffer));
-
         return le;
     }
     public LexiconEntry nextEntryLexiconFile() throws IOException {
@@ -109,7 +109,6 @@ public class LexiconFileHandler {
         le.setCf(getCf(dataBuffer));
         le.setDf(getDf(dataBuffer));
         le.setOffset(getOffset(dataBuffer));
-
         return le;
     }
 
