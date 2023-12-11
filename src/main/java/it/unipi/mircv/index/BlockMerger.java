@@ -22,14 +22,13 @@ public class BlockMerger {
     private static final ArrayList<LexiconFileHandler> lexiconBlocks = new ArrayList<>();
     private static ArrayList<InvertedIndexFileHandler> postingListBlocks = new ArrayList<>();
     private static ArrayList<LexiconEntry> currentBlockEntry = new ArrayList<>();
-    private static ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
 
     private static PriorityQueue<String> minTermQueue = new PriorityQueue();
     private static int postingListOffset = 0;  //offset to write in the final lexicon file for each term
     private static int offsetSkipDescriptor = 0;
 
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;
-    private static String path="data/";
+    public static String path="data/";
 
     public static void mergeBlocks(int numberOfBlocks) throws IOException {
         /*
