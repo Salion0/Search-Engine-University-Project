@@ -1,8 +1,8 @@
 package it.unipi.mircv.Query;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 
 import java.io.IOException;
@@ -13,8 +13,8 @@ import static it.unipi.mircv.Config.*;
 
 public class DisjunctiveDAAT {
     private final int numTermQuery;
-    private final DocumentIndexHandler documentIndexHandler;
-    private final InvertedIndexHandler invertedIndexHandler;
+    private final DocumentIndexFileHandler documentIndexHandler;
+    private final InvertedIndexFileHandler invertedIndexHandler;
     private PostingListBlock[] postingListBlocks;
     private final int[] numBlockRead;
     private final int[] docFreqs;
@@ -22,9 +22,9 @@ public class DisjunctiveDAAT {
     private final boolean[] endOfPostingListFlag;
 
     public DisjunctiveDAAT(String[] queryTerms) throws IOException {
-        documentIndexHandler = new DocumentIndexHandler();
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        invertedIndexHandler = new InvertedIndexHandler();
+        documentIndexHandler = new DocumentIndexFileHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        invertedIndexHandler = new InvertedIndexFileHandler();
 
         //--------------------DEFINE ARRAYS------------------------//
         numTermQuery = queryTerms.length;

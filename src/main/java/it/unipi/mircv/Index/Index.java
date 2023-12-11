@@ -19,9 +19,10 @@ import static it.unipi.mircv.Utils.*;
 public class Index {
     private final DocumentIndex documentIndex;
     private final PorterStemmer stemmer = new PorterStemmer();
-    int count = 0; //DEBUG
     private int numberOfBlocks;
     private int currentDocId;
+
+    private int count = 0; //DEBUG
 
     public Index(String fileCollectionPath) throws IOException {
         //this method remove precedent files
@@ -81,7 +82,7 @@ public class Index {
         BufferedReader readerToReturn = null;
 
         while (true) {
-            count++; //DEBUG
+          /*  count++; //DEBUG*/
 
             if(freeMemoryPercentage() < MEMORY_THRESHOLD_PERC){
                 //poor memory qt available -> break
@@ -90,11 +91,11 @@ public class Index {
                 break;
             }
             //DEBUG per creare più di un blocco
-            if (count == 3000 || count == 6000){
+/*            if (count == 6 || count == 12){
                 readerToReturn = reader;
                 System.out.println("blocco finito per debug");
                 break;
-            }
+            }*/
             String line = reader.readLine();
             if (!flagCompressedReading) {
                 if (line == null) {
@@ -123,7 +124,7 @@ public class Index {
             int docLength = processDocument(lexicon, tokens);
             documentIndex.add(docNo, docLength);
             //DEBUG
-            if (count == 10000) break; //DEBUG
+/*            if (count == 20) break; //DEBUG*/
         }
 
         writeLexiconToBlock(lexicon, blockID);
@@ -154,7 +155,7 @@ public class Index {
 
         //updating the lexicon with the document processing results
         for (String term: wordCountDocument.keySet()) {
-            lexicon.update(term, currentDocId , wordCountDocument.get(term));
+            lexicon.addPostingElement(term, currentDocId , wordCountDocument.get(term));
         }
         currentDocId ++;
 
@@ -179,4 +180,3 @@ public class Index {
         return documentIndex;
     }
 }
-

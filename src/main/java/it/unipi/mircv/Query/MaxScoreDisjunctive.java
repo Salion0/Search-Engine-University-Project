@@ -1,13 +1,14 @@
 package it.unipi.mircv.Query;
 
 import it.unipi.mircv.Config;
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
 
+import javax.swing.text.Document;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -26,13 +27,13 @@ public class MaxScoreDisjunctive {
     private final boolean[] endOfPostingListFlag;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptor[] skipDescriptors;
-    private final DocumentIndexHandler documentIndexHandler;
-    private final InvertedIndexHandler invertedIndexHandler;
+    private final DocumentIndexFileHandler documentIndexHandler;
+    private final InvertedIndexFileHandler invertedIndexHandler;
 
     public MaxScoreDisjunctive(String[] queryTerms) throws IOException {
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        documentIndexHandler = new DocumentIndexHandler();
-        invertedIndexHandler = new InvertedIndexHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        documentIndexHandler = new DocumentIndexFileHandler();
+        invertedIndexHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         numTermQuery = queryTerms.length;
 

@@ -1,55 +1,64 @@
 package it.unipi.mircv;
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.Index.PostingElement;
-import it.unipi.mircv.Index.PostingList;
-import it.unipi.mircv.Query.QueryProcessor;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import it.unipi.mircv.File.LexiconFileHandler;
+import it.unipi.mircv.Index.LexiconEntry;
 
-import it.unipi.mircv.File.LexiconHandler;
-import it.unipi.mircv.Index.BlockReader;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.RandomAccess;
 
 
 public class TestSalvo{
+
+    private static void swap(int a, int b, int[] array){
+        int temp = array[a];
+        array[a] = array[b];
+        array[b] = temp;
+    }
     public static void main(String[] args) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        System.out.println(documentIndexHandler.readAvgDocLen());
 
+    LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+    LexiconEntry le = new LexiconEntry();
+    while(le != null){
+        System.out.println("Term: "+le.getTerm()+" - Offset: "+le.getOffset()+" - Df: "+le.getDf()+" - Cf: "+le.getCf());
+        le = lexiconHandler.nextEntryLexiconFile();
+    }
 
-        // ---------------------TEST DAAT-----------------------------
+    /* DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        System.out.println(documentIndexHandler.readAvgDocLen());*/
+
+/*
+        //TEST SORT POSTING LIST TERMù
+        int numTermQuery=3;
+        int[] docFreqs =  {5,2,4};
+        int[] offsets =  {1,3,4};
+        int[] collectionFreqs = {4,577,87};
+
+        for(int i=0;i<numTermQuery;i++) {
+            for (int k = i + 1; k < numTermQuery; k++) {
+                if (docFreqs[k] < docFreqs[i]) {
+                    swap(k, i, docFreqs);
+                    swap(k, i, offsets);
+                    swap(k, i, collectionFreqs);
+                }
+            }
+        }
+        System.out.print("Doc Freqs: ");
+        for(int j=0;j<numTermQuery;j++)
+            System.out.print(+docFreqs[j]+"-");
+        System.out.println();
+        System.out.print("offsets: ");
+        for(int j=0;j<numTermQuery;j++)
+            System.out.print(offsets[j]+"-");
+        System.out.println();
+        System.out.print("collection freq: ");
+        for(int j=0;j<numTermQuery;j++)
+            System.out.print(collectionFreqs[j]+"-");
+        System.out.println();*/
+/*        // ---------------------TEST DAAT-----------------------------
         String query = "railroad workers";
         QueryProcessor queryProcessor = new QueryProcessor(query);
         ArrayList<Integer> docId = queryProcessor.conjunctiveDAAT();
         System.out.println("Doc Id retrieved: ");
-        System.out.println(docId);
-
-
-
-
-
-
-
-
-
-
-
-
+        System.out.println(docId);*/
 
         //---------------------------------------------------------------
 
@@ -289,3 +298,4 @@ public class TestSalvo{
         }
 
     }
+

@@ -33,7 +33,7 @@ public class Config {
     public static final int MEMORY_THRESHOLD = 8; //Expressed in percentage
     public static final int CACHE_SIZE = 100000; //Expressed in number of entries
 
-    // ************************* PARTE PER I FLAG ********************************************
+    // ************************* FLAG ********************************************
     public static boolean flagCompressedReading;
     public static boolean flagStopWordRemoval;
     public static boolean flagStemming;

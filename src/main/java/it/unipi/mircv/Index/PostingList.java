@@ -2,6 +2,7 @@ package it.unipi.mircv.Index;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class PostingList {
     private final ArrayList<PostingElement> postingList = new ArrayList<>();
@@ -12,7 +13,12 @@ public class PostingList {
     public void addPostingElement(PostingElement postingElement) {
         postingList.add(postingElement);
     }
+
+    public void addPostingList(PostingList pl){
+        postingList.addAll(pl.getPostingList());
+    }
     public ArrayList<PostingElement> getPostingList() {return postingList;}
+
     public int getSize() {return postingList.size();}
 
     public byte[][] getBytes(){
@@ -29,6 +35,10 @@ public class PostingList {
 
         return postingListData;
     }
+
+    public void addPostingList(){
+
+    }
     @Override
     public String toString(){
         StringBuilder string = new StringBuilder();
@@ -37,4 +47,6 @@ public class PostingList {
         }
         return string.toString();
     }
+
+
 }

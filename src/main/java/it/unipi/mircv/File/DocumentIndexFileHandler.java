@@ -10,13 +10,13 @@ import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
 
-public class DocumentIndexHandler{
+public class DocumentIndexFileHandler {
     private final FileChannel fileChannel;
     private final RandomAccessFile randomAccessFile;
     long currentPosition;
     String filepath = "data/documentIndex.dat";
 
-    public DocumentIndexHandler() throws IOException {
+    public DocumentIndexFileHandler() throws IOException {
         File file = new File(filepath);
         if (!file.exists()) {
             if(file.createNewFile()) System.out.println("Document Index file created correctly");
