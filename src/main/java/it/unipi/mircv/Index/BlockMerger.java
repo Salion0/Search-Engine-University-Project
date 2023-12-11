@@ -124,13 +124,13 @@ public class BlockMerger {
             }
 
             // TODO ********** TERM UPPER BOUND ************
-            float termUpperBoundScore = computeTermUpperBound(documentIndexHandler,postingList);
+            float[] termUpperBoundScores = computeTermUpperBound(documentIndexHandler,postingList);
             //System.out.println("termUpperBoundScore = " + termUpperBoundScore);
             // TODO scrivere nel lexicon.dat il termUpperBoundScore
 
             //appending term and posting list in final files
             writeToDisk(minTerm, offsetToWrite, docFreqSum, collFreqSum,
-                    termUpperBoundScore, postingList);
+                    termUpperBoundScores[0], termUpperBoundScores[1], postingList);
             offsetToWrite += docFreqSum;
 
             //DEBUG -----------------------------
@@ -153,7 +153,7 @@ public class BlockMerger {
         //DEBUG ---------------------------------------
     }
 
-    private float computeTermUpperBound(DocumentIndexHandler documentIndexHandler,
+    private float[] computeTermUpperBound(DocumentIndexHandler documentIndexHandler,
                                                    PostingList postingList) throws IOException {
         int documentFrequency = postingList.getSize();
         float maxScoreBM25 = -1;
@@ -163,23 +163,22 @@ public class BlockMerger {
 
         for (PostingElement postingElement: postingList.getPostingList())
         {
-            //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
             currentScoreBM25 = ScoreFunction.BM25(postingElement.getTermFreq(),
                     documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
-            //currentScoreTFIDF = ScoreFunction.computeTFIDF(postingElement.getTermFreq(),documentFrequency);
+            currentScoreTFIDF = ScoreFunction.computeTFIDF(postingElement.getTermFreq(),documentFrequency);
             if (currentScoreBM25 > maxScoreBM25)
                 maxScoreBM25 = currentScoreBM25;
-            //if (currentScoreTFIDF > maxScoreTFIDF)
-            //    maxScoreTFIDF = currentScoreTFIDF;
+            if (currentScoreTFIDF > maxScoreTFIDF)
+                maxScoreTFIDF = currentScoreTFIDF;
         }
 
         //return new float[]{maxScoreBM25,maxScoreTFIDF};
-        return maxScoreBM25;
+        return new float[]{maxScoreBM25, maxScoreTFIDF};
     }
 
     //TODO da vedere se funziona
-    private void writeToDisk(String term, int offset, int docFreq, int collFreq,
-                             float termUpperBoundScore, PostingList postingList) throws IOException {
+    private void writeToDisk(String term, int offset, int docFreq, int collFreq, float termUpperBoundScoreBM25,
+                             float termUpperBoundScoreTFIDF, PostingList postingList) throws IOException {
 
         byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);
@@ -191,7 +190,10 @@ public class BlockMerger {
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH);
         termBuffer.putInt(collFreq);
         termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH);
-        termBuffer.putFloat(termUpperBoundScore);
+        termBuffer.putFloat(termUpperBoundScoreBM25);
+        termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH
+                + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH);
+        termBuffer.putFloat(termUpperBoundScoreTFIDF);
 
         //update the offset to write in the lexicon for the next term (next iteration)
         postingListOffset += postingList.getSize();
@@ -223,7 +225,7 @@ public class BlockMerger {
             }
 
             termBuffer.position(TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH
-                    + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH);
+                    + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH);
             termBuffer.putInt(offsetSkipDescriptor);
 
             skipDescriptorFileHandler.writeSkipDescriptor(offsetSkipDescriptor, skipDescriptor);

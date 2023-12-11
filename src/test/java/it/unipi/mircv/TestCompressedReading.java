@@ -1,39 +1,58 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.Index.Lexicon;
+import org.junit.jupiter.api.Assertions;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
+import static it.unipi.mircv.Config.MEMORY_THRESHOLD_PERC;
+import static it.unipi.mircv.Config.flagCompressedReading;
+
 public class TestCompressedReading {
-    BufferedReader reader;
-    if(flagCompressedReading) {
-        FileInputStream fis = new FileInputStream("collection.tar.gz");
-        GZIPInputStream gzis = new GZIPInputStream(fis);
-        InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
-        reader = new BufferedReader(inputStreamReader);
+    static BufferedReader readerForCompressedCase;
+    static BufferedReader reader;
+    static FileInputStream fis;
+    static GZIPInputStream gzis;
+    static InputStreamReader inputStreamReader;
+    public static void main(String[] args) throws IOException {
+        fis = new FileInputStream("collection.tar.gz");
+        gzis = new GZIPInputStream(fis);
+        inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
+        readerForCompressedCase = new BufferedReader(inputStreamReader); // reader for the compressed version
+        reader = new BufferedReader(new FileReader("collection.tsv")); // reader for the uncompressed version
 
-        //System.out.println(reader.readLine()); // DEBUG eseguite questo se volete vedere i metadati della prima riga
-        reader.mark(1024); // 1024 è quanti byte può leggere prima che il mark diventi non più valido
-        String[] values = reader.readLine().split("\t"); //per vedere alla prima linea quanto sono lunghi i metadati
-        reader.reset(); // riporto il reader all' inizio perché era andato alla riga successiva
-        reader.skip(values[0].length() - 1); // skip metadata
+        compareCollectionReading();
     }
-    else reader = new BufferedReader(new FileReader(fileCollectionPath)); // vecchio reader prima della Compressed Reading
 
+    public static void compareCollectionReading() throws IOException {
+        readerForCompressedCase.mark(1024); // 1024 represents how many bytes it can read before it becomes no longer valid
+        String[] values = readerForCompressedCase.readLine().split("\t"); // to check for metadata
+        readerForCompressedCase.reset(); // bring back the reader to the first line
+        readerForCompressedCase.skip(values[0].length() - 1); // skip metadata
 
-    documentIndex = new DocumentIndex();
-    currentDocId = 0;
-    int blockID = 0;
-        try {
-        while(reader!=null){
-            System.out.println("BlockID: "+blockID); //DEBUG
-            //singlePassInMemoryIndexing may stop for memory lack
-            reader = singlePassInMemoryIndexing(blockID,reader);
-            System.gc();
-            blockID++;
+        singlePassInMemoryIndexing();
+    }
+
+    private static void singlePassInMemoryIndexing() throws IOException {
+
+        int count = 0;
+        while (true)
+        {
+            System.out.println(count++);
+            String lineCompressedCase = readerForCompressedCase.readLine();
+            String lineUncompressedCase = reader.readLine();
+            if (lineUncompressedCase == null && lineCompressedCase.startsWith("\0\0\0\0\0"))
+            {
+                //we reached the end of the file -> close file readers and break
+                reader.close();
+                readerForCompressedCase.close();
+                break;
+            }
+            Assertions.assertEquals(lineUncompressedCase,lineCompressedCase);
         }
-        numberOfBlocks = blockID;
-    } catch (IOException e) {
-        System.err.println("Error reading the file: " + e.getMessage());
+
+        System.out.println("\ntest on the Compressed Reading of the collection --> SUCCESSFUL");
     }
 }
