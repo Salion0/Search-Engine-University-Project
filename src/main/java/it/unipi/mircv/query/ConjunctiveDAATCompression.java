@@ -1,8 +1,8 @@
-package it.unipi.mircv.Query;
+package it.unipi.mircv.query;
 
-import it.unipi.mircv.File.*;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Index.SkipDescriptorCompression;
+import it.unipi.mircv.file.*;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.index.SkipDescriptorCompression;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

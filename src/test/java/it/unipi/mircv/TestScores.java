@@ -1,11 +1,11 @@
 package it.unipi.mircv;
 
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Query.ScoreFunction;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.query.ScoreFunction;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;

@@ -1,9 +1,9 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.Index.PostingElement;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Index.SkipDescriptor;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.index.PostingElement;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.index.SkipDescriptor;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
@@ -102,19 +102,19 @@ public class TestUtilityMethods {
         for (int i = 0; i < 5; i++)
             resultsPostingListBlocks[i] = new PostingListBlock();
 
-        for (PostingElement postingElement: postingListBlocks[0].getPostingList())
+        for (PostingElement postingElement: postingListBlocks[0].getList())
             resultsPostingListBlocks[0].addPostingElement(postingElement);
 
-        for (PostingElement postingElement: postingListBlocks[4].getPostingList())
+        for (PostingElement postingElement: postingListBlocks[4].getList())
             resultsPostingListBlocks[4].addPostingElement(postingElement);
 
-        for (PostingElement postingElement: postingListBlocks[2].getPostingList())
+        for (PostingElement postingElement: postingListBlocks[2].getList())
             resultsPostingListBlocks[2].addPostingElement(postingElement);
 
-        for (PostingElement postingElement: postingListBlocks[3].getPostingList())
+        for (PostingElement postingElement: postingListBlocks[3].getList())
             resultsPostingListBlocks[1].addPostingElement(postingElement);
 
-        for (PostingElement postingElement: postingListBlocks[1].getPostingList())
+        for (PostingElement postingElement: postingListBlocks[1].getList())
             resultsPostingListBlocks[3].addPostingElement(postingElement);
 
         int[] resultsDocFreqs = new int[]{1,10,20,50,60};
@@ -147,8 +147,8 @@ public class TestUtilityMethods {
             Assertions.assertArrayEquals(skipDescriptors[i].getMaxDocIds().toArray(new Integer[0]),
                     resultsOfSkipDescriptors[i].getMaxDocIds().toArray(new Integer[0]));
 
-            Assertions.assertArrayEquals(postingListBlocks[i].getPostingList().toArray(),
-                    resultsPostingListBlocks[i].getPostingList().toArray());
+            Assertions.assertArrayEquals(postingListBlocks[i].getList().toArray(),
+                    resultsPostingListBlocks[i].getList().toArray());
 
             //System.out.println(resultsPostingListBlocks[i].getPostingList());
         }

@@ -1,15 +1,5 @@
 package it.unipi.mircv;
 
-
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
-import it.unipi.mircv.Index.PostingElement;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Index.SkipDescriptor;
-import it.unipi.mircv.Query.*;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -17,6 +7,15 @@ import java.util.*;
 import static it.unipi.mircv.Config.collectionSize;
 import static it.unipi.mircv.Utils.removeStopWords;
 
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.index.PostingElement;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.index.SkipDescriptor;
+import it.unipi.mircv.query.ConjunctiveDAAT;
+import it.unipi.mircv.query.DisjunctiveDAAT;
+import it.unipi.mircv.query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
 
 
@@ -27,7 +26,6 @@ public class TestUnitLorenzo {
     static int[] docFreqs = new int[5];
     static int[] numBlockRead = new int[5];
     static InvertedIndexFileHandler invertedIndexHandler;
-    static SkipDescriptorFileHandler skipDescriptorFileHandler;
     static int[] offsets = new int[5];
 
     public static void main(String[] args) throws IOException {
@@ -136,7 +134,7 @@ public class TestUnitLorenzo {
         ArrayList<Integer> arrayOfPrediction2 = new ArrayList<>();
         int count = 0;
 
-        for (int i = 0; i < postingListBlocks[count].getPostingList().size(); i++)
+        for (int i = 0; i < postingListBlocks[count].getList().size(); i++)
         {
             arrayOfPrediction0.add(postingListBlocks[count].getCurrentDocId());
             if (postingListBlocks[count].next() == -1)
@@ -144,7 +142,7 @@ public class TestUnitLorenzo {
         }
 
         count++;
-        for (int i = 0; i < postingListBlocks[count].getPostingList().size(); i++)
+        for (int i = 0; i < postingListBlocks[count].getList().size(); i++)
         {
             arrayOfPrediction1.add(postingListBlocks[count].getCurrentDocId());
             if (postingListBlocks[count].next() == -1)
@@ -152,7 +150,7 @@ public class TestUnitLorenzo {
         }
 
         count++;
-        for (int i = 0; i < postingListBlocks[count].getPostingList().size(); i++)
+        for (int i = 0; i < postingListBlocks[count].getList().size(); i++)
         {
             arrayOfPrediction2.add(postingListBlocks[count].getCurrentDocId());
             if (postingListBlocks[count].next() == -1)
@@ -372,6 +370,6 @@ public class TestUnitLorenzo {
 
     public static void printAllPostingLists() {
         for (int i = 0; i < 5; i++)
-            System.out.println(postingListBlocks[i].getPostingList());
+            System.out.println(postingListBlocks[i].getList());
     }
 }

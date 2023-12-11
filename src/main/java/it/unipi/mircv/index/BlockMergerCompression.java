@@ -1,10 +1,12 @@
-package it.unipi.mircv.Index;
+package it.unipi.mircv.index;
+
+import it.unipi.mircv.index.*;
 import it.unipi.mircv.Config;
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
-import it.unipi.mircv.Query.ScoreFunction;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.file.SkipDescriptorFileHandler;
+import it.unipi.mircv.query.ScoreFunction;
 import it.unipi.mircv.compression.Unary;
 
 import java.io.FileOutputStream;
@@ -55,7 +57,7 @@ public class BlockMergerCompression {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat");
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
                     path+"docIds"+blockIndex+".dat",
                     path+"termFreq"+blockIndex+".dat");
@@ -247,7 +249,7 @@ public class BlockMergerCompression {
         int documentFrequency = postingList.getSize();
         float maxScore = -1;
 
-        for (PostingElement postingElement: postingList.getPostingList())
+        for (PostingElement postingElement: postingList.getList())
         {
             //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
             float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),

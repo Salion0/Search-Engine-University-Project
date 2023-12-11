@@ -1,12 +1,12 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.Index.BlockMerger;
-import it.unipi.mircv.Index.Index;
-import it.unipi.mircv.Index.PostingListBlock;
-import it.unipi.mircv.Query.*;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.index.BlockMerger;
+import it.unipi.mircv.index.Index;
+import it.unipi.mircv.index.PostingListBlock;
+import it.unipi.mircv.query.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;

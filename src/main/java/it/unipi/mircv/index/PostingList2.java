@@ -1,4 +1,4 @@
-package it.unipi.mircv.Index;
+package it.unipi.mircv.index;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 

@@ -149,9 +149,9 @@ public class BlockMerger {
         }*/
     }
 
-    private void writeToDisk(FileOutputStream fosLexicon,FileOutputStream fosDocId,FileOutputStream fosTermFreq,
-                             String term, int offset, int docFreq, int collFreq,
-                             float termUpperBoundScoreBM25, float termUpperBoundScoreTFIDF, PostingList postingList) throws IOException {
+    private static void writeToDisk(FileOutputStream fosLexicon, FileOutputStream fosDocId, FileOutputStream fosTermFreq,
+                                    String term, int offset, int docFreq, int collFreq,
+                                    float termUpperBoundScoreBM25, float termUpperBoundScoreTFIDF, PostingList postingList) throws IOException {
 
         byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_ENTRY_LENGTH);

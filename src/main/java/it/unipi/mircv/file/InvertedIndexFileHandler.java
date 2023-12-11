@@ -3,7 +3,6 @@ package it.unipi.mircv.file;
 import it.unipi.mircv.index.PostingElement;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.index.PostingList2;
-import it.unipi.mircv.Utils;
 import it.unipi.mircv.compression.Unary;
 import it.unipi.mircv.compression.VariableByte;
 
@@ -56,6 +55,7 @@ public class InvertedIndexFileHandler {
         postingListBlock.setFields(numPosting);
         return postingListBlock;
     }
+
     public PostingList2 getPostingList2(int offset, int length) throws IOException {
         PostingList2 postingList2Compress = new PostingList2();
         ByteBuffer docIdBuffer = ByteBuffer.allocate(DOC_ID_LENGTH * length);

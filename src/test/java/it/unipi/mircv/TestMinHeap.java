@@ -1,7 +1,7 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.Query.MinHeapScores;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.query.MinHeapScores;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;

@@ -1,14 +1,10 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.Index.Lexicon;
 import org.junit.jupiter.api.Assertions;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
-import static it.unipi.mircv.Config.MEMORY_THRESHOLD_PERC;
-import static it.unipi.mircv.Config.flagCompressedReading;
 
 public class TestCompressedReading {
     static BufferedReader readerForCompressedCase;

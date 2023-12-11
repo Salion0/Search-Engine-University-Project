@@ -1,8 +1,8 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.Query.DisjunctiveDAAT;
-import it.unipi.mircv.Query.MaxScoreDisjunctive;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.query.DisjunctiveDAAT;
+import it.unipi.mircv.query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;

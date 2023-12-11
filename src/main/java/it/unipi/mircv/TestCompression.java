@@ -1,11 +1,11 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexFileHandler;
-import it.unipi.mircv.File.InvertedIndexFileHandler;
-import it.unipi.mircv.File.LexiconFileHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
-import it.unipi.mircv.Index.*;
-import it.unipi.mircv.Query.*;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.file.InvertedIndexFileHandler;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.file.SkipDescriptorFileHandler;
+import it.unipi.mircv.index.*;
+import it.unipi.mircv.query.*;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.IOException;
