@@ -1,6 +1,6 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.Query.MinHeapScores;
 import org.junit.jupiter.api.Assertions;
 
@@ -13,7 +13,7 @@ public class TestMinHeap {
     static HashMap<Float, ArrayList<Integer>> score2DocIdMap;
 
     public static void main(String[] args) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();

@@ -1,6 +1,6 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.Query.DisjunctiveDAAT;
 import it.unipi.mircv.Query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +13,7 @@ import static it.unipi.mircv.Utils.removeStopWords;
 public class TestQuerys {
 
     public static void main(String[] args) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();

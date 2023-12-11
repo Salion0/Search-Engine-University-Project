@@ -1,8 +1,8 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.BlockMerger;
 import it.unipi.mircv.Index.Index;
 import it.unipi.mircv.Index.PostingListBlock;
@@ -26,7 +26,7 @@ public class TestLorenzo {
         String forLexiconTest = "";
         //checkLexiconEntry(forLexiconTest);
 
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
@@ -78,18 +78,6 @@ public class TestLorenzo {
         System.out.println("NEW-CONJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public static void testConjunctiveCache(String string,LRUCache lruCache) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        ConjunctiveDAATCache conjunctiveDAATCache = new ConjunctiveDAATCache(queryTerms,lruCache);
-        ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
-        System.out.println(results);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println("CONJUNCTIVE-CACHE finished in " + (float)elapsedTime/1000 +"sec");
-    }
-
     public static void testConjunctive(String string) throws IOException {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
@@ -126,30 +114,6 @@ public class TestLorenzo {
         System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public static void testOldDisjunctive(String string) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        oldDisjunctive oldDisjunctive = new oldDisjunctive(queryTerms);
-        ArrayList<Integer> results = oldDisjunctive.processQuery();
-        System.out.println(results);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println("OLD-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
-    }
-
-    public static void testNewDisjunctive(String string) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = disjunctiveDAAT.processQuery();
-        System.out.println(results);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println("NEW-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
-    }
-
     public static void testNoPriorityQueueDisjunctive(String string) throws IOException {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
@@ -162,16 +126,9 @@ public class TestLorenzo {
         System.out.println("NO-PRIORITY-QUEUE-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public static void testCompressedReading() throws IOException {
-        Index index = new Index("");
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger(numberOfBlocks);
-        blockMerger.mergeBlocks();
-    }
-
     public static void checkLexiconEntry(String string) throws IOException {
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        InvertedIndexFileHandler invertedIndexHandler = new InvertedIndexFileHandler();
         ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
         String term = lexiconHandler.getTerm(entryBuffer);
         int documentFrequency = lexiconHandler.getDf(entryBuffer);
@@ -183,11 +140,6 @@ public class TestLorenzo {
         System.out.println("offset = " + offset);
         System.out.println("documentFrequency = " + documentFrequency);
         System.out.println("termUpperBoundScore = " + termUpperBoundScore);
-    }
-
-    public void testIntegerAndFloat(Integer testInteger,Float testFloat) {
-        testInteger = 1;
-        testFloat = Float.valueOf(2);
     }
 }
 

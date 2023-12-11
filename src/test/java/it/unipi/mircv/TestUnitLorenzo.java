@@ -1,11 +1,11 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.File.SkipDescriptorFileHandler;
 import it.unipi.mircv.Index.PostingElement;
-import it.unipi.mircv.Index.PostingList;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
 import it.unipi.mircv.Query.*;
@@ -26,13 +26,13 @@ public class TestUnitLorenzo {
     static boolean[] endOfPostingListFlag = new boolean[5];
     static int[] docFreqs = new int[5];
     static int[] numBlockRead = new int[5];
-    static InvertedIndexHandler invertedIndexHandler;
+    static InvertedIndexFileHandler invertedIndexHandler;
     static SkipDescriptorFileHandler skipDescriptorFileHandler;
     static int[] offsets = new int[5];
 
     public static void main(String[] args) throws IOException {
 
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
@@ -195,7 +195,7 @@ public class TestUnitLorenzo {
 
 
     public static void testNextGEQ() throws IOException {
-        LexiconHandler lexiconHandler = new LexiconHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
         setLongerFirstPostingList();
         setLongerSecondPostingList();
         postingListBlocks[1].addPostingElement(new PostingElement(50,1));
@@ -241,7 +241,7 @@ public class TestUnitLorenzo {
 
     public static void setPostingListBlocksForTesting() throws IOException {
 
-        invertedIndexHandler = new InvertedIndexHandler();
+        invertedIndexHandler = new InvertedIndexFileHandler();
         collectionSize = Integer.MAX_VALUE;
 
         int count = 0;
@@ -359,8 +359,8 @@ public class TestUnitLorenzo {
     }
 
     public static PostingListBlock getPostingListFromLexiconEntry(String string) throws IOException {
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        InvertedIndexFileHandler invertedIndexHandler = new InvertedIndexFileHandler();
         ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
         String term = lexiconHandler.getTerm(entryBuffer);
         int documentFrequency = lexiconHandler.getDf(entryBuffer);

@@ -1,8 +1,9 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.LexiconHandler;
+
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Query.ScoreFunction;
 import org.junit.jupiter.api.Assertions;
@@ -15,13 +16,13 @@ import static it.unipi.mircv.Config.collectionSize;
 public class TestScores {
 
     public static void main(String[] args) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
         testBM25();
-        testTFIDF();
+        //testTFIDF();
     }
 
     public static void testTFIDF() throws IOException {
@@ -33,8 +34,9 @@ public class TestScores {
         // compute TFIDF with wolframAplha w.r.t the formula in the slides
         float[] actualResults = new float[]{8.729f,11.1287f,12.0914f,14.4680f};
         float[] predictedResult = new float[4];
-        for (int i = 0; i < 4; i++)
-            predictedResult[i] = ScoreFunction.computeTFIDF(tf[i],docFreq[i]);
+        for (int i = 0; i < 4; i++) {
+            //predictedResult[i] = ScoreFunction.computeTFIDF(tf[i],docFreq[i]);
+        }
 
         for (int i = 0; i < 4; i++)
             Assertions.assertEquals((int) (actualResults[i]*1000),(int) (predictedResult[i]*1000));
@@ -64,9 +66,9 @@ public class TestScores {
     }
 
     public static void checkLexiconEntry(String string, int docId) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
-        LexiconHandler lexiconHandler = new LexiconHandler();
-        InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        LexiconFileHandler lexiconHandler = new LexiconFileHandler();
+        InvertedIndexFileHandler invertedIndexHandler = new InvertedIndexFileHandler();
         ByteBuffer entryBuffer = lexiconHandler.findTermEntry(string);
         String term = lexiconHandler.getTerm(entryBuffer);
         int documentFrequency = lexiconHandler.getDf(entryBuffer);

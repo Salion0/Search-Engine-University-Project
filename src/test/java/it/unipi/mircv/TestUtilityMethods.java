@@ -1,8 +1,6 @@
 package it.unipi.mircv;
 
-import it.unipi.mircv.File.DocumentIndexHandler;
-import it.unipi.mircv.File.InvertedIndexHandler;
-import it.unipi.mircv.File.SkipDescriptorFileHandler;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
 import it.unipi.mircv.Index.PostingElement;
 import it.unipi.mircv.Index.PostingListBlock;
 import it.unipi.mircv.Index.SkipDescriptor;
@@ -23,7 +21,7 @@ public class TestUtilityMethods {
     static int[] offsets = new int[5];
 
     public static void main(String[] args) throws IOException {
-        DocumentIndexHandler documentIndexHandler = new DocumentIndexHandler();
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
