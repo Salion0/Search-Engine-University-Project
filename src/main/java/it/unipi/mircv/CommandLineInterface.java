@@ -9,6 +9,13 @@ public class CommandLineInterface {
 
     public static void main( String[] args ) throws IOException {
 
+        System.out.println("  ____                      _       _____             _            \n" +
+                " / ___|  ___  __ _ _ __ ___| |__   | ____|_ __   __ _(_)_ __   ___ \n" +
+                " \\___ \\ / _ \\/ _` | '__/ __| '_ \\  |  _| | '_ \\ / _` | | '_ \\ / _ \\\n" +
+                "  ___) |  __/ (_| | | | (__| | | | | |___| | | | (_| | | | | |  __/\n" +
+                " |____/ \\___|\\__,_|_|  \\___|_| |_| |_____|_| |_|\\__, |_|_| |_|\\___|\n" +
+                "                                                |___/              ");
+
         String commandList = "command list: \n" +
                 "help --> print this command list\n" +
                 "index (c) --> perform indexing with compression or not\n" +
