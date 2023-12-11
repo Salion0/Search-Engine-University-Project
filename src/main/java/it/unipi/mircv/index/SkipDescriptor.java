@@ -22,6 +22,7 @@ public class SkipDescriptor {
     public ArrayList<Integer> getOffsetMaxDocIds(){
         return offsetMaxDocIds;
     }
+
     public int nextGEQ(int docId){
         /*for(int i = 0; i < maxDocIds.size(); i++)
             if(maxDocIds.get(i) >= docId) return offsetMaxDocIds.get(i);

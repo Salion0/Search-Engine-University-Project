@@ -1,13 +1,12 @@
 package it.unipi.mircv;
 
-
-import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.file.InvertedIndexFileHandler;
-import it.unipi.mircv.file.LexiconFileHandler;
-import it.unipi.mircv.index.BlockMerger;
-import it.unipi.mircv.index.Index;
-import it.unipi.mircv.index.PostingListBlock;
-import it.unipi.mircv.query.*;
+import it.unipi.mircv.File.DocumentIndexFileHandler;
+import it.unipi.mircv.File.InvertedIndexFileHandler;
+import it.unipi.mircv.File.LexiconFileHandler;
+import it.unipi.mircv.Index.BlockMerger;
+import it.unipi.mircv.Index.Index;
+import it.unipi.mircv.Index.PostingListBlock;
+import it.unipi.mircv.Query.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -21,7 +20,7 @@ public class TestLorenzo {
     public static void main(String[] args) throws IOException {
         flagCompressedReading = false;
         flagStemming = false;
-        flagStopWordRemoval = false;
+        flagStopWordRemoval = true;
 
         //testCompressedReading();
         String forLexiconTest = "";
@@ -32,45 +31,39 @@ public class TestLorenzo {
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
-        Config.docsLen = new int[Config.collectionSize];
-        for (int i = 0; i < Config.collectionSize; i++){
-            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
-        }
         //String test = "\0\0\0\0\0pfdvefvegr";
         //if (test.startsWith("\0\0\0\0"))
           //  System.out.println("deh");
 
         System.out.println("-----------------------------------------------------------");
 
-        LRUCache<Integer, Integer> docLenCache = new LRUCache<>(CACHE_SIZE);
         //docLenCache.put(1,50);
         //System.out.println(docLenCache.get(1));
 
-        String forConjunctiveTest = "", forDisjunctiveTest = "";
 
-        //testNewDisjunctive("");
+        //testNewDisjunctive("10 100");
         //testOldDisjunctive("");
-        //testNoPriorityQueueDisjunctive("");
-        //testMaxScoreDisjunctive("");
+        //testNoPriorityQueueDisjunctive("10 100");
+        testMaxScoreDisjunctive("10 100");
         //testConjunctive("diet detox");
         //testMaxScore("diet detox");
-        for (int i = 0; i < 2; i++) {
-            //testConjunctive("100 10");
-            //testConjunctiveCache("100 10 diet", docLenCache);
-        }
-        System.out.println("Test Conjuctive");
-        testNewConjunctive("manhattan project");
-        checkLexiconEntry("manhattan");
-        checkLexiconEntry("project");
-        //testMaxScore("diet 100");
-        //testOldDisjunctive("diet 100");
-        //System.out.println(SystemEvaluator.testQueryTime("diet 100", CONJUNCTIVE, BM25,true, false ));
-        //testConjunctiveCache("diet 100",docLenCache);
+
+
+        //testNewConjunctive("railroad workers");
+        //testNewConjunctive("10 100 1000");
+        //testNoPriorityQueueDisjunctive("diet 100");
+
+        //InvertedIndexHandler invertedIndexHandler = new InvertedIndexHandler();
+        //System.out.println(invertedIndexHandler.getPostingList(0,20));
+        //checkLexiconEntry("railroad");
+        //checkLexiconEntry("workers");
+        //checkLexiconEntry("dziena");
+
+        //testNoPriorityQueueDisjunctive("what is the distance between flat rock michigan and detroit");
 
         System.out.println("***************************************************************************************************");
 
-        //testMaxScore("diet 100");
+        //testMaxScoreDisjunctive("what is the distance between flat rock michigan and detroit");
     }
 
     public static void testNewConjunctive(String string) throws IOException {
@@ -83,18 +76,6 @@ public class TestLorenzo {
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("NEW-CONJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
-    }
-
-    public static void testConjunctiveCache(String string,LRUCache lruCache) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        ConjunctiveDAATCache conjunctiveDAATCache = new ConjunctiveDAATCache(queryTerms,lruCache);
-        ArrayList<Integer> results = conjunctiveDAATCache.processQuery();
-        System.out.println(results);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println("CONJUNCTIVE-CACHE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
     public static void testConjunctive(String string) throws IOException {
@@ -133,30 +114,6 @@ public class TestLorenzo {
         System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public static void testOldDisjunctive(String string) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        DisjunctiveDAAT oldDisjunctive = new DisjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = oldDisjunctive.processQuery();
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println(results);
-        System.out.println("OLD-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
-    }
-
-    public static void testNewDisjunctive(String string) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        //PriorityQueueDisjunctiveDAAT disjunctiveDAAT = new PriorityQueueDisjunctiveDAAT(queryTerms);
-        //ArrayList<Integer> results = disjunctiveDAAT.processQuery();
-        //System.out.println(results);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println("NEW-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
-    }
-
     public static void testNoPriorityQueueDisjunctive(String string) throws IOException {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
@@ -169,13 +126,6 @@ public class TestLorenzo {
         System.out.println("NO-PRIORITY-QUEUE-DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
     }
 
-    public static void testCompressedReading() throws IOException {
-        Index index = new Index("","",false);
-        int numberOfBlocks = index.getNumberOfBlocks();
-        BlockMerger blockMerger = new BlockMerger();
-        blockMerger.mergeBlocks(numberOfBlocks);
-    }
-
     public static void checkLexiconEntry(String string) throws IOException {
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
         InvertedIndexFileHandler invertedIndexHandler = new InvertedIndexFileHandler();
@@ -183,13 +133,14 @@ public class TestLorenzo {
         String term = lexiconHandler.getTerm(entryBuffer);
         int documentFrequency = lexiconHandler.getDf(entryBuffer);
         int offset = lexiconHandler.getOffset(entryBuffer);
-        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+        float termUpperBoundScoreBM25 = lexiconHandler.getTermUpperBoundScoreBM25(entryBuffer);
+        float termUpperBoundScoreTFIDF = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
         PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
         System.out.println("term = " + term);
         System.out.println("postingList = " + postingListBlock);
         System.out.println("offset = " + offset);
         System.out.println("documentFrequency = " + documentFrequency);
-        System.out.println("termUpperBoundScore = " + termUpperBoundScore);
+        System.out.println("termUpperBoundScore = " + termUpperBoundScoreBM25);
     }
 }
 

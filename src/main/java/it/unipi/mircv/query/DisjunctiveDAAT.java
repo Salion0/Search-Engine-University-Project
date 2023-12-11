@@ -78,14 +78,15 @@ public class DisjunctiveDAAT {
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
             //AIUDOO
-            //int documentLength = documentIndexHandler.readDocumentLength(minDocId);
-            int documentLength = docsLen[minDocId];
+            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            //int documentLength = docsLen[minDocId];
             for (int i =0; i<numTermQuery;i++)
             {
                 if (postingListBlocks[i].getCurrentDocId() == minDocId)
                 {
                     currentTf = postingListBlocks[i].getCurrentTf();
                     currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
+                    //currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
 
                     if(endOfPostingListFlag[i] == false && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
                         updatePostingListBlock(i);

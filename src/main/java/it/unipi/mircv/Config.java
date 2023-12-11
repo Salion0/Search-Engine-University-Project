@@ -27,7 +27,7 @@ public class Config {
             DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH +
             NUM_BYTE_TO_READ_BYTE_LENGTH + NUM_BYTE_TO_READ_BYTE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
     public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH
-            + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
+            + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
     public static final int SKIP_DESC_ENTRY = 4 + OFFSET_BYTES_LENGTH;
     public static final int SKIP_DESC_ENTRY_COMPRESSION = 4 + OFFSET_COMPRESS_BYTES_LENGTH + 4 + OFFSET_COMPRESS_BYTES_LENGTH + 4;
     public static final int POSTING_LIST_BLOCK_LENGTH = 10000; //Expressed in element
@@ -36,8 +36,7 @@ public class Config {
     public static final String DOC_ID_FILE = "data/docIds.dat";
     public static final String POSTING_LIST_DESC_FILE = "data/postingListDesc.dat";
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
-    public static final int MIN_NUM_POSTING_TO_SKIP = 5; // vecchio valore era 10
-    public static final int CACHE_SIZE = 100000; //Expressed in number of entries
+    public static final int MIN_NUM_POSTING_TO_SKIP = 10; // vecchio valore era 10
 
     // ************************* FLAG ********************************************
     public static boolean flagCompressedReading;
