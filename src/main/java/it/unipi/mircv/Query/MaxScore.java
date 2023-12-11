@@ -51,7 +51,7 @@ public class MaxScore {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
-            upperBoundScores[i] = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+            upperBoundScores[i] = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
 
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP))
             {

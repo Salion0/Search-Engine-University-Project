@@ -130,7 +130,8 @@ public class ConjunctiveDAAT {
             //currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
             currentDocLen = docsLen[postingListBlocks[index].getCurrentDocId()];
         }
-        currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
+        //currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
+        currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
     }
 
     protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {

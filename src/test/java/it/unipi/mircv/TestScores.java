@@ -73,7 +73,7 @@ public class TestScores {
         String term = lexiconHandler.getTerm(entryBuffer);
         int documentFrequency = lexiconHandler.getDf(entryBuffer);
         int offset = lexiconHandler.getOffset(entryBuffer);
-        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
         PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
         System.out.println("term = " + string);
         System.out.println("postingList = " + postingListBlock);

@@ -85,8 +85,8 @@ public class DisjunctiveDAAT {
                 if (postingListBlocks[i].getCurrentDocId() == minDocId)
                 {
                     currentTf = postingListBlocks[i].getCurrentTf();
-                    currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
-                    //currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
+                    //currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
+                    currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
 
                     if(endOfPostingListFlag[i] == false && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
                         updatePostingListBlock(i);

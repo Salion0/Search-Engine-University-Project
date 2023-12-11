@@ -133,13 +133,14 @@ public class TestLorenzo {
         String term = lexiconHandler.getTerm(entryBuffer);
         int documentFrequency = lexiconHandler.getDf(entryBuffer);
         int offset = lexiconHandler.getOffset(entryBuffer);
-        float termUpperBoundScore = lexiconHandler.getTermUpperBoundScore(entryBuffer);
+        float termUpperBoundScoreBM25 = lexiconHandler.getTermUpperBoundScoreBM25(entryBuffer);
+        float termUpperBoundScoreTFIDF = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
         PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
         System.out.println("term = " + term);
         System.out.println("postingList = " + postingListBlock);
         System.out.println("offset = " + offset);
         System.out.println("documentFrequency = " + documentFrequency);
-        System.out.println("termUpperBoundScore = " + termUpperBoundScore);
+        System.out.println("termUpperBoundScore = " + termUpperBoundScoreBM25);
     }
 }
 
