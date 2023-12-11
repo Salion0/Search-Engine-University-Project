@@ -44,7 +44,7 @@ public class TestLorenzo {
         //testNewDisjunctive("10 100");
         //testOldDisjunctive("");
         //testNoPriorityQueueDisjunctive("10 100");
-        testMaxScoreDisjunctive("railroad workers");
+        testMaxScoreDisjunctive("10 100");
         //testConjunctive("diet detox");
         //testMaxScore("diet detox");
 

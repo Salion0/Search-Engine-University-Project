@@ -12,6 +12,7 @@ public class  ScoreFunction{
     public float computeIDF(int documentFrequency) {
         return (float) Math.log10((float) collectionSize/documentFrequency);
     }
+
     public static float computeTFIDF(int termFrequency, int documentFrequency) {
         return (float) ((1 + Math.log10(termFrequency)) * Math.log10((float) collectionSize/documentFrequency));
     }

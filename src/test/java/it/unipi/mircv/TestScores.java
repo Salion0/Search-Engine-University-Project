@@ -22,7 +22,7 @@ public class TestScores {
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
         testBM25();
-        //testTFIDF();
+        testTFIDF();
     }
 
     public static void testTFIDF() throws IOException {
@@ -35,7 +35,7 @@ public class TestScores {
         float[] actualResults = new float[]{8.729f,11.1287f,12.0914f,14.4680f};
         float[] predictedResult = new float[4];
         for (int i = 0; i < 4; i++) {
-            //predictedResult[i] = ScoreFunction.computeTFIDF(tf[i],docFreq[i]);
+            predictedResult[i] = ScoreFunction.computeTFIDF(tf[i],docFreq[i]);
         }
 
         for (int i = 0; i < 4; i++)
