@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LexiconTest {
 
     static LexiconFileHandler lexiconFileHandler;
@@ -78,6 +78,7 @@ public class LexiconTest {
     }
 
     @Test
+    @Order(1)
     void toBlockTest() {
         init();
         //try write the lexicon to disk
@@ -117,9 +118,8 @@ public class LexiconTest {
     }
 
     @Test
+    @Order(2)
     void addPostingElementTest(){
-        init();
-
         //add a posting element to the first term
         PostingElement pe = new PostingElement(100,100);
         String term = "term0";
@@ -145,11 +145,11 @@ public class LexiconTest {
 
         /*-------------------ASSERT-------------------*/
         System.out.println("Testing adding PostingElement to existing term...");
-        //assertEquals(lexicon.getPostingList(filledTerm).getList().getLast().getDocId(),100);
+        assertEquals(lexicon.getPostingList(filledTerm).getList().getLast().getDocId(),100);
         assertEquals(lexicon.getPostingList(filledTerm).getList().get(
                 lexicon.getPostingList(filledTerm).getList().size()-1).getDocId(),100);
         System.out.println("Assert doc id: TRUE");
-        //assertEquals(lexicon.getPostingList(filledTerm).getList().getLast().getTermFreq(),100);
+        assertEquals(lexicon.getPostingList(filledTerm).getList().getLast().getTermFreq(),100);
         assertEquals(lexicon.getPostingList(filledTerm).getList().get(
                 lexicon.getPostingList(filledTerm).getList().size()-1).getTermFreq(),100);
         System.out.println("Assert TermFreq: TRUE");
@@ -159,11 +159,11 @@ public class LexiconTest {
         System.out.println("Assert CF: TRUE");
 
         System.out.println("Test adding PostingElement to non existing term");
-        //assertEquals(lexicon.getPostingList(filledNonExistingTerm).getList().getLast().getDocId(),100);
+        assertEquals(lexicon.getPostingList(filledNonExistingTerm).getList().getLast().getDocId(),100);
         assertEquals(lexicon.getPostingList(filledNonExistingTerm).getList().get(
                 lexicon.getPostingList(filledNonExistingTerm).getList().size()-1).getDocId(),100);
         System.out.println("Assert doc id: TRUE");
-        //assertEquals(lexicon.getPostingList(filledNonExistingTerm).getList().getLast().getTermFreq(),100);
+        assertEquals(lexicon.getPostingList(filledNonExistingTerm).getList().getLast().getTermFreq(),100);
         assertEquals(lexicon.getPostingList(filledNonExistingTerm).getList().get(
                 lexicon.getPostingList(filledNonExistingTerm).getList().size()-1).getTermFreq(),100);
         System.out.println("Assert TermFreq: TRUE");
@@ -174,8 +174,9 @@ public class LexiconTest {
     }
 
     @Test
+    @Order(3)
     void addLexiconEntryTest(){
-        init();
+
 
         //adding an lexicon entry corresponding to an existing term
         PostingList pl  = new PostingList(new PostingElement(102,102));
@@ -189,40 +190,45 @@ public class LexiconTest {
         lexicon.addLexiconEntry(existingLe);
 
         //adding an lexicon entry corresponding to an non existing term
-        String nonExistingTerm = "nonExistingTerm";
+        String nonExistingTerm = "nonExistingTerm2";
         String nonExistingFilledTerm = nonExistingTerm;
         for(int j = nonExistingTerm.length(); j< Config.TERM_BYTES_LENGTH; j++){//ADD BLANKSPACE TO THE STRING
             nonExistingFilledTerm = nonExistingFilledTerm.concat("\0");
         }
         LexiconEntry nonExistingLe = new LexiconEntry(nonExistingFilledTerm,102,1,pl);
-
+        System.out.println("lexicon entry:  term:"+nonExistingLe.getTerm()+"\n"+
+                "df: "+nonExistingLe.getDf()+"\n"+
+                "cf: "+nonExistingLe.getCf()+"\n"+
+                "posting list: "+nonExistingLe.getPostingList().toString());
         lexicon.addLexiconEntry(nonExistingLe);
+        System.out.println("Printing the lexicon...");
+        System.out.println("Lexicon: "+lexicon.toString());
 
 
         //-------------------ASSERT-------------------
         System.out.println("Testing adding LexiconEntry to existing term...");
-        //assertNotEquals(lexicon.getPostingList(existingFilledTerm).getList().getLast().getDocId(),102);
-        assertNotEquals(lexicon.getPostingList(existingFilledTerm).getList().get(
-                lexicon.getPostingList(existingFilledTerm).getList().size()-1).getDocId(),102);
+        assertNotEquals(102,lexicon.getPostingList(existingFilledTerm).getList().getLast().getDocId());
+        //assertNotEquals(10,lexicon.getPostingList(existingFilledTerm).getList().get(
+        //        lexicon.getPostingList(existingFilledTerm).getList().size()-1).getDocId(),102);
         System.out.println("Assert doc id: TRUE");
-        //assertNotEquals(lexicon.getPostingList(existingFilledTerm).getList().getLast().getTermFreq(),102);
-        assertNotEquals(lexicon.getPostingList(existingFilledTerm).getList().get(
-                lexicon.getPostingList(existingFilledTerm).getList().size()-1).getTermFreq(),102);
+        assertNotEquals(102,lexicon.getPostingList(existingFilledTerm).getList().getLast().getTermFreq());
+/*        assertNotEquals(102,lexicon.getPostingList(existingFilledTerm).getList().get(
+                lexicon.getPostingList(existingFilledTerm).getList().size()-1).getTermFreq());*/
         System.out.println("Assert termFreq: TRUE");
-        assertNotEquals(lexicon.getDf(existingFilledTerm),numTerms+1);
+        assertNotEquals(1,lexicon.getDf(existingFilledTerm));
         System.out.println("Assert DF: TRUE");
-        assertNotEquals(lexicon.getCf(existingFilledTerm),102);
+        assertNotEquals(102,lexicon.getCf(existingFilledTerm));
         System.out.println("Assert CF: TRUE");
 
         System.out.println("Testing adding LexiconEntry to non existing term...");
-        //assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().getLast().getDocId(),102);
-        assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().get(
+        assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().getLast().getDocId(),102);
+        /*assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().get(
                 lexicon.getPostingList(nonExistingFilledTerm).getList().size()-1).getDocId(),102);
-        System.out.println("Assert doc id: TRUE");
-        //assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().getLast().getTermFreq(),102);
-        assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().get(
+*/      System.out.println("Assert doc id: TRUE");
+        assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().getLast().getTermFreq(),102);
+  /*      assertEquals(lexicon.getPostingList(nonExistingFilledTerm).getList().get(
                 lexicon.getPostingList(nonExistingFilledTerm).getList().size()-1).getTermFreq(),102);
-        System.out.println("Assert termFreq: TRUE");
+*/      System.out.println("Assert termFreq: TRUE");
         assertEquals(lexicon.getDf(nonExistingFilledTerm),1);
         System.out.println("Assert DF: TRUE");
         assertEquals(lexicon.getCf(nonExistingFilledTerm),102);
