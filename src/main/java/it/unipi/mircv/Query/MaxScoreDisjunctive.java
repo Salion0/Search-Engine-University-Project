@@ -122,8 +122,8 @@ public class MaxScoreDisjunctive {
 
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
-                    //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
-                    score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                    //score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     numElementsRead[i]++;
                     if (postingListBlocks[i].next() == - 1)
                     {
@@ -158,8 +158,8 @@ public class MaxScoreDisjunctive {
                 }
 
                 if (currentDocIdInPostingList(i, minCurrentDocId)) //seek currentDocId in the posting list
-                    score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
-                    //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                    //score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
             }
 
             // LIST PIVOT UPDATE
