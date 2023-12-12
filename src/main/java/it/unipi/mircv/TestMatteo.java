@@ -3,7 +3,9 @@ package it.unipi.mircv;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
+import it.unipi.mircv.index.BlockMergerCompression;
 import it.unipi.mircv.index.DocumentIndex;
+import it.unipi.mircv.index.Index;
 
 import java.io.IOException;
 
@@ -14,25 +16,23 @@ import static it.unipi.mircv.Parameters.Score.*;
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        flagStemming = false;
+        flagStopWordRemoval = true;
+        flagCompressedReading = true;
 
-        Utils.loadStopWordList();
-        collectionSize = documentIndexHandler.readCollectionSize();
-        avgDocLen = documentIndexHandler.readAvgDocLen();
-        scoreType = BM25;
-        docsLen = documentIndexHandler.loadAllDocumentLengths();
+        Index index = new Index("data/","test_collection.tsv",false);
 
-/*        System.out.println(SystemEvaluator.testQueryTime("manhattan project", DISJUNCTIVE, BM25,
-                true, false ));*/
+        BlockMergerCompression blockMerger = new BlockMergerCompression();
+        blockMerger.mergeBlocks(index.getNumberOfBlocks());
 
-        InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
-        System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
+        //QUERY ------
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-
-        for (String s: SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_DAAT_C)
-             ) {
-            System.out.println(s);
-        }
+        SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_MAX_SCORE_C);
 
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
