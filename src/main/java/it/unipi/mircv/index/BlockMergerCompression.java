@@ -1,5 +1,6 @@
 package it.unipi.mircv.index;
 
+import it.unipi.mircv.Parameters;
 import it.unipi.mircv.index.*;
 import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
@@ -48,8 +49,8 @@ public class BlockMergerCompression {
         //initialize the document index file handler
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         //read the collection size and the average document length
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
+        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
         this.numberOfBlocks = numberOfBlocks;
 
 

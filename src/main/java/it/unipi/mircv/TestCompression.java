@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Config.QueryProcessor.*;
-import static it.unipi.mircv.Config.Score.BM25;
+import static it.unipi.mircv.Parameters.*;
 
 public class TestCompression {
     public static void main(String[] args) throws IOException {
@@ -36,16 +35,9 @@ public class TestCompression {
         //--------------------CARICO LE DOC LEN--------------------------------------------------------
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        collectionSize = documentIndexHandler.readCollectionSize();
+        avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        //TestLorenzo.checkLexiconEntry("diet");
-
-        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
-        Config.docsLen = new int[Config.collectionSize];
-        for (int i = 0; i < Config.collectionSize; i++){
-            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
-        }
         //----------------------------------------------------------------------------------------------
         System.out.println("------------query------------------------");
         String[] query = new String[]{"railroad", "workers"};

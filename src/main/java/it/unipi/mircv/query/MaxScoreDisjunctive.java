@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.scoreType;
 
 public class MaxScoreDisjunctive {
     private int numTermQuery;
@@ -114,7 +115,7 @@ public class MaxScoreDisjunctive {
             // ESSENTIAL LISTS
             for (int i = pivot; i < postingListBlocks.length; i++)
             {
-                if (endOfPostingListFlag[i] == true)
+                if (endOfPostingListFlag[i])
                     continue;
 
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
@@ -154,9 +155,17 @@ public class MaxScoreDisjunctive {
                     }
                 }
 
-                if (currentDocIdInPostingList(i, minCurrentDocId)) //seek currentDocId in the posting list
+                if (currentDocIdInPostingList(i, minCurrentDocId)){ //seek currentDocId in the posting list
                     //score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
-                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                    switch (scoreType){
+                        case BM25 ->
+                                score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                        case FTIDF ->
+                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                    }
+                    //prima dello switch
+                    //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                }
             }
 
             // LIST PIVOT UPDATE

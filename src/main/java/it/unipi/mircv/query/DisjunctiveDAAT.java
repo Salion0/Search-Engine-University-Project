@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.collectionSize;
 
 public class DisjunctiveDAAT {
     private final int numTermQuery;
@@ -88,7 +89,7 @@ public class DisjunctiveDAAT {
                     currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                     //currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
 
-                    if(endOfPostingListFlag[i] == false && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
+                    if(!endOfPostingListFlag[i] && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
                         updatePostingListBlock(i);
                 }
             }

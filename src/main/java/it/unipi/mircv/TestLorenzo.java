@@ -12,7 +12,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
@@ -28,8 +28,8 @@ public class TestLorenzo {
 
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        collectionSize = documentIndexHandler.readCollectionSize();
+        avgDocLen = documentIndexHandler.readAvgDocLen();
 
         //String test = "\0\0\0\0\0pfdvefvegr";
         //if (test.startsWith("\0\0\0\0"))

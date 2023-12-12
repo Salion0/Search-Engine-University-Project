@@ -1,6 +1,6 @@
 package it.unipi.mircv.evaluation;
-import it.unipi.mircv.Config.Score;
-import it.unipi.mircv.Config.QueryProcessor;
+import it.unipi.mircv.Parameters.Score;
+import it.unipi.mircv.Parameters.QueryProcessor;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.query.*;
 import it.unipi.mircv.Utils;

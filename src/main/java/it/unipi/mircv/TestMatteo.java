@@ -3,31 +3,24 @@ package it.unipi.mircv;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
+import it.unipi.mircv.index.DocumentIndex;
 
 import java.io.IOException;
 
-import static it.unipi.mircv.Config.QueryProcessor.*;
-import static it.unipi.mircv.Config.Score.BM25;
+import static it.unipi.mircv.Parameters.*;
+import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
+import static it.unipi.mircv.Parameters.Score.BM25;
 
 public class TestMatteo {
-
     public static void main(String[] args) throws IOException {
 
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
-
-        //TestLorenzo.checkLexiconEntry("diet");
-
-        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
-        Config.docsLen = new int[Config.collectionSize];
-        for (int i = 0; i < Config.collectionSize; i++){
-            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
-        }
-
-        System.out.println(documentIndexHandler.readDocumentLength(8000000));
-        System.out.println(Config.docsLen[8000000]);
+        collectionSize = documentIndexHandler.readCollectionSize();
+        avgDocLen = documentIndexHandler.readAvgDocLen();
+        scoreType = BM25;
+        docsLen = documentIndexHandler.loadAllDocumentLengths();
 
 /*        System.out.println(SystemEvaluator.testQueryTime("manhattan project", DISJUNCTIVE, BM25,
                 true, false ));*/
@@ -36,10 +29,14 @@ public class TestMatteo {
         System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
 
 
+        for (String s: SystemEvaluator.queryResult("pippo pluto", DISJUNCTIVE_DAAT_C, BM25, true, false)
+             ) {
+            System.out.println(s);
+        }
 
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT, BM25,true, false);
+        //SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT, BM25,true, false);
 
         //testing PL Descriptor
 

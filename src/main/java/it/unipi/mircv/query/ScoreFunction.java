@@ -1,7 +1,7 @@
 package it.unipi.mircv.query;
 
-import static it.unipi.mircv.Config.avgDocLen;
-import static it.unipi.mircv.Config.collectionSize;
+import static it.unipi.mircv.Parameters.avgDocLen;
+import static it.unipi.mircv.Parameters.collectionSize;
 
 public class  ScoreFunction{
 

@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 
+import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Utils.*;
 

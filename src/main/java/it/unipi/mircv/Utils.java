@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import static it.unipi.mircv.Config.stopWords;
+import static it.unipi.mircv.Parameters.stopWords;
 
 public class Utils {
     private static final PorterStemmer porterStemmer = new PorterStemmer();

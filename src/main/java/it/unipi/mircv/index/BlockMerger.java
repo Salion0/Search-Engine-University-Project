@@ -1,5 +1,6 @@
 package it.unipi.mircv.index;
 import it.unipi.mircv.Config;
+import it.unipi.mircv.Parameters;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
@@ -44,8 +45,8 @@ public class BlockMerger {
         //initialize the document index file handler
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler(path+"documentIndex.dat");
         //read the collection size and the average document length
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
+        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
         BlockMerger.numberOfBlocks = numberOfBlocks;
 
 

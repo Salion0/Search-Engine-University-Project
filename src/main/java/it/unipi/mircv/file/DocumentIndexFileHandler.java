@@ -1,6 +1,8 @@
 package it.unipi.mircv.file;
 
 import it.unipi.mircv.Config;
+import it.unipi.mircv.Parameters;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -68,17 +70,17 @@ public class DocumentIndexFileHandler {
         return buffer.getInt();
     }
     public int[] loadAllDocumentLengths() throws IOException {
-        int[] docsLen = new int[Config.collectionSize];
+        int[] docsLen = new int[Parameters.collectionSize];
         ByteBuffer buffer = ByteBuffer.allocate(
-                (DOCLENGTH_BYTES_LENGTH+DOCNO_BYTES_LENGTH) * Config.collectionSize
+                (DOCLENGTH_BYTES_LENGTH+DOCNO_BYTES_LENGTH) * Parameters.collectionSize
         );
         System.out.print(buffer.limit());
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
         fileChannel.read(buffer);
-        buffer.position(DOCNO_BYTES_LENGTH); //skip first docno
+        buffer.position(0); //skip first docno
         for(int i = 0; buffer.position()+ DOCNO_BYTES_LENGTH < buffer.limit(); i++) {
-            docsLen[i] = buffer.getInt();
             buffer.position(buffer.position() + DOCNO_BYTES_LENGTH);
+            docsLen[i] = buffer.getInt();
         }
         return docsLen;
     }

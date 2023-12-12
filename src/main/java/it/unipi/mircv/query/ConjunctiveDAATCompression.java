@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.docsLen;
+import static it.unipi.mircv.Parameters.scoreType;
 
 public class ConjunctiveDAATCompression {
     protected final int numTermQuery;
@@ -180,7 +182,12 @@ public class ConjunctiveDAATCompression {
             //currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
             currentDocLen = docsLen[postingListBlocks[index].getCurrentDocId()];
         }
-        currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
+        switch (scoreType){
+            case BM25 ->
+                    currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
+            case FTIDF ->
+                    currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
+        }
     }
     protected void loadPostingListBlockCompression(int indexTerm, int numPosting, long offsetMaxDocId, long offsetTermFreq,
                                                    int numByteDocId, int numByteTermFreq) throws IOException {
