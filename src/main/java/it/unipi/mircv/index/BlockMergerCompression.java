@@ -155,7 +155,6 @@ public class BlockMergerCompression {
             postingListBlocks.get(blockIndex).close();
         }*/
     }
-    //TODO qua mi funziona senza il -1 da ricontrollare anche senza compresion
     private void writeToDiskCompression(
                 FileOutputStream fosLexicon, FileOutputStream fosDocId,
                 FileOutputStream fosTermFreq, String term, int docFreq, int collFreq,
