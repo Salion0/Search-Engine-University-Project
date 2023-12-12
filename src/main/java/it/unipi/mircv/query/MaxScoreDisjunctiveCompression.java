@@ -29,12 +29,10 @@ public class MaxScoreDisjunctiveCompression {
     private final boolean[] endOfPostingListFlag;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptorCompression[] skipDescriptorsCompression;
-    private final DocumentIndexFileHandler documentIndexHandler;
     private final InvertedIndexFileHandler invertedIndexFileHandler;
 
     public MaxScoreDisjunctiveCompression(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
-        documentIndexHandler = new DocumentIndexFileHandler();
         invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         numTermQuery = queryTerms.length;
@@ -54,7 +52,12 @@ public class MaxScoreDisjunctiveCompression {
             docFreqs[i] = lexiconFileHandler.getDfCompression(entryBuffer);
             offsetsDocId[i] = lexiconFileHandler.getOffsetDocIdCompression(entryBuffer);
             offsetsTermFreq[i] = lexiconFileHandler.getOffsetTermFreqCompression(entryBuffer);
-            upperBoundScores[i] = lexiconFileHandler.getTermUpperBoundScoreCompression(entryBuffer);
+            switch (scoreType){
+                case BM25 ->
+                        upperBoundScores[i] = lexiconFileHandler.getTermUpperBoundScoreBM25Compression(entryBuffer);
+                case FTIDF ->
+                        upperBoundScores[i] = lexiconFileHandler.getTermUpperBoundScoreTFIDFCompression(entryBuffer);
+            }
             if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
                 skipDescriptorsCompression[i] = skipDescriptorFileHandler.readSkipDescriptorCompression(
                         lexiconFileHandler.getOffsetSkipDescCompression(entryBuffer), (int) Math.ceil((float) docFreqs[i] / (int) Math.sqrt(docFreqs[i])));
@@ -127,7 +130,14 @@ public class MaxScoreDisjunctiveCompression {
 
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
-                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                    switch (scoreType){
+                        case BM25 ->
+                                score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                        case FTIDF ->
+                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                    }
+                    //prima
+                    //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                     if (postingListBlocks[i].next() == - 1)
                     {
                         if (skipDescriptorsCompression[i] == null){

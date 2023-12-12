@@ -11,15 +11,15 @@ import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static it.unipi.mircv.Config.collectionSize;
+import static it.unipi.mircv.Parameters.collectionSize;
 
 public class TestScores {
 
     public static void main(String[] args) throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
+        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
 
         testBM25();
         testTFIDF();

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import static it.unipi.mircv.Config.collectionSize;
+import static it.unipi.mircv.Parameters.collectionSize;
 
 public class TestUtilityMethods {
     static PostingListBlock[] postingListBlocks = new PostingListBlock[5];
@@ -23,8 +23,8 @@ public class TestUtilityMethods {
     public static void main(String[] args) throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
+        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
         setPostingListBlocksForTesting();
 
         testMinDocId();

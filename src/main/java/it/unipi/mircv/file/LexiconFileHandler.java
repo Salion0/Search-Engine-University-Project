@@ -195,17 +195,21 @@ public class LexiconFileHandler {
         return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH
                 + DOCUMFREQ_BYTES_LENGTH).getInt();
     }
-    public float getTermUpperBoundScoreCompression(ByteBuffer dataBuffer) {
+    public float getTermUpperBoundScoreBM25Compression(ByteBuffer dataBuffer) {
         return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH
                 + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH).getFloat();
     }
+    public float getTermUpperBoundScoreTFIDFCompression(ByteBuffer dataBuffer) {
+        return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH
+                + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH).getFloat();
+    }
     public int getNumByteDocId(ByteBuffer dataBuffer){
         return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH
-                + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH).getInt();
+                + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH).getInt();
     }
     public int getNumByteTermFreq(ByteBuffer dataBuffer){
         return dataBuffer.position(TERM_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH
-                + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + NUM_BYTE_TO_READ_BYTE_LENGTH).getInt();
+                + DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH + NUM_BYTE_TO_READ_BYTE_LENGTH).getInt();
     }
     public int getOffsetSkipDescCompression(ByteBuffer dataBuffer){
         return dataBuffer.position(LEXICON_COMPRESS_ENTRY_LENGTH - OFFSET_SKIP_DESC_BYTES_LENGTH).getInt();

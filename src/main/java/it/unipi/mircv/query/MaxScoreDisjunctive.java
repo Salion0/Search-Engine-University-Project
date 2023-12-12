@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import static it.unipi.mircv.Parameters.docsLen;
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Parameters.scoreType;
 
@@ -47,8 +48,12 @@ public class MaxScoreDisjunctive {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
-            upperBoundScores[i] = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
-
+            switch (scoreType){
+                case BM25 ->
+                        upperBoundScores[i] = lexiconHandler.getTermUpperBoundScoreBM25(entryBuffer);
+                case FTIDF ->
+                        upperBoundScores[i] = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
+            }
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP))
             {
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
@@ -89,11 +94,11 @@ public class MaxScoreDisjunctive {
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
-        float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
         float minScoreInHeap = 0; // teta
         int pivot = 0;
         int minCurrentDocId; // current
 
+        float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
         documentUpperBounds[0] = upperBoundScores[0];
         for (int i = 1; i < postingListBlocks.length; i++)
             documentUpperBounds[i] = documentUpperBounds[i - 1] + upperBoundScores[i];
@@ -108,7 +113,7 @@ public class MaxScoreDisjunctive {
         {
             score = 0;
             //AIUDOOO
-            minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
+            minDocIdDocumentLength = docsLen[minCurrentDocId];
             //minDocIdDocumentLength = docsLen[minCurrentDocId];
             next = Integer.MAX_VALUE;
 
@@ -120,7 +125,13 @@ public class MaxScoreDisjunctive {
 
                 if (postingListBlocks[i].getCurrentDocId() == minCurrentDocId)
                 {
-                    score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                    switch (scoreType){
+                        case BM25 ->
+                                score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
+                        case FTIDF ->
+                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                    }
+
                     //score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     numElementsRead[i]++;
                     if (postingListBlocks[i].next() == - 1)
