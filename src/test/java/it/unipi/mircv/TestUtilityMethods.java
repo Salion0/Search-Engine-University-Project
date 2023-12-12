@@ -5,6 +5,7 @@ import it.unipi.mircv.index.PostingElement;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.index.SkipDescriptor;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,18 +21,13 @@ public class TestUtilityMethods {
     static int[] numBlockRead = new int[5];
     static int[] offsets = new int[5];
 
-    public static void main(String[] args) throws IOException {
+    @Test
+    void testMinDocId() throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         setPostingListBlocksForTesting();
-
-        testMinDocId();
-        testSortArraysByArrays();
-    }
-
-    public static void testMinDocId() {
 
         int[] arraysOfMinDocIds = {1,2,4,5,6,7,9,10,11,24};
         int[] docFreqs = {3,3,3,3,3};
@@ -74,7 +70,13 @@ public class TestUtilityMethods {
         return minDocId;
     }
 
-    public static void testSortArraysByArrays() throws IOException {
+    @Test
+    void testSortArraysByArrays() throws IOException {
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        setPostingListBlocksForTesting();
         setLongerFirstPostingList();
         setLongerSecondPostingList();
         setLongerThirdPostingList();

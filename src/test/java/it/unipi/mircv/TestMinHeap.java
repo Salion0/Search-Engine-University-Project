@@ -3,6 +3,7 @@ package it.unipi.mircv;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.query.MinHeapScores;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,16 +13,14 @@ import java.util.List;
 public class TestMinHeap {
     static HashMap<Float, ArrayList<Integer>> score2DocIdMap;
 
-    public static void main(String[] args) throws IOException {
+    @Test
+    void testMinHeap() throws IOException {
+
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        testMinHeap();
-    }
-
-    public static void testMinHeap() {
         float[] arrayOfScores = new float[]{ 3.422f, 0.134f, 9.199f, 5.444f, 6.125f, 0.134f, 4.231f, 5.444f, 0.134f};
         int[] docIds = new int[]{78,23,15,10,30,55,100,21,3};
         MinHeapScores heapScores = new MinHeapScores();

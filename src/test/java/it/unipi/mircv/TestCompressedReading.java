@@ -12,7 +12,7 @@ public class TestCompressedReading {
     static FileInputStream fis;
     static GZIPInputStream gzis;
     static InputStreamReader inputStreamReader;
-    public static void main(String[] args) throws IOException {
+    public static void compressedRead(String[] args) throws IOException {
         fis = new FileInputStream("collection.tar.gz");
         gzis = new GZIPInputStream(fis);
         inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);

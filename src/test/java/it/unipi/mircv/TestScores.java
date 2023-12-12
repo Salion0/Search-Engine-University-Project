@@ -7,6 +7,7 @@ import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.query.ScoreFunction;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,11 +22,12 @@ public class TestScores {
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        testBM25();
-        testTFIDF();
+        //testBM25();
+        //testTFIDF();
     }
 
-    public static void testTFIDF() throws IOException {
+    @Test
+    void testTFIDF() throws IOException {
 
         int[] tf = new int[]{1,2,3,4};
         int[] docFreq = new int[]{4,6,14,2};
@@ -44,7 +46,8 @@ public class TestScores {
         System.out.println("test on the method TFIDF --> SUCCESSFUL");
     }
 
-    public static void testBM25() throws IOException {
+    @Test
+    void testBM25() throws IOException {
 
         checkLexiconEntry("dziena",2841806);
         int[] tf = new int[]{1,1,1,2};

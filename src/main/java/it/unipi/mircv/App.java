@@ -16,7 +16,7 @@ public class App
             flagStopWordRemoval=true;
             flagCompressedReading=false;
 
-            Index index = new Index("data/","test_collection.tsv",false);
+            Index index = new Index("data/","test_collection.tsv",true);
 
             BlockMerger blockMerger = new BlockMerger();
             blockMerger.mergeBlocks(index.getNumberOfBlocks());

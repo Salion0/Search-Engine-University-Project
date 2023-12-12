@@ -17,6 +17,7 @@ import it.unipi.mircv.query.ConjunctiveDAAT;
 import it.unipi.mircv.query.DisjunctiveDAAT;
 import it.unipi.mircv.query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 public class TestUnitLorenzo {
@@ -28,24 +29,13 @@ public class TestUnitLorenzo {
     static InvertedIndexFileHandler invertedIndexHandler;
     static int[] offsets = new int[5];
 
-
-    public static void main(String[] args) throws IOException {
-
+    public static void testConjunctiveResults() throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Config.collectionSize = documentIndexHandler.readCollectionSize();
         Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         setPostingListBlocksForTesting();
 
-        //testUploadPostingListBlock();
-        testNextGEQ();
-        testCurrentDocIdInPostingList();
-        //testConjunctiveResults();
-
-    }
-
-
-    public static void testConjunctiveResults() throws IOException {
         PostingListBlock testPL1 = getPostingListFromLexiconEntry("sudduth");
         PostingListBlock testPL2 = getPostingListFromLexiconEntry("dziena");
         System.out.println(testPL1);
@@ -76,18 +66,22 @@ public class TestUnitLorenzo {
 
     }
 
-    public static void testUploadPostingListBlock() throws IOException {
+    @Test
+    void testUploadPostingListBlock() throws IOException {
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        setPostingListBlocksForTesting();
 
         postingListBlocks = new PostingListBlock[3];
-        postingListBlocks[0] = getPostingListFromLexiconEntry("sudduth");
-        postingListBlocks[1] = getPostingListFromLexiconEntry("dziena");
-        postingListBlocks[2] = getPostingListFromLexiconEntry("pirrie");
+        postingListBlocks[0] = getPostingListFromLexiconEntry("telekinesis");
+        postingListBlocks[1] = getPostingListFromLexiconEntry("accuplacer");
+        postingListBlocks[2] = getPostingListFromLexiconEntry("orbiting");
 
-        ArrayList<Integer> arraysOfResults0 = new ArrayList<>(List.of(291994, 291995, 291998, 692579, 692584,
-                990762, 1071792, 1844589, 3455857, 4085808, 4729425, 6474840, 8658624, 8841671, 8841673, 8841676));
-        ArrayList<Integer> arraysOfResults1 = new ArrayList<>(List.of(2841806, 3882369, 5216942, 8658624));
-        ArrayList<Integer> arraysOfResults2 = new ArrayList<>(List.of(2266703, 2567627, 2803592, 3360531, 4620807,
-                4727576, 4727583, 4783957, 5032046, 5103580, 5115638, 5780718, 5953688, 6999868, 8368448, 8658652, 8658655));
+        ArrayList<Integer> arraysOfResults0 = new ArrayList<>(List.of(699, 701, 702, 703, 704, 708));
+        ArrayList<Integer> arraysOfResults1 = new ArrayList<>(List.of(719, 721, 722, 726));
+        ArrayList<Integer> arraysOfResults2 = new ArrayList<>(List.of(730, 6678));
 
         docFreqs[0] = arraysOfResults0.size();
         docFreqs[1] = arraysOfResults1.size();
@@ -136,8 +130,14 @@ public class TestUnitLorenzo {
         return false;
     }
 
+    @Test
+    void testCurrentDocIdInPostingList() throws IOException {
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        setPostingListBlocksForTesting();
 
-    public static void testCurrentDocIdInPostingList() {
         setLongerFirstPostingList();
         setLongerSecondPostingList();
         setLongerThirdPostingList();
@@ -155,8 +155,14 @@ public class TestUnitLorenzo {
         System.out.println("test on the method currentDocIdInPostingList --> SUCCESSFUL");
     }
 
+    @Test
+    void testNextGEQ() throws IOException {
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        Config.collectionSize = documentIndexHandler.readCollectionSize();
+        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        setPostingListBlocksForTesting();
 
-    public static void testNextGEQ() throws IOException {
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
         setLongerFirstPostingList();
         setLongerSecondPostingList();
@@ -329,6 +335,7 @@ public class TestUnitLorenzo {
         int offset = lexiconHandler.getOffset(entryBuffer);
         float termUpperBoundScore = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
         PostingListBlock postingListBlock = invertedIndexHandler.getPostingList(offset,documentFrequency);
+        System.out.println(postingListBlock);
         return postingListBlock;
     }
 
