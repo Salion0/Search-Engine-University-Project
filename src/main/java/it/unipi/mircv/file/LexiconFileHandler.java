@@ -1,14 +1,11 @@
 package it.unipi.mircv.file;
-
 import it.unipi.mircv.Config;
 import it.unipi.mircv.index.LexiconEntry;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-
 import static it.unipi.mircv.Config.*;
 
 public class LexiconFileHandler {
@@ -42,8 +39,6 @@ public class LexiconFileHandler {
     public ByteBuffer findTermEntry(String term) throws IOException {
         //Find a term in the lexicon file by binary search assuming that
         // a=0; b=FileSize; c = center that we calculate at each iteration
-
-
         for(int i=term.length();i<Config.TERM_BYTES_LENGTH;i++){      //ADD BLANKSPACE TO THE STRING
             term = term.concat("\0");
         }
@@ -149,11 +144,6 @@ public class LexiconFileHandler {
         le.setOffset(getOffset(dataBuffer));
         return le;
     }
-
-
-/*    public String getTerm(ByteBuffer dataBuffer) {
-        return new String(Arrays.copyOfRange(dataBuffer.array(), 0, Config.TERM_BYTES_LENGTH), StandardCharsets.UTF_8);
-    }*/
     public String getTerm(ByteBuffer dataBuffer) {
         byte[] termBuffer = new byte[TERM_BYTES_LENGTH];
         dataBuffer.position(0);
@@ -214,11 +204,8 @@ public class LexiconFileHandler {
     public int getOffsetSkipDescCompression(ByteBuffer dataBuffer){
         return dataBuffer.position(LEXICON_COMPRESS_ENTRY_LENGTH - OFFSET_SKIP_DESC_BYTES_LENGTH).getInt();
     }
-
-
     public void close() throws IOException {
         this.lexiconFile.close();
     }
-
 }
 
