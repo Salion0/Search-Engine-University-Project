@@ -113,7 +113,7 @@ public class DisjunctiveDAATCompression {
                     switch (scoreType){
                         case BM25 ->
                                 currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
-                        case FTIDF ->
+                        case TFIDF ->
                                 currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
                     }
 

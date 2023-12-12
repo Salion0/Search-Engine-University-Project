@@ -51,7 +51,7 @@ public class MaxScoreDisjunctive {
             switch (scoreType){
                 case BM25 ->
                         upperBoundScores[i] = lexiconHandler.getTermUpperBoundScoreBM25(entryBuffer);
-                case FTIDF ->
+                case TFIDF ->
                         upperBoundScores[i] = lexiconHandler.getTermUpperBoundScoreTFIDF(entryBuffer);
             }
             if (docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP))
@@ -128,7 +128,7 @@ public class MaxScoreDisjunctive {
                     switch (scoreType){
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
-                        case FTIDF ->
+                        case TFIDF ->
                                 score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
 
@@ -171,7 +171,7 @@ public class MaxScoreDisjunctive {
                     switch (scoreType){
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
-                        case FTIDF ->
+                        case TFIDF ->
                                 score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
                     //prima dello switch

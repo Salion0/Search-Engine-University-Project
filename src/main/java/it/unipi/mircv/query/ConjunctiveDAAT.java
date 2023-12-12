@@ -138,7 +138,7 @@ public class ConjunctiveDAAT {
         switch (scoreType){
             case BM25 ->
                     currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
-            case FTIDF ->
+            case TFIDF ->
                     currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
         }
     }

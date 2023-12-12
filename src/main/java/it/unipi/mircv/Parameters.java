@@ -16,5 +16,5 @@ public class Parameters {
         DISJUNCTIVE_DAAT, CONJUNCTIVE_DAAT, DISJUNCTIVE_MAX_SCORE,
         DISJUNCTIVE_DAAT_C, CONJUNCTIVE_DAAT_C, DISJUNCTIVE_MAX_SCORE_C
     }
-    public enum Score{ BM25, FTIDF }
+    public enum Score{ BM25, TFIDF }
 }

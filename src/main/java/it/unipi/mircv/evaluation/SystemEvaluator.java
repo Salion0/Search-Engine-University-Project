@@ -1,4 +1,5 @@
 package it.unipi.mircv.evaluation;
+import it.unipi.mircv.Parameters;
 import it.unipi.mircv.Parameters.Score;
 import it.unipi.mircv.Parameters.QueryProcessor;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
@@ -10,18 +11,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static it.unipi.mircv.Config.MAX_NUM_DOC_RETRIEVED;
+import static it.unipi.mircv.Parameters.flagStemming;
+import static it.unipi.mircv.Parameters.flagStopWordRemoval;
 import static it.unipi.mircv.Utils.*;
 
 public class SystemEvaluator {
 
-    public static void evaluateSystemTime(String tsvFile, QueryProcessor queryProcessor, Score score, boolean stopWordRemoval, boolean stemming) throws IOException {
+    public static void evaluateSystemTime(String tsvFile, QueryProcessor queryProcessor) throws IOException {
 
         ArrayList<Query> queries = new ArrayList<>();
         loadQueriesFromFile(tsvFile, queries);
 
         ArrayList<Long> resultsTimes = new ArrayList<>(queries.size());
         for (Query query : queries) {
-            resultsTimes.add(testQueryTime(query.getQueryText(), queryProcessor, score, stopWordRemoval, stemming));
+            resultsTimes.add(testQueryTime(query.getQueryText(), queryProcessor));
         }
 
         System.out.println("results times: " + resultsTimes);
@@ -39,11 +42,11 @@ public class SystemEvaluator {
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
         for (Query query : queries) {
-            String[] queryResults = queryResult(query.getQueryText(), queryProcessor, scoreType, stopWordRemoval, stemming);
+            String[] queryResults = queryResult(query.getQueryText(), queryProcessor);
             for(int i = 0; i < queryResults.length; i++){
                 //this line must be here, otherwise the buffer size could not be enough
                 stringToWrite = new StringBuilder();
-                stringToWrite.append(query.getQueryId()).append(" ").append(fixed).append(" ");   //queryId fixed
+                stringToWrite.append(query.getQueryId()).append(" ").append(fixed).append(" ");    //queryId fixed
                 stringToWrite.append(queryResults[i]).append(" ");                                 //docNo rank
                 stringToWrite.append(i + 1).append(" ");                                           //rank
                 stringToWrite.append(docScore).append(" ").append(runId).append("\n");             //score runId
@@ -64,12 +67,12 @@ public class SystemEvaluator {
         }
     }
 
-    public static String[] queryResult(String query, QueryProcessor queryProcessor, Score score, boolean stopWordRemoval, boolean stemming) throws IOException {
+    public static String[] queryResult(String query, QueryProcessor queryProcessor) throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         String[] queryTerms = Utils.tokenization(query);
 
-        if (stopWordRemoval) queryTerms = removeStopWords(queryTerms);
-        if (stemming) stemPhrase(queryTerms);
+        if (flagStopWordRemoval) queryTerms = removeStopWords(queryTerms);
+        if (flagStemming) stemPhrase(queryTerms);
 
         System.out.println("final query: " + Arrays.toString(queryTerms)); //DEBUG
 
@@ -98,13 +101,13 @@ public class SystemEvaluator {
         return documentIndexHandler.getDocNoREVERSE(results);
     }
 
-    public static long testQueryTime(String query, QueryProcessor queryProcessor, Score score, boolean stopWordRemoval, boolean stemming) throws IOException {
+    public static long testQueryTime(String query, QueryProcessor queryProcessor) throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         long startTime = System.currentTimeMillis();
         String[] queryTerms = Utils.tokenization(query);
 
-        if (stopWordRemoval) queryTerms = removeStopWords(queryTerms);
-        if (stemming) stemPhrase(queryTerms);
+        if (flagStopWordRemoval) queryTerms = removeStopWords(queryTerms);
+        if (flagStemming) stemPhrase(queryTerms);
 
         System.out.println("final query: " + Arrays.toString(queryTerms)); //DEBUG
 

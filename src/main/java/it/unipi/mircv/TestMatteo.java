@@ -8,9 +8,8 @@ import it.unipi.mircv.index.DocumentIndex;
 import java.io.IOException;
 
 import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
-import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_MAX_SCORE_C;
-import static it.unipi.mircv.Parameters.Score.BM25;
+import static it.unipi.mircv.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.Parameters.Score.*;
 
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
@@ -30,7 +29,7 @@ public class TestMatteo {
         System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
 
 
-        for (String s: SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_DAAT_C, BM25, true, false)
+        for (String s: SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_DAAT_C)
              ) {
             System.out.println(s);
         }
