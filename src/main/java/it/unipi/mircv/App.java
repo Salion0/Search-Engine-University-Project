@@ -9,8 +9,8 @@ public class App
 {
     public static void main( String[] args )  {
         try{
-            DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
-            Config.collectionSize = documentIndexFileHandler.readCollectionSize();
+            //DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+            //Config.collectionSize = documentIndexFileHandler.readCollectionSize();
 
             flagStemming=false;
             flagStopWordRemoval=true;
