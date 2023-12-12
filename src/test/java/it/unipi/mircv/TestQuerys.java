@@ -22,9 +22,10 @@ public class TestQuerys {
     }
 
     public static void testMaxScoreAndDisjunctive() throws IOException {
-        String[] querys = new String[]{"10 100","railroad workers","caries detection system"};
+        String[] querys = new String[]{"10 100","railroad workers","detection system",
+                "manhattan project", "tree farm"}; // "caries detection system" far vedere che gestisce anche le parole che non ci sono
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < querys.length; i++)
         {
             String string = querys[i];
             ArrayList<Integer> resultsDisjunctive = testDisjunctive(string);

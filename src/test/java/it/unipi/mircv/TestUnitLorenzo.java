@@ -28,6 +28,7 @@ public class TestUnitLorenzo {
     static InvertedIndexFileHandler invertedIndexHandler;
     static int[] offsets = new int[5];
 
+
     public static void main(String[] args) throws IOException {
 
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
@@ -37,49 +38,12 @@ public class TestUnitLorenzo {
         setPostingListBlocksForTesting();
 
         //testUploadPostingListBlock();
-        //testSortArraysByArrays();
-        //testNextGEQ();
-        //testCurrentDocIdInPostingList();
+        testNextGEQ();
+        testCurrentDocIdInPostingList();
         //testConjunctiveResults();
-        testMaxScore();
 
-
-        //System.out.println(getPostingListFromLexiconEntry("sudduth"));
-        //System.out.println(getPostingListFromLexiconEntry("dziena"));
-        //System.out.println(getPostingListFromLexiconEntry("pirrie"));
     }
 
-    public static void testMaxScore() throws IOException {
-
-        String[] querys = new String[]{"10 100","railroad workers","caries detection system"};
-
-        for (int i = 0; i < 3; i++)
-        {
-            String string = querys[i];
-
-            long startTime = System.currentTimeMillis();
-            String[] queryTerms = string.split(" ");
-            queryTerms = removeStopWords(queryTerms);
-            MaxScoreDisjunctive maxScore = new MaxScoreDisjunctive(queryTerms);
-            ArrayList<Integer> results = maxScore.computeMaxScore();
-            System.out.println(results);
-            long endTime = System.currentTimeMillis();
-            long elapsedTime = endTime - startTime;
-
-            startTime = System.currentTimeMillis();
-            queryTerms = string.split(" ");
-            queryTerms = removeStopWords(queryTerms);
-            DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
-            ArrayList<Integer> results2 = disjunctiveDAAT.processQuery();
-            //System.out.println(results2);
-            endTime = System.currentTimeMillis();
-            long elapsedTime2 = endTime - startTime;
-
-            //Assertions.assertEquals(results, results2);
-            System.out.println("DISJUNCTIVE finished in " + (float) elapsedTime2 / 1000 + "sec");
-            System.out.println("MAX-SCORE finished in " + (float) elapsedTime / 1000 + "sec");
-        }
-    }
 
     public static void testConjunctiveResults() throws IOException {
         PostingListBlock testPL1 = getPostingListFromLexiconEntry("sudduth");

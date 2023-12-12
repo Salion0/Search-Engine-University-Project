@@ -12,12 +12,11 @@ public class App
             DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
             Config.collectionSize = documentIndexFileHandler.readCollectionSize();
 
-
             flagStemming=false;
             flagStopWordRemoval=true;
             flagCompressedReading=false;
 
-            Index index = new Index("data/","collection.tsv",false);
+            Index index = new Index("data/","test_collection.tsv",false);
 
             BlockMerger blockMerger = new BlockMerger();
             blockMerger.mergeBlocks(index.getNumberOfBlocks());
