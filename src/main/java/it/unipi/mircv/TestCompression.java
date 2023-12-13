@@ -1,5 +1,6 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.compression.VariableByte;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
@@ -15,47 +16,71 @@ import java.util.Arrays;
 
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Parameters.*;
+import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
+import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_MAX_SCORE_C;
+import static it.unipi.mircv.Parameters.Score.TFIDF;
+import static it.unipi.mircv.Utils.loadStopWordList;
+import static java.lang.System.currentTimeMillis;
 
 public class TestCompression {
     public static void main(String[] args) throws IOException {
-        flagStemming = false;
+        flagStemming = true;
         flagStopWordRemoval = true;
-        flagCompressedReading = false;
+        flagCompressedReading = true;
+        long startTime;
 
-        /*
-        long startTime = System.currentTimeMillis();
-        Index index = new Index("collection.tsv");
-        BlockMergerCompression blockMergerCompression = new BlockMergerCompression();
-        blockMergerCompression.mergeBlocks(index.getNumberOfBlocks());
-        System.out.println(System.currentTimeMillis() - startTime);
-        */
+        loadStopWordList();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
+        LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
+        ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("project");
+        int docFreq = lexiconFileHandler.getDfCompression(byteBuffer);
+        System.out.println(lexiconFileHandler.getTerm(byteBuffer));
+        System.out.println("docFREQ: " + docFreq);
+        System.out.println(lexiconFileHandler.getCfCompression(byteBuffer));
+        System.out.println("offset skip: " + lexiconFileHandler.getOffsetSkipDescCompression(byteBuffer));
+        System.out.println(lexiconFileHandler.getOffsetTermFreqCompression(byteBuffer));
+        System.out.println(lexiconFileHandler.getOffsetDocIdCompression(byteBuffer));
+        System.out.println(lexiconFileHandler.getNumByteDocId(byteBuffer));
+        System.out.println(lexiconFileHandler.getNumByteTermFreq(byteBuffer));
+        System.out.println(lexiconFileHandler.getTermUpperBoundScoreBM25Compression(byteBuffer));
+        System.out.println(lexiconFileHandler.getTermUpperBoundScoreTFIDFCompression(byteBuffer));
+        SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
+        SkipDescriptorCompression skipDescriptorCompression =
+                skipDescriptorFileHandler.readSkipDescriptorCompression(
+                        lexiconFileHandler.getOffsetSkipDescCompression(byteBuffer),
+                        (int) Math.ceil((float) docFreq / (int) Math.sqrt(docFreq))
+                );
 
+        //______________LEGGO IL PRIMO_____________________//
+        long offsetMaxDocId = skipDescriptorCompression.getOffsetMaxDocIds().get(0);
+        long offsetTermFreq = skipDescriptorCompression.getOffsetTermFreqs().get(0);
+        int numByteDocId = skipDescriptorCompression.getNumByteMaxDocIds().get(0);
+        int numByteTermFreq = skipDescriptorCompression.getNumByteTermFreqs().get(0);
 
-        //--------------------CARICO LE DOC LEN--------------------------------------------------------
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
-        Utils.loadStopWordList();
-        collectionSize = documentIndexHandler.readCollectionSize();
-        avgDocLen = documentIndexHandler.readAvgDocLen();
+        System.out.println("SIZE: " + skipDescriptorCompression.size());
+        System.out.println(offsetMaxDocId);
+        System.out.println(offsetTermFreq);
+        System.out.println(numByteDocId);
+        System.out.println(numByteTermFreq);
 
-        //----------------------------------------------------------------------------------------------
-        System.out.println("------------query------------------------");
-        String[] query = new String[]{"railroad", "workers"};
-        MaxScoreDisjunctiveCompression queryProcessor = new MaxScoreDisjunctiveCompression(query);
-        ArrayList<Integer> result = queryProcessor.computeMaxScore();
+        InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
+        PostingListBlock postingListBlock = invertedIndexFileHandler.getPostingListCompressed(
+                (int)(Math.sqrt(lexiconFileHandler.getDfCompression(byteBuffer))),
+                offsetMaxDocId,
+                numByteDocId,
+                offsetTermFreq,
+                numByteTermFreq
+        );
 
-        for (String s: documentIndexHandler.getDocNoREVERSE(result)) {
-            System.out.println(s);
-        }
+        System.out.println("postingListBLOCK: " + postingListBlock);
 
-        /*
-        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25, true, false);
-        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25, true, false);
-
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctive_c.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C, BM25,true, false);
-        SystemEvaluator.createFileQueryResults("queryResult/conjunctive_c.txt","query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C, BM25,true, false);
-
-
-         */
+        startTime = currentTimeMillis();
+        SystemEvaluator.queryResult("project", DISJUNCTIVE_DAAT_C);
+        System.out.println("time: " + (currentTimeMillis() - startTime));
     }
 }

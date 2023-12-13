@@ -67,7 +67,6 @@ public class VariableByte {
                 }
             }
         }
-
         return result.stream().mapToInt(Integer::intValue).toArray();
     }
 }

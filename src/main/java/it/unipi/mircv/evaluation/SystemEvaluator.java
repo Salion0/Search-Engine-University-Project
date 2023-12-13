@@ -31,7 +31,7 @@ public class SystemEvaluator {
         System.out.println("mean: " + computeMean(resultsTimes));
     }
 
-    public static void createFileQueryResults(String fileName, String queryFile, QueryProcessor queryProcessor, Score scoreType, boolean stopWordRemoval, boolean stemming) throws IOException {
+    public static void createFileQueryResults(String fileName, String queryFile, QueryProcessor queryProcessor) throws IOException {
         StringBuilder stringToWrite;
         String fixed = "Q0";
         String runId = "0";

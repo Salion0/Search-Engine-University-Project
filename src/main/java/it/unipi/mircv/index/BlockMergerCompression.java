@@ -184,6 +184,9 @@ public class BlockMergerCompression {
                         postingList2Compress.getSomeTermFreq(i, i + postingListSizeBlock)
                 );
 
+                if(term.compareTo("project")==0) System.out.println(postingList2CompressBlock.getDocIds().size());
+                if(term.compareTo("project")==0) System.out.println(postingList2CompressBlock.getTermFreqs().size());
+
                 byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
                 fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
                 fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq

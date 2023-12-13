@@ -12,31 +12,48 @@ import java.io.IOException;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.*;
 import static it.unipi.mircv.Parameters.Score.*;
+import static it.unipi.mircv.Utils.loadStopWordList;
+import static java.lang.System.currentTimeMillis;
 
 public class TestMatteo {
     public static void main(String[] args) throws IOException {
 
-        flagStemming = false;
+        flagStemming = true;
         flagStopWordRemoval = true;
         flagCompressedReading = true;
+        long startTime;
 
-        Index index = new Index("data/","test_collection.tsv",false);
 
+        startTime = currentTimeMillis();
+        Index index = new Index("data/","collection.tar",false);
         BlockMergerCompression blockMerger = new BlockMergerCompression();
         blockMerger.mergeBlocks(index.getNumberOfBlocks());
+        System.out.println("time: " + (currentTimeMillis() - startTime));
 
+
+        /*
         //QUERY ------
+        loadStopWordList();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_MAX_SCORE_C);
 
-        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        //SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT, BM25,true, false);
+        startTime = currentTimeMillis();
+        SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_MAX_SCORE_C);
+        System.out.println("time: " + (currentTimeMillis() - startTime));
+
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE_C);
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveMaxStemming.txt",
+                "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE_C);
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveStemming.txt",
+                "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
+
+        */
+
 
         //testing PL Descriptor
 
