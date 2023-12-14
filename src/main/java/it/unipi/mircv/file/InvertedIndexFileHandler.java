@@ -50,11 +50,6 @@ public class InvertedIndexFileHandler {
         int[] docIds = VariableByte.decompress(docIdBuffer.array());
         int[] termFreqs = Unary.decompress(numPosting, termFreqBuffer.array());
 
-        Utils.printReverseBytes(docIdBuffer.array());
-        Utils.printReverseBytes(termFreqBuffer.array());
-        System.out.println("numPosting: " + numPosting);
-        System.out.println("docIds.len: " + docIds.length);
-        System.out.println("termFreq.len: " + termFreqs.length);
         for (int i = 0; i < numPosting; i++){
             postingListBlock.addPostingElement(new PostingElement(docIds[i], termFreqs[i]));
         }

@@ -1,6 +1,8 @@
 package it.unipi.mircv.index;
 
 import it.unipi.mircv.Parameters;
+import it.unipi.mircv.Utils;
+import it.unipi.mircv.compression.VariableByte;
 import it.unipi.mircv.index.*;
 import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.*;
@@ -184,12 +187,25 @@ public class BlockMergerCompression {
                         postingList2Compress.getSomeTermFreq(i, i + postingListSizeBlock)
                 );
 
-                if(term.compareTo("project")==0) System.out.println(postingList2CompressBlock.getDocIds().size());
-                if(term.compareTo("project")==0) System.out.println(postingList2CompressBlock.getTermFreqs().size());
+                //DEBUG
+                if(term.subSequence(0,8).equals("project\0")) {
+                    System.out.println(term);
+                    System.out.println(postingList2CompressBlock.getDocIds().size());
+                    System.out.println(postingList2CompressBlock.getTermFreqs().size());
+                    if(i==0) System.out.println(postingList2CompressBlock);
+                }
 
                 byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
                 fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
                 fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
+
+                //DEBUG
+                if(term.subSequence(0,8).equals("project\0") && i == 0) {
+                    System.out.println(compressedPLB[0].length);
+                    Utils.printReverseBytes(compressedPLB[0]);
+                    System.out.println(Arrays.toString(VariableByte.decompress(compressedPLB[0])));
+                }
+
                 int numByteDocIdCompressed = compressedPLB[0].length;
                 int numByteTermFreqCompressed = compressedPLB[1].length;
 

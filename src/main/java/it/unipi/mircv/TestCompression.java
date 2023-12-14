@@ -37,7 +37,7 @@ public class TestCompression {
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
-        ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("project");
+        ByteBuffer byteBuffer = lexiconFileHandler.findTermEntryCompression("aziz");
         int docFreq = lexiconFileHandler.getDfCompression(byteBuffer);
         System.out.println(lexiconFileHandler.getTerm(byteBuffer));
         System.out.println("docFREQ: " + docFreq);
