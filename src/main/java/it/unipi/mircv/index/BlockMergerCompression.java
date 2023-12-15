@@ -1,5 +1,8 @@
 package it.unipi.mircv.index;
 
+import it.unipi.mircv.Parameters;
+import it.unipi.mircv.Utils;
+import it.unipi.mircv.compression.VariableByte;
 import it.unipi.mircv.index.*;
 import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
@@ -14,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import static it.unipi.mircv.Config.*;
@@ -48,8 +52,8 @@ public class BlockMergerCompression {
         //initialize the document index file handler
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         //read the collection size and the average document length
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
+        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
         this.numberOfBlocks = numberOfBlocks;
 
 
@@ -130,11 +134,11 @@ public class BlockMergerCompression {
 
             //-------------------------------------------------------------------------------------------------------------
             //compute the termUpperBoundScore
-            float termUpperBoundScore = computeTermUpperBound2(documentIndexHandler, postingList2Compress);
+            float[] termUpperBoundScore = computeTermUpperBound2(documentIndexHandler, postingList2Compress);
 
             //appending term and posting list in final files
             writeToDiskCompression(fosLexicon, fosDocId, fosTermFreq, minTerm,
-                    docFreqSum, collFreqSum, termUpperBoundScore, postingList2Compress);
+                    docFreqSum, collFreqSum, termUpperBoundScore[0], termUpperBoundScore[1], postingList2Compress);
 
             //update the minTerm
             minTerm = minTermQueue.peek();
@@ -154,11 +158,10 @@ public class BlockMergerCompression {
             postingListBlocks.get(blockIndex).close();
         }*/
     }
-    //TODO qua mi funziona senza il -1 da ricontrollare anche senza compresion
     private void writeToDiskCompression(
                 FileOutputStream fosLexicon, FileOutputStream fosDocId,
                 FileOutputStream fosTermFreq, String term, int docFreq, int collFreq,
-                float termUpperBoundScore, PostingList2 postingList2Compress) throws IOException {
+                float termUpperBoundScoreBM25, float termUpperBoundScoreFTIDF, PostingList2 postingList2Compress) throws IOException {
 
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_COMPRESS_ENTRY_LENGTH);
         termBuffer.put(term.getBytes(StandardCharsets.UTF_8));
@@ -166,7 +169,8 @@ public class BlockMergerCompression {
         termBuffer.putLong(offsetToWriteTermFreq);
         termBuffer.putInt(docFreq);
         termBuffer.putInt(collFreq);
-        termBuffer.putFloat(termUpperBoundScore);
+        termBuffer.putFloat(termUpperBoundScoreBM25);
+        termBuffer.putFloat(termUpperBoundScoreFTIDF);
 
         // SKIP DESCRIPTORS
         int postingListSize = postingList2Compress.getSize();
@@ -183,9 +187,25 @@ public class BlockMergerCompression {
                         postingList2Compress.getSomeTermFreq(i, i + postingListSizeBlock)
                 );
 
+                //DEBUG
+                if(term.subSequence(0,8).equals("project\0")) {
+                    System.out.println(term);
+                    System.out.println(postingList2CompressBlock.getDocIds().size());
+                    System.out.println(postingList2CompressBlock.getTermFreqs().size());
+                    if(i==0) System.out.println(postingList2CompressBlock);
+                }
+
                 byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
                 fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
                 fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
+
+                //DEBUG
+                if(term.subSequence(0,8).equals("project\0") && i == 0) {
+                    System.out.println(compressedPLB[0].length);
+                    Utils.printReverseBytes(compressedPLB[0]);
+                    System.out.println(Arrays.toString(VariableByte.decompress(compressedPLB[0])));
+                }
+
                 int numByteDocIdCompressed = compressedPLB[0].length;
                 int numByteTermFreqCompressed = compressedPLB[1].length;
 
@@ -259,17 +279,22 @@ public class BlockMergerCompression {
         }
         return maxScore;
     }
-    private float computeTermUpperBound2(DocumentIndexFileHandler documentIndexHandler, PostingList2 postingList) throws IOException {
+    private float[] computeTermUpperBound2(DocumentIndexFileHandler documentIndexHandler, PostingList2 postingList) throws IOException {
         int documentFrequency = postingList.getSize();
-        float maxScore = -1;
+        float maxScoreBM25 = -1;
+        float maxScoreTFIDF = -1;
 
         for(int i = 0; i < documentFrequency; i++){
-            float currentScore = ScoreFunction.BM25(postingList.getTermFreqs().get(i),
-                    documentIndexHandler.readDocumentLength(postingList.getDocIds().get(i)), documentFrequency);
-            if (currentScore > maxScore)
-                maxScore = currentScore;
-        }
 
-        return maxScore;
+            float currentScoreBM25 = ScoreFunction.BM25(postingList.getTermFreqs().get(i),
+                    documentIndexHandler.readDocumentLength(postingList.getDocIds().get(i)),documentFrequency);
+            float currentScoreTFIDF = ScoreFunction.computeTFIDF(postingList.getDocIds().get(i),documentFrequency);
+
+            if (currentScoreBM25 > maxScoreBM25)
+                maxScoreBM25 = currentScoreBM25;
+            if (currentScoreTFIDF > maxScoreTFIDF)
+                maxScoreTFIDF = currentScoreTFIDF;
+        }
+        return new float[]{maxScoreBM25,maxScoreTFIDF};
     }
 }

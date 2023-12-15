@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.*;
 
 import java.util.HashMap;
-
+import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Utils.stemWord;
 

@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.docsLen;
+import static it.unipi.mircv.Parameters.scoreType;
 
 public class ConjunctiveDAATCompression {
     protected final int numTermQuery;
@@ -180,7 +182,12 @@ public class ConjunctiveDAATCompression {
             //currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
             currentDocLen = docsLen[postingListBlocks[index].getCurrentDocId()];
         }
-        currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
+        switch (scoreType){
+            case BM25 ->
+                    currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
+            case TFIDF ->
+                    currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
+        }
     }
     protected void loadPostingListBlockCompression(int indexTerm, int numPosting, long offsetMaxDocId, long offsetTermFreq,
                                                    int numByteDocId, int numByteTermFreq) throws IOException {
@@ -188,21 +195,6 @@ public class ConjunctiveDAATCompression {
         postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingListCompressed(
                 numPosting, offsetMaxDocId, numByteDocId, offsetTermFreq, numByteTermFreq);
     }
-    /*
-    protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
-        if (docFreqs[indexTerm] - readElement < blockSize) {
-            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    docFreqs[indexTerm] - readElement
-            );
-        }
-        else {
-            postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
-                    offsets[indexTerm] + readElement,
-                    blockSize
-            );
-        }
-    }*/
     protected static void sortArraysByArray(int[] arrayToSort,long[] array1, long[] array2,
                                             SkipDescriptorCompression[] array3, PostingListBlock[] array4) {
         // Sort all the input arrays according to the elements of the first array

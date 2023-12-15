@@ -21,6 +21,7 @@ public class VariableByte {
     public static byte[] compress(ArrayList<Integer> values) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         for (int value : values) {
+            /* PREVIOUS VERSION - DON'T DELETE
             while (value > 0) {
                 byte tempByte = (byte) (value & 0x7F);
 
@@ -30,6 +31,16 @@ public class VariableByte {
                 }
                 byteArrayOutputStream.write(tempByte);
             }
+
+             */
+            do {
+                byte tempByte = (byte) (value & 0x7F);
+                value >>>= 7;
+                if (value != 0) {
+                    tempByte |= 0x80;
+                }
+                byteArrayOutputStream.write(tempByte);
+            } while (value != 0);
         }
         return byteArrayOutputStream.toByteArray();
     }
@@ -54,8 +65,34 @@ public class VariableByte {
         while (currentIndex < bytes.length) {
             int currentResult = 0;
             int shift = 0;
+            boolean nonZeroFound = false;
 
             while (true) {
+                byte currentByte = bytes[currentIndex];
+                int maskedByte = currentByte & 0x7F;
+                currentResult |= maskedByte << shift;
+                shift += 7;
+                currentIndex++;
+
+                if ((currentByte & 0x80) == 0) {
+                    if (maskedByte == 0 && !nonZeroFound) {
+                        result.add(0);
+                    } else {
+                        result.add(currentResult);
+                    }
+                    break;
+                }
+
+                if (maskedByte != 0) {
+                    nonZeroFound = true;
+                }
+            }
+            /* PREVIOUS VERSION - DON'T DELETE
+            int currentResult = 0;
+            int shift = 0;
+
+            while (true) {
+
                 byte currentByte = bytes[currentIndex];
                 currentResult |= (currentByte & 0x7F) << shift;
                 shift += 7;
@@ -66,8 +103,9 @@ public class VariableByte {
                     break;
                 }
             }
-        }
 
+             */
+        }
         return result.stream().mapToInt(Integer::intValue).toArray();
     }
 }

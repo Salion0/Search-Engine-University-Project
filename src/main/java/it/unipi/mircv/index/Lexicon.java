@@ -85,13 +85,10 @@ public class Lexicon {
     public void addPostingElement(String term, int docId, int tf){
        //update term entry if exist and create an entry in the lexicon if term not exist.
         if (termExists(term)) {
-            System.out.println("Term: "+term+" already present in the lexicon");
             getPostingList(term).addPostingElement(new PostingElement(docId, tf));
             treeMap.get(term).setDf(treeMap.get(term).getDf()+1);
             treeMap.get(term).setCf(treeMap.get(term).getCf()+tf);
         }else {
-            System.out.println("Term: "+term+" not present in the lexicon");
-
             //add lexicon entry to the lexicon
             PostingList pl = new PostingList(new PostingElement(docId,tf));
             LexiconEntry le = new LexiconEntry();

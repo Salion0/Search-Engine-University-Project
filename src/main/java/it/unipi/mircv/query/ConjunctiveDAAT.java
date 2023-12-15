@@ -1,5 +1,6 @@
 package it.unipi.mircv.query;
 
+import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
@@ -14,6 +15,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.docsLen;
+import static it.unipi.mircv.Parameters.scoreType;
 
 public class ConjunctiveDAAT {
     protected final int numTermQuery;
@@ -125,14 +128,19 @@ public class ConjunctiveDAAT {
         return false;
     }
 
-    protected void updateCurrentDocScore(int index) throws IOException {
+    protected void updateCurrentDocScore(int index) {
         if (index == 1) {
             //AIUDOO
             //currentDocLen = documentIndexHandler.readDocumentLength(postingListBlocks[index].getCurrentDocId());
             currentDocLen = docsLen[postingListBlocks[index].getCurrentDocId()];
         }
-        //currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
-        currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
+
+        switch (scoreType){
+            case BM25 ->
+                    currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
+            case TFIDF ->
+                    currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
+        }
     }
 
     protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {

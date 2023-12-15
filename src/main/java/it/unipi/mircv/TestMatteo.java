@@ -3,43 +3,66 @@ package it.unipi.mircv;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
+import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.index.BlockMergerCompression;
+import it.unipi.mircv.index.DocumentIndex;
+import it.unipi.mircv.index.Index;
 
 import java.io.IOException;
 
-import static it.unipi.mircv.Config.QueryProcessor.*;
-import static it.unipi.mircv.Config.Score.BM25;
+import static it.unipi.mircv.Parameters.*;
+import static it.unipi.mircv.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.Parameters.Score.*;
+import static it.unipi.mircv.Utils.loadStopWordList;
+import static java.lang.System.currentTimeMillis;
 
 public class TestMatteo {
-
     public static void main(String[] args) throws IOException {
 
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
-        Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
-
-        //TestLorenzo.checkLexiconEntry("diet");
-
-        //TODO da fare più veloce perchè così ci vuole una vita e poi da mettere in Documenet Index
-        Config.docsLen = new int[Config.collectionSize];
-        for (int i = 0; i < Config.collectionSize; i++){
-            Config.docsLen[i] = documentIndexHandler.readDocumentLength(i);
-        }
-
-        System.out.println(documentIndexHandler.readDocumentLength(8000000));
-        System.out.println(Config.docsLen[8000000]);
-
-/*        System.out.println(SystemEvaluator.testQueryTime("manhattan project", DISJUNCTIVE, BM25,
-                true, false ));*/
-
-        InvertedIndexFileHandler invertedIndexFileHandler = new InvertedIndexFileHandler();
-        System.out.println("Inizio dell' inverted index: "+invertedIndexFileHandler.getPostingList(0,20));
+        flagStemming = true;
+        flagStopWordRemoval = true;
+        flagCompressedReading = true;
+        long startTime;
 
 
+        /*
+        startTime = currentTimeMillis();
+        Index index = new Index("data/","collection.tar",false);
+        BlockMergerCompression blockMerger = new BlockMergerCompression();
+        blockMerger.mergeBlocks(index.getNumberOfBlocks());
+        System.out.println("time: " + (currentTimeMillis() - startTime));
 
-        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE, BM25,true, false);
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctive.txt","query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT, BM25,true, false);
+         */
+
+
+        //QUERY ------
+        loadStopWordList();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
+
+        LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
+        lexiconFileHandler.findTermEntryCompression("");
+
+        //QUERY TIME ----------------------
+        startTime = currentTimeMillis();
+        SystemEvaluator.queryResult("", DISJUNCTIVE_MAX_SCORE_C);
+        System.out.println("time: " + (currentTimeMillis() - startTime));
+
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C);
+        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
+
+        //CREATING FILE ----------------------
+        /*
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveMaxStemming.txt",
+                "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE_C);
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveStemming.txt",
+                "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
+
+
+         */
 
         //testing PL Descriptor
 

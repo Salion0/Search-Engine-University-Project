@@ -18,8 +18,8 @@ public class TestMinHeap {
 
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
+        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
+        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
 
         float[] arrayOfScores = new float[]{ 3.422f, 0.134f, 9.199f, 5.444f, 6.125f, 0.134f, 4.231f, 5.444f, 0.134f};
         int[] docIds = new int[]{78,23,15,10,30,55,100,21,3};

@@ -16,6 +16,7 @@ import java.util.*;
 
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.stopWords;
 
 public class QueryProcessor {
 

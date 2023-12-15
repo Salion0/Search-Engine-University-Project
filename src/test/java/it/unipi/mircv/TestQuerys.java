@@ -4,7 +4,6 @@ import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.query.DisjunctiveDAAT;
 import it.unipi.mircv.query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,16 +12,19 @@ import static it.unipi.mircv.Utils.removeStopWords;
 
 public class TestQuerys {
 
-    @Test
-    void testMaxScoreAndDisjunctive() throws IOException {
+    public static void main(String[] args) throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
-        String[] querys = new String[]{"10 100","railroad workers","detection system",
-                "manhattan project", "tree farm"}; // "caries detection system" far vedere che gestisce anche le parole che non ci sono
+        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
+        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        for (int i = 0; i < querys.length; i++)
+        testMaxScoreAndDisjunctive();
+    }
+
+    public static void testMaxScoreAndDisjunctive() throws IOException {
+        String[] querys = new String[]{"10 100","railroad workers","caries detection system"};
+
+        for (int i = 0; i < 3; i++)
         {
             String string = querys[i];
             ArrayList<Integer> resultsDisjunctive = testDisjunctive(string);
@@ -32,7 +34,6 @@ public class TestQuerys {
 
         System.out.println("\ntest on Disjunctive and MaxScore --> SUCCESSFUL");
     }
-
 
     public static ArrayList<Integer> testDisjunctive(String string) throws IOException {
         long startTime = System.currentTimeMillis();

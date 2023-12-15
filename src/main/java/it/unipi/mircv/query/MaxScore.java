@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Parameters.docsLen;
 
 public class MaxScore {
     private int numTermQuery;

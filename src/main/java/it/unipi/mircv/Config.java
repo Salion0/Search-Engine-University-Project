@@ -3,10 +3,6 @@ package it.unipi.mircv;
 import java.util.List;
 
 public class Config {
-    public static List<String> stopWords;
-    public static int collectionSize;
-    public static float avgDocLen;
-    public static int[] docsLen;
     public static final int MEMORY_THRESHOLD_PERC = 8;
     public static final int TERM_BYTES_LENGTH = 64;
     public static final int DOC_ID_LENGTH = 4;
@@ -24,7 +20,7 @@ public class Config {
     public static final int NUM_BYTE_TO_READ_BYTE_LENGTH = 4;
     public static final int LEXICON_COMPRESS_ENTRY_LENGTH = TERM_BYTES_LENGTH +
             OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH +
-            DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH +
+            DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH +
             NUM_BYTE_TO_READ_BYTE_LENGTH + NUM_BYTE_TO_READ_BYTE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
     public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH
             + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
@@ -40,13 +36,4 @@ public class Config {
     public static final int MAX_NUM_DOC_RETRIEVED = 20;
     public static final int MIN_NUM_POSTING_TO_SKIP = 10; // vecchio valore era 10
 
-    // ************************* FLAG ********************************************
-    public static boolean flagCompressedReading;
-    public static boolean flagStopWordRemoval;
-    public static boolean flagStemming;
-    public enum QueryProcessor {
-        DISJUNCTIVE_DAAT, CONJUNCTIVE_DAAT, DISJUNCTIVE_MAX_SCORE,
-        DISJUNCTIVE_DAAT_C, CONJUNCTIVE_DAAT_C, DISJUNCTIVE_MAX_SCORE_C
-    }
-    public enum Score{ BM25, FTIDF }
 }
