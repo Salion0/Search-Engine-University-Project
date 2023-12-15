@@ -13,18 +13,24 @@ import java.util.Arrays;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.*;
 import static it.unipi.mircv.Parameters.Score.*;
+import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.Utils.setFilePaths;
 
 public class App
 {
     public static void main( String[] args ) throws IOException {
         flagStemming = false;
         flagStopWordRemoval = true;
-        flagCompressedReading = true;
+        flagCompressedReading = false;
+        STARTING_PATH = "data";
+        setFilePaths();
 
-        Index index = new Index("data/","test_collection.tsv",false);
+        Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
 
         BlockMergerCompression blockMerger = new BlockMergerCompression();
         blockMerger.mergeBlocks(index.getNumberOfBlocks());
+        //BlockMerger blockMerger = new BlockMerger();
+        //blockMerger.mergeBlocks(index.getNumberOfBlocks());
 
         //QUERY ------
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();

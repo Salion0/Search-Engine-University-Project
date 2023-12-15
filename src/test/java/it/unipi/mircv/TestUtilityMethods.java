@@ -74,8 +74,6 @@ public class TestUtilityMethods {
     void testSortArraysByArrays() throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         setPostingListBlocksForTesting();
         setLongerFirstPostingList();
         setLongerSecondPostingList();

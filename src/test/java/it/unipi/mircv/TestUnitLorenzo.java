@@ -70,8 +70,6 @@ public class TestUnitLorenzo {
     void testUploadPostingListBlock() throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         setPostingListBlocksForTesting();
 
         postingListBlocks = new PostingListBlock[3];
@@ -134,8 +132,6 @@ public class TestUnitLorenzo {
     void testCurrentDocIdInPostingList() throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         setPostingListBlocksForTesting();
 
         setLongerFirstPostingList();
@@ -159,8 +155,6 @@ public class TestUnitLorenzo {
     void testNextGEQ() throws IOException {
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
-        Config.collectionSize = documentIndexHandler.readCollectionSize();
-        Config.avgDocLen = documentIndexHandler.readAvgDocLen();
         setPostingListBlocksForTesting();
 
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();

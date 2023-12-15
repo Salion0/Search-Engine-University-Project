@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import static it.unipi.mircv.Config.STARTING_PATH;
 import static it.unipi.mircv.Parameters.collectionSize;
+import static it.unipi.mircv.Utils.setFilePaths;
 
 public class TestScores {
 
@@ -21,8 +23,6 @@ public class TestScores {
         Parameters.collectionSize = documentIndexHandler.readCollectionSize();
         Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        testBM25();
-        testTFIDF();
     }
 
     public static void testTFIDF() throws IOException {

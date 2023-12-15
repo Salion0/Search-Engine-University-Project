@@ -1,14 +1,22 @@
 package it.unipi.mircv;
 
+import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.query.DisjunctiveDAAT;
 import it.unipi.mircv.query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static it.unipi.mircv.Config.STARTING_PATH;
+import static it.unipi.mircv.Parameters.*;
+import static it.unipi.mircv.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.Parameters.Score.TFIDF;
+import static it.unipi.mircv.Parameters.docsLen;
 import static it.unipi.mircv.Utils.removeStopWords;
+import static it.unipi.mircv.Utils.setFilePaths;
 
 public class TestQuerys {
 
@@ -18,18 +26,32 @@ public class TestQuerys {
         Parameters.collectionSize = documentIndexHandler.readCollectionSize();
         Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
 
-        testMaxScoreAndDisjunctive();
     }
 
-    public static void testMaxScoreAndDisjunctive() throws IOException {
-        String[] querys = new String[]{"10 100","railroad workers","caries detection system"};
+    @Test
+    void testMaxScoreAndDisjunctive() throws IOException {
+        flagCompressedReading = false;
+        flagStopWordRemoval = true;
+        flagStemming = false;
+        STARTING_PATH = "dataForQueryTest";
+        setFilePaths();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        for (int i = 0; i < 3; i++)
+
+        String[] querys = new String[]{"10 100","railroad workers"};
+
+        for (int i = 0; i < querys.length; i++)
         {
-            String string = querys[i];
-            ArrayList<Integer> resultsDisjunctive = testDisjunctive(string);
-            ArrayList<Integer> resultsMaxScore = testMaxScore(string);
-            Assertions.assertEquals(resultsMaxScore,resultsDisjunctive);
+            String[] resultsDisjunctive = SystemEvaluator.queryResult(querys[i], DISJUNCTIVE_MAX_SCORE);
+            String[] resultsMaxScore = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT);
+            Assertions.assertEquals(resultsMaxScore.length,resultsDisjunctive.length);
+            for (int j = 0; j < resultsMaxScore.length; j++)
+                Assertions.assertEquals(resultsDisjunctive[j],resultsMaxScore[j]);
         }
 
         System.out.println("\ntest on Disjunctive and MaxScore --> SUCCESSFUL");

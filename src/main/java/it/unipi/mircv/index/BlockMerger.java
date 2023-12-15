@@ -29,7 +29,6 @@ public class BlockMerger {
     private static int offsetSkipDescriptor = 0;
 
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;
-    public static String path = STARTING_PATH + '/';
 
     public static void mergeBlocks(int numberOfBlocks) throws IOException {
         /*
@@ -42,7 +41,7 @@ public class BlockMerger {
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         //initialize the document index file handler
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler(path+"documentIndex.dat");
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler(STARTING_PATH + "/documentIndex.dat");
         //read the collection size and the average document length
         Parameters.collectionSize = documentIndexHandler.readCollectionSize();
         Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
@@ -53,17 +52,17 @@ public class BlockMerger {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat",true);
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(STARTING_PATH+"/lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
-                    path+"docIds"+blockIndex+".dat",
-                    path+"termFreq"+blockIndex+".dat");
+                    STARTING_PATH+"/docIds"+blockIndex+".dat",
+                    STARTING_PATH+"/termFreq"+blockIndex+".dat");
             lexiconBlocks.add(lexiconHandler);
             postingListBlocks.add(plHandler);
         }
 
-        FileOutputStream fosLexicon = new FileOutputStream(path+"lexicon.dat",true);
-        FileOutputStream fosDocId = new FileOutputStream(path+"docIds.dat",true);
-        FileOutputStream fosTermFreq = new FileOutputStream(path+"termFreq.dat",true);
+        FileOutputStream fosLexicon = new FileOutputStream(STARTING_PATH+"/lexicon.dat",true);
+        FileOutputStream fosDocId = new FileOutputStream(STARTING_PATH+"/docIds.dat",true);
+        FileOutputStream fosTermFreq = new FileOutputStream(STARTING_PATH+"/termFreq.dat",true);
         //------------------------------------------------------------------------------------------------------------------------------------------------
 
 
