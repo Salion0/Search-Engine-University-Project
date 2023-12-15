@@ -26,7 +26,7 @@ public class ConjunctiveDAAT {
     protected final SkipDescriptor[] skipDescriptors;
     protected final DocumentIndexFileHandler documentIndexFileHandler;
     protected final InvertedIndexFileHandler invertedIndexFileHandler;
-    protected float currentDocScore;
+    protected Float currentDocScore;
     protected Integer currentDocLen;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
@@ -75,7 +75,7 @@ public class ConjunctiveDAAT {
         while(postingCount < docFreqs[0]){
             currentDocId = postingListBlocks[0].getCurrentDocId();
             postingCount++;
-            currentDocScore = 0;
+            currentDocScore = 0f;
             currentDocLen = 0;
             docIdInAllPostingLists = true;
 

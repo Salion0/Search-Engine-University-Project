@@ -24,7 +24,7 @@ public class ConjunctiveDAATCompression {
     protected final int[] numPostingPerBlock;
     protected final DocumentIndexFileHandler documentIndexFileHandler;
     protected final InvertedIndexFileHandler invertedIndexFileHandler;
-    protected float currentDocScore;
+    protected Float currentDocScore;
     protected Integer currentDocLen;
 
     public ConjunctiveDAATCompression(String[] queryTerms) throws IOException {
@@ -94,7 +94,7 @@ public class ConjunctiveDAATCompression {
         while(postingCount < docFreqs[0]){
             postingCount++;
             currentDocId = postingListBlocks[0].getCurrentDocId();
-            currentDocScore = 0;
+            currentDocScore = 0f;
             currentDocLen = 0;
             docIdInAllPostingLists = true;
 

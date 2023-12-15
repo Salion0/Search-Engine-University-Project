@@ -21,7 +21,7 @@ public class MaxScore {
     private final int[] docFreqs;
     private final int[] offsets;
     private int[] numElementsRead; // count the numbers of element read for each posting list
-    private final float[] upperBoundScores;
+    private final Float[] upperBoundScores;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptor[] skipDescriptors;
     private final DocumentIndexFileHandler documentIndexHandler;
@@ -41,7 +41,7 @@ public class MaxScore {
         docFreqs = new int[numTermQuery];
         offsets = new int[numTermQuery];
         numElementsRead =  new int[postingListBlocks.length]; // count the numbers of element read for each posting list
-        upperBoundScores = new float[numTermQuery];
+        upperBoundScores = new Float[numTermQuery];
         skipDescriptors = new SkipDescriptor[numTermQuery];
 
         //search for the query terms in the lexicon
@@ -104,8 +104,8 @@ public class MaxScore {
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
-        float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
-        float minScoreInHeap = 0; // teta
+        Float[] documentUpperBounds = new Float[postingListBlocks.length]; // ub
+        Float minScoreInHeap = 0f; // teta
         int pivot = 0;
         int minCurrentDocId; // current
 
@@ -113,7 +113,7 @@ public class MaxScore {
         for (int i = 1; i < postingListBlocks.length; i++)
             documentUpperBounds[i] = documentUpperBounds[i - 1] + upperBoundScores[i];
 
-        float score;
+        Float score;
         int next;
         int countCurrentDocIdInPostingLists; // for checking if the docId is in every posting list
         int minDocIdDocumentLength; // optimization to avoid reading document length more than one time
@@ -121,7 +121,7 @@ public class MaxScore {
 
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
-            score = 0;
+            score = 0f;
             countCurrentDocIdInPostingLists = 0;
             //AIUDOOO
             //minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
@@ -210,7 +210,7 @@ public class MaxScore {
     }
 
 
-    public static void sortArraysByArray(float[] arrayToSort, int[] otherArray, int[] otherOtherArray,
+    public static void sortArraysByArray(Float[] arrayToSort, int[] otherArray, int[] otherOtherArray,
                                          SkipDescriptor[] otherOtherOtherArray, PostingListBlock[] otherOtherOtherOtherArray) {
 
         Integer[] indexes = new Integer[arrayToSort.length];
@@ -221,7 +221,7 @@ public class MaxScore {
         Arrays.sort(indexes, Comparator.comparingDouble(i -> arrayToSort[i]));
         for (int i = 0; i < arrayToSort.length; i++) {
             if (indexes[i] != i) {
-                float temp = arrayToSort[i];
+                Float temp = arrayToSort[i];
                 arrayToSort[i] = arrayToSort[indexes[i]];
                 arrayToSort[indexes[i]] = temp;
 

@@ -20,7 +20,7 @@ public class MinHeapScores {
         parameterForMaxScore = 0;
     }
 
-    private void insertDocIdInMap(float score,int docId){
+    private void insertDocIdInMap(Float score,int docId){
         if (score2DocIdMap.containsKey(score)) {  //if score is present in hashmap
             score2DocIdMap.get(score).add(docId); //add element to the arrayList of docId
         }else{
@@ -29,7 +29,7 @@ public class MinHeapScores {
             score2DocIdMap.put(score, arrayList);
         }
     }
-    private void removeDocIdFromMap(float score){
+    private void removeDocIdFromMap(Float score){
         ArrayList<Integer> docIds = score2DocIdMap.get(score);
         if(docIds.size()>1){ //if there are more than 1 docIDs associated to the score then remove only one
             docIds.remove(docIds.size()-1);
@@ -38,7 +38,7 @@ public class MinHeapScores {
             score2DocIdMap.remove(score);
         }
     }
-    public void insertIntoPriorityQueue(float docScore, int minDocId){
+    public void insertIntoPriorityQueue(Float docScore, int minDocId){
         if (topDocCount < MAX_NUM_DOC_RETRIEVED){  //There less than k documents in the priority queue
             topDocCount++;
             try {
@@ -50,7 +50,7 @@ public class MinHeapScores {
 
         }else{      //there are more than k documents in the priority queue
 
-            float peek = topScores.peek();
+            Float peek = topScores.peek();
             if(docScore > peek) { //need to check if minDocId should be inserted
                 topScores.remove(peek); // in the peek there is the minScore
                 topScores.add(docScore);
@@ -60,8 +60,8 @@ public class MinHeapScores {
         }
     }
 
-    public void insertIntoPriorityQueueMAXSCORE(float docScore, int minDocId){
-        float peek = topScores.peek();
+    public void insertIntoPriorityQueueMAXSCORE(Float docScore, int minDocId){
+        Float peek = topScores.peek();
         if(docScore > peek) { //need to check if minDocId should be inserted
             topScores.remove(peek); // in the peek there is the minScore
             topScores.add(docScore);
@@ -75,7 +75,7 @@ public class MinHeapScores {
     public Float getMinScore() {return topScores.peek();}
 
     public PriorityQueue<Float> getTopScores(){return topScores; }
-    public ArrayList<Integer> getDocId(float scores){return this.score2DocIdMap.get(scores);}
+    public ArrayList<Integer> getDocId(Float scores){return this.score2DocIdMap.get(scores);}
 
     public ArrayList<Integer> getTopDocIdReversed() {
         Float score;
@@ -96,7 +96,7 @@ public class MinHeapScores {
 
     public void setTopDocCount(int quantity) {
         for (int i = 0; i < quantity; i++)
-            topScores.offer((float) 0);
+            topScores.offer((Float) 0f);
         topDocCount = quantity;
     } // PER MAX-SCORE
 

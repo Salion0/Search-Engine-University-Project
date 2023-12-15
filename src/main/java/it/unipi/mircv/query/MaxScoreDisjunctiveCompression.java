@@ -25,7 +25,7 @@ public class MaxScoreDisjunctiveCompression {
     private final long[] offsetsTermFreq;
     private final int[] numBlockRead;
     private final int[] numPostingPerBlock;
-    private final float[] upperBoundScores;
+    private final Float[] upperBoundScores;
     private final boolean[] endOfPostingListFlag;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptorCompression[] skipDescriptorsCompression;
@@ -43,7 +43,7 @@ public class MaxScoreDisjunctiveCompression {
         offsetsTermFreq = new long[numTermQuery];
         numBlockRead = new int[numTermQuery];
         endOfPostingListFlag = new boolean[postingListBlocks.length];
-        upperBoundScores = new float[numTermQuery];
+        upperBoundScores = new Float[numTermQuery];
         skipDescriptorsCompression = new SkipDescriptorCompression[numTermQuery];
         numPostingPerBlock = new int[numTermQuery];
 
@@ -96,8 +96,8 @@ public class MaxScoreDisjunctiveCompression {
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
-        float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
-        float minScoreInHeap = 0; // teta
+        Float[] documentUpperBounds = new Float[postingListBlocks.length]; // ub
+        Float minScoreInHeap = 0f; // teta
         int pivot = 0;
         int minCurrentDocId; // current
 
@@ -105,7 +105,7 @@ public class MaxScoreDisjunctiveCompression {
         for (int i = 1; i < postingListBlocks.length; i++)
             documentUpperBounds[i] = documentUpperBounds[i - 1] + upperBoundScores[i];
 
-        float score;
+        Float score;
         int next;
         int minDocIdDocumentLength; // optimization to avoid reading document length more than one time
         int countFinishedPostingLists = 0;
@@ -116,7 +116,7 @@ public class MaxScoreDisjunctiveCompression {
 
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
-            score = 0;
+            score = 0f;
             //AIUDOOO
             //minDocIdDocumentLength = documentIndexHandler.readDocumentLength(minCurrentDocId);
             minDocIdDocumentLength = docsLen[minCurrentDocId];
@@ -254,7 +254,7 @@ public class MaxScoreDisjunctiveCompression {
     }
 
 
-    public static void sortArraysByArray(float[] arrayToSort, int[] otherArray, long[] offsetsDocId, long[] offsetsTermFreq,
+    public static void sortArraysByArray(Float[] arrayToSort, int[] otherArray, long[] offsetsDocId, long[] offsetsTermFreq,
                                          SkipDescriptorCompression[] otherOtherOtherArray, PostingListBlock[] otherOtherOtherOtherArray) {
 
         Integer[] indexes = new Integer[arrayToSort.length];
@@ -265,7 +265,7 @@ public class MaxScoreDisjunctiveCompression {
         Arrays.sort(indexes, Comparator.comparingDouble(i -> arrayToSort[i]));
         for (int i = 0; i < arrayToSort.length; i++) {
             if (indexes[i] != i) {
-                float temp = arrayToSort[i];
+                Float temp = arrayToSort[i];
                 arrayToSort[i] = arrayToSort[indexes[i]];
                 arrayToSort[indexes[i]] = temp;
 

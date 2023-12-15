@@ -40,7 +40,7 @@ public class TestMatteo {
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
-        scoreType = TFIDF;
+        scoreType = BM25;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
@@ -51,13 +51,14 @@ public class TestMatteo {
         SystemEvaluator.queryResult("", DISJUNCTIVE_MAX_SCORE_C);
         System.out.println("time: " + (currentTimeMillis() - startTime));
 
-        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C);
+        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
 
         //CREATING FILE ----------------------
-        /*
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveMaxStemming.txt",
+
+        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveMaxStemmingBM25.txt",
                 "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE_C);
+        /*
         SystemEvaluator.createFileQueryResults("queryResult/disjunctiveStemming.txt",
                 "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
 

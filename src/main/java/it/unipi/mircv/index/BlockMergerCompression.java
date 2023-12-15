@@ -134,7 +134,7 @@ public class BlockMergerCompression {
 
             //-------------------------------------------------------------------------------------------------------------
             //compute the termUpperBoundScore
-            float[] termUpperBoundScore = computeTermUpperBound2(documentIndexHandler, postingList2Compress);
+            Float[] termUpperBoundScore = computeTermUpperBound2(documentIndexHandler, postingList2Compress);
 
             //appending term and posting list in final files
             writeToDiskCompression(fosLexicon, fosDocId, fosTermFreq, minTerm,
@@ -161,7 +161,7 @@ public class BlockMergerCompression {
     private void writeToDiskCompression(
                 FileOutputStream fosLexicon, FileOutputStream fosDocId,
                 FileOutputStream fosTermFreq, String term, int docFreq, int collFreq,
-                float termUpperBoundScoreBM25, float termUpperBoundScoreFTIDF, PostingList2 postingList2Compress) throws IOException {
+                Float termUpperBoundScoreBM25, Float termUpperBoundScoreFTIDF, PostingList2 postingList2Compress) throws IOException {
 
         ByteBuffer termBuffer = ByteBuffer.allocate(LEXICON_COMPRESS_ENTRY_LENGTH);
         termBuffer.put(term.getBytes(StandardCharsets.UTF_8));
@@ -265,36 +265,36 @@ public class BlockMergerCompression {
         fosLexicon.write(termBuffer.array());
     }
 
-    private float computeTermUpperBound(DocumentIndexFileHandler documentIndexHandler, PostingList postingList) throws IOException {
+    private Float computeTermUpperBound(DocumentIndexFileHandler documentIndexHandler, PostingList postingList) throws IOException {
         int documentFrequency = postingList.getSize();
-        float maxScore = -1;
+        Float maxScore = -1f;
 
         for (PostingElement postingElement: postingList.getList())
         {
             //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
-            float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),
+            Float currentScore = ScoreFunction.BM25(postingElement.getTermFreq(),
                     documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
             if (currentScore > maxScore)
                 maxScore = currentScore;
         }
         return maxScore;
     }
-    private float[] computeTermUpperBound2(DocumentIndexFileHandler documentIndexHandler, PostingList2 postingList) throws IOException {
+    private Float[] computeTermUpperBound2(DocumentIndexFileHandler documentIndexHandler, PostingList2 postingList) throws IOException {
         int documentFrequency = postingList.getSize();
-        float maxScoreBM25 = -1;
-        float maxScoreTFIDF = -1;
+        Float maxScoreBM25 = -1f;
+        Float maxScoreTFIDF = -1f;
 
         for(int i = 0; i < documentFrequency; i++){
 
-            float currentScoreBM25 = ScoreFunction.BM25(postingList.getTermFreqs().get(i),
+            Float currentScoreBM25 = ScoreFunction.BM25(postingList.getTermFreqs().get(i),
                     documentIndexHandler.readDocumentLength(postingList.getDocIds().get(i)),documentFrequency);
-            float currentScoreTFIDF = ScoreFunction.computeTFIDF(postingList.getDocIds().get(i),documentFrequency);
+            Float currentScoreTFIDF = ScoreFunction.computeTFIDF(postingList.getDocIds().get(i),documentFrequency);
 
             if (currentScoreBM25 > maxScoreBM25)
                 maxScoreBM25 = currentScoreBM25;
             if (currentScoreTFIDF > maxScoreTFIDF)
                 maxScoreTFIDF = currentScoreTFIDF;
         }
-        return new float[]{maxScoreBM25,maxScoreTFIDF};
+        return new Float[]{maxScoreBM25,maxScoreTFIDF};
     }
 }

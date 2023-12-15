@@ -22,7 +22,7 @@ public class MaxScoreDisjunctive {
     private final int[] docFreqs;
     private final int[] offsets;
     private final int[] numElementsRead; // count the numbers of element read for each posting list
-    private final float[] upperBoundScores;
+    private final Float[] upperBoundScores;
     private final boolean[] endOfPostingListFlag;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptor[] skipDescriptors;
@@ -41,7 +41,7 @@ public class MaxScoreDisjunctive {
         offsets = new int[numTermQuery];
         numElementsRead = new int[postingListBlocks.length]; // count the numbers of element read for each posting list
         endOfPostingListFlag = new boolean[postingListBlocks.length];
-        upperBoundScores = new float[numTermQuery];
+        upperBoundScores = new Float[numTermQuery];
         skipDescriptors = new SkipDescriptor[numTermQuery];
 
         for (int i = 0; i < numTermQuery; i++) {
@@ -94,16 +94,16 @@ public class MaxScoreDisjunctive {
     public ArrayList<Integer> computeMaxScore() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
-        float minScoreInHeap = 0; // teta
+        Float minScoreInHeap = 0f; // teta
         int pivot = 0;
         int minCurrentDocId; // current
 
-        float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
+        Float[] documentUpperBounds = new Float[postingListBlocks.length]; // ub
         documentUpperBounds[0] = upperBoundScores[0];
         for (int i = 1; i < postingListBlocks.length; i++)
             documentUpperBounds[i] = documentUpperBounds[i - 1] + upperBoundScores[i];
 
-        float score;
+        Float score;
         int next;
         int minDocIdDocumentLength; // optimization to avoid reading document length more than one time
         int countFinishedPostingLists = 0;
@@ -111,7 +111,7 @@ public class MaxScoreDisjunctive {
 
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
-            score = 0;
+            score = 0f;
             //AIUDOOO
             minDocIdDocumentLength = docsLen[minCurrentDocId];
             //minDocIdDocumentLength = docsLen[minCurrentDocId];
@@ -211,7 +211,7 @@ public class MaxScoreDisjunctive {
     }
 
 
-    public static void sortArraysByArray(float[] arrayToSort, int[] otherArray, int[] otherOtherArray,
+    public static void sortArraysByArray(Float[] arrayToSort, int[] otherArray, int[] otherOtherArray,
                                          SkipDescriptor[] otherOtherOtherArray, PostingListBlock[] otherOtherOtherOtherArray) {
 
         Integer[] indexes = new Integer[arrayToSort.length];
@@ -222,7 +222,7 @@ public class MaxScoreDisjunctive {
         Arrays.sort(indexes, Comparator.comparingDouble(i -> arrayToSort[i]));
         for (int i = 0; i < arrayToSort.length; i++) {
             if (indexes[i] != i) {
-                float temp = arrayToSort[i];
+                Float temp = arrayToSort[i];
                 arrayToSort[i] = arrayToSort[indexes[i]];
                 arrayToSort[indexes[i]] = temp;
 

@@ -69,13 +69,13 @@ public class DisjunctiveDAAT {
 
     public ArrayList<Integer> processQuery() throws IOException {
         MinHeapScores heapScores = new MinHeapScores();
-        float currentDocScore;
+        Float currentDocScore;
         int minDocId;
         int count = 0;//DEBUG
 
         while ((minDocId = getMinDocId()) != collectionSize)
         {
-            currentDocScore = 0;
+            currentDocScore = 0f;
             //System.out.println("minDocId: " + minDocId); //DEBUG
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
