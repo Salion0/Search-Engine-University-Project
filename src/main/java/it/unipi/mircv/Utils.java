@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+
+import static it.unipi.mircv.Config.STARTING_PATH;
 import static it.unipi.mircv.Config.stopWords;
 
 public class Utils {
@@ -107,7 +109,7 @@ public class Utils {
                     }
                 }
             }
-        } else Files.createDirectory(Paths.get("data"));
+        } else Files.createDirectory(Paths.get(STARTING_PATH));
     }
 
     public static void deleteFile(String filePath) {
@@ -127,6 +129,14 @@ public class Utils {
             phrase[i] = porterStemmer.stemWord(phrase[i]);
         }
         return  phrase;
+    }
+
+    public static void setFilePaths() {
+        Config.LEXICON_FILE = STARTING_PATH + "/lexicon.dat";
+        Config.TERM_FREQ_FILE = STARTING_PATH + "/termFreq.dat";
+        Config.DOC_ID_FILE = STARTING_PATH + "/docIds.dat";
+        Config.DOCUMENT_INDEX_FILE = STARTING_PATH + "/documentIndex.dat";
+        Config.POSTING_LIST_DESC_FILE = STARTING_PATH + "/postingListDesc.dat";
     }
 
 }

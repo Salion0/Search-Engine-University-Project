@@ -6,21 +6,21 @@ import it.unipi.mircv.index.Index;
 
 import java.io.IOException;
 
+import static it.unipi.mircv.Config.*;
+
 public class TestApp {
 
     public static void main(String[] args) throws IOException {
 
-        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
-        Config.collectionSize = documentIndexFileHandler.readCollectionSize();
-
+        STARTING_PATH = "dataForQueryTest";
         Config.flagStemming=false;
         Config.flagStopWordRemoval=true;
         Config.flagCompressedReading=false;
 
-        Index index = new Index("data/","test_collection.tsv",false);
-
+        Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
         BlockMerger blockMerger = new BlockMerger();
         blockMerger.mergeBlocks(index.getNumberOfBlocks());
+
     }
 
 }

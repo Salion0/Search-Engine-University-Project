@@ -14,7 +14,7 @@ public class DocumentIndexFileHandler {
     private final FileChannel fileChannel;
     private final RandomAccessFile randomAccessFile;
     long currentPosition;
-    String filePath = "data/documentIndex.dat";
+    String filePath = DOCUMENT_INDEX_FILE;
 
     public DocumentIndexFileHandler() throws IOException {
         File file = new File(this.filePath);

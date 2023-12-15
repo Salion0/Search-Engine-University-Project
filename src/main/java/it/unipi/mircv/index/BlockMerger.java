@@ -28,7 +28,7 @@ public class BlockMerger {
     private static int offsetSkipDescriptor = 0;
 
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;
-    public static String path="data/";
+    public static String path = STARTING_PATH + '/';
 
     public static void mergeBlocks(int numberOfBlocks) throws IOException {
         /*
@@ -37,7 +37,6 @@ public class BlockMerger {
         File directory=new File(path);
         int numberOfBlocks = (directory.list().length-5)/3;
         */
-
 
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();

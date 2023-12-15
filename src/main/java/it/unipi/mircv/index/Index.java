@@ -109,7 +109,7 @@ public class Index {
 
 
             //DEBUG - every tot document print the memory available
-            //System.out.println(count);
+            System.out.println(count);
             //if (count%10000 == 0)
               //  System.out.println("Free memory percentage: "+ freeMemoryPercentage());
 
