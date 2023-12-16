@@ -4,6 +4,7 @@ import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.LexiconFileHandler;
+import it.unipi.mircv.index.BlockMerger;
 import it.unipi.mircv.index.BlockMergerCompression;
 import it.unipi.mircv.index.DocumentIndex;
 import it.unipi.mircv.index.Index;
@@ -24,46 +25,40 @@ public class TestMatteo {
         flagCompressedReading = true;
         long startTime;
 
-
         /*
         startTime = currentTimeMillis();
         Index index = new Index("data/","collection.tar",false);
-        BlockMergerCompression blockMerger = new BlockMergerCompression();
-        blockMerger.mergeBlocks(index.getNumberOfBlocks());
+        //BlockMerger blockMerger = new BlockMerger();
+        BlockMerger.mergeBlocks(index.getNumberOfBlocks());
         System.out.println("time: " + (currentTimeMillis() - startTime));
 
+
          */
-
-
         //QUERY ------
         loadStopWordList();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
-        scoreType = BM25;
+        scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
-
-        LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
-        lexiconFileHandler.findTermEntryCompression("");
 
         //QUERY TIME ----------------------
         startTime = currentTimeMillis();
-        SystemEvaluator.queryResult("", DISJUNCTIVE_MAX_SCORE_C);
+        SystemEvaluator.queryResult("", DISJUNCTIVE_MAX_SCORE);
         System.out.println("time: " + (currentTimeMillis() - startTime));
 
-        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C);
+        //.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
 
         //CREATING FILE ----------------------
 
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveMaxStemmingBM25.txt",
-                "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE_C);
-        /*
-        SystemEvaluator.createFileQueryResults("queryResult/disjunctiveStemming.txt",
+        SystemEvaluator.createFileQueryResults("queryResult/NOCOMPdisjunctiveMaxStemmingTFIDF.txt",
+                "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE);
+
+        SystemEvaluator.createFileQueryResults("queryResult/NOCOMPdisjunctiveStemmingTFIDF.txt",
                 "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
 
 
-         */
 
         //testing PL Descriptor
 
