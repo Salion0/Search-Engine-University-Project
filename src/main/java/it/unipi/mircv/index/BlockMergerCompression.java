@@ -46,7 +46,6 @@ public class BlockMergerCompression {
         int numberOfBlocks = (directory.list().length-5)/3;
         */
 
-
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         //initialize the document index file handler

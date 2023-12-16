@@ -85,6 +85,9 @@ public class SystemEvaluator {
             case CONJUNCTIVE_DAAT -> {
                 results = new ConjunctiveDAAT(queryTerms).processQuery();
             }
+            case CONJUNCTIVE_DAAT_NO_SKIPPING -> {
+                results = new ConjunctiveDAAT(queryTerms).processQueryWithoutSkipping();
+            }
             case DISJUNCTIVE_MAX_SCORE -> {
                 results = new MaxScoreDisjunctive(queryTerms).computeMaxScore();
             }
@@ -119,6 +122,9 @@ public class SystemEvaluator {
             }
             case CONJUNCTIVE_DAAT -> {
                 results = new ConjunctiveDAAT(queryTerms).processQuery();
+            }
+            case CONJUNCTIVE_DAAT_NO_SKIPPING -> {
+                results = new ConjunctiveDAAT(queryTerms).processQueryWithoutSkipping();
             }
             case DISJUNCTIVE_MAX_SCORE -> {
                 results = new MaxScoreDisjunctive(queryTerms).computeMaxScore();

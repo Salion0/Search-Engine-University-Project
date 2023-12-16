@@ -13,28 +13,21 @@ import java.util.ArrayList;
 import static it.unipi.mircv.Config.STARTING_PATH;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.Parameters.Score.BM25;
 import static it.unipi.mircv.Parameters.Score.TFIDF;
 import static it.unipi.mircv.Parameters.docsLen;
-import static it.unipi.mircv.Utils.removeStopWords;
-import static it.unipi.mircv.Utils.setFilePaths;
+import static it.unipi.mircv.Utils.*;
 
 public class TestQuerys {
-
-    public static void main(String[] args) throws IOException {
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
-        Utils.loadStopWordList();
-        Parameters.collectionSize = documentIndexHandler.readCollectionSize();
-        Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
-
-    }
 
     @Test
     void testMaxScoreAndDisjunctive() throws IOException {
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
-        STARTING_PATH = "dataForQueryTest";
+        Config.STARTING_PATH = "dataForQueryTest";
         setFilePaths();
+        printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         collectionSize = documentIndexFileHandler.readCollectionSize();
@@ -42,9 +35,19 @@ public class TestQuerys {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
+        String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
+                    "New York", "best lunch dishes"};
 
-        String[] querys = new String[]{"10 100","railroad workers"};
+        for (int i = 0; i < querys.length; i++)
+        {
+            String[] resultsDisjunctive = SystemEvaluator.queryResult(querys[i], DISJUNCTIVE_MAX_SCORE);
+            String[] resultsMaxScore = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT);
+            Assertions.assertEquals(resultsMaxScore.length,resultsDisjunctive.length);
+            for (int j = 0; j < resultsMaxScore.length; j++)
+                Assertions.assertEquals(resultsDisjunctive[j],resultsMaxScore[j]);
+        }
 
+        scoreType = BM25;
         for (int i = 0; i < querys.length; i++)
         {
             String[] resultsDisjunctive = SystemEvaluator.queryResult(querys[i], DISJUNCTIVE_MAX_SCORE);
@@ -57,31 +60,103 @@ public class TestQuerys {
         System.out.println("\ntest on Disjunctive and MaxScore --> SUCCESSFUL");
     }
 
-    public static ArrayList<Integer> testDisjunctive(String string) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
+    @Test
+    void testConjuctiveWithAndWithoutSkipping() throws IOException {
+        flagCompressedReading = false;
+        flagStopWordRemoval = true;
+        flagStemming = false;
+        STARTING_PATH = "dataForQueryTest";
+        setFilePaths();
+        printFilePaths();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
+        String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
+                "New York", "best lunch dishes"};
 
-        DisjunctiveDAAT noPriorityQueueDisjunctive = new DisjunctiveDAAT(queryTerms);
-        ArrayList<Integer> results = noPriorityQueueDisjunctive.processQuery();
-        System.out.println(results);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println("DISJUNCTIVE finished in " + (float)elapsedTime/1000 +"sec");
-        return results;
+        for (int i = 0; i < querys.length; i++)
+        {
+            String[] resultsConjunctiveWithoutSkipping = SystemEvaluator.queryResult(querys[i], CONJUNCTIVE_DAAT_NO_SKIPPING);
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT);
+            Assertions.assertEquals(resultsConjunctiveWithoutSkipping.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithoutSkipping[j]);
+        }
+
+        scoreType = BM25;
+        for (int i = 0; i < querys.length; i++)
+        {
+            String[] resultsConjunctiveWithoutSkipping = SystemEvaluator.queryResult(querys[i], CONJUNCTIVE_DAAT_NO_SKIPPING);
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT);
+            Assertions.assertEquals(resultsConjunctiveWithoutSkipping.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithoutSkipping[j]);
+        }
+
+        System.out.println("\ntest on Conjunctive and Conjunctive Without Skipping --> SUCCESSFUL");
     }
 
-    public static ArrayList<Integer> testMaxScore(String string) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String[] queryTerms = string.split(" ");
-        queryTerms = removeStopWords(queryTerms);
-        MaxScoreDisjunctive maxScore = new MaxScoreDisjunctive(queryTerms);
-        ArrayList<Integer> results = maxScore.computeMaxScore();
-        System.out.println(results);
-        long endTime = System.currentTimeMillis();
-        long elapsedTime = endTime - startTime;
-        System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");
-        return results;
+    @Test
+    void testConjuctiveWithAndWithoutCompression() throws IOException {
+        flagCompressedReading = false;
+        flagStopWordRemoval = true;
+        flagStemming = false;
+        Utils.loadStopWordList();
+        setParametersForNoCompression();
+
+        String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
+                "New York", "best lunch dishes"};
+
+        for (int i = 0; i < querys.length; i++)
+        {
+            setParametersForNoCompression();
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT);
+            setParametersForCompression();
+            String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT_C);
+            Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
+        }
+
+        scoreType = BM25;
+        for (int i = 0; i < querys.length; i++)
+        {
+            setParametersForNoCompression();
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT);
+            setParametersForCompression();
+            String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT_C);
+            Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
+        }
+
+        System.out.println("\ntest on Conjunctive and Conjunctive Without Compression --> SUCCESSFUL");
     }
+
+    private void setParametersForNoCompression() throws IOException {
+        STARTING_PATH = "dataForQueryTest";
+        setFilePaths();
+        printFilePaths();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
+    }
+
+    private void setParametersForCompression() throws IOException {
+        STARTING_PATH = "dataForQueryTestCompressed";
+        setFilePaths();
+        printFilePaths();
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
+    }
+
 }

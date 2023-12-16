@@ -139,4 +139,13 @@ public class Utils {
         POSTING_LIST_DESC_FILE = STARTING_PATH + "/postingListDesc.dat";
     }
 
+    public static void printFilePaths() {
+        System.out.println(STARTING_PATH);
+        System.out.println(LEXICON_FILE);
+        System.out.println(TERM_FREQ_FILE);
+        System.out.println(DOC_ID_FILE);
+        System.out.println(DOCUMENT_INDEX_FILE);
+        System.out.println(POSTING_LIST_DESC_FILE);
+    }
+
 }

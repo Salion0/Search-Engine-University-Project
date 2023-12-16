@@ -193,4 +193,43 @@ public class ConjunctiveDAAT {
         }
     }
 
+    public ArrayList<Integer> processQueryWithoutSkipping() throws IOException {
+        MinHeapScores heapScores = new MinHeapScores();
+        int postingCount = 0;
+        int currentDocId;
+        boolean docIdInAllPostingLists;
+
+        for (int i = 0; i < postingListBlocks.length; i++)
+            uploadPostingListBlock(i, postingCount, POSTING_LIST_BLOCK_LENGTH); //load the first posting list block
+
+        while(postingCount < docFreqs[0]){
+            currentDocId = postingListBlocks[0].getCurrentDocId();
+            postingCount++;
+            currentDocScore = 0;
+            currentDocLen = 0;
+            docIdInAllPostingLists = true;
+
+            //calculate the partial score for the other posting list if they contain the currentDocId
+            for (int i = 1; i < numTermQuery; i++)
+            {
+                if(currentDocIdInPostingList(i, currentDocId))
+                    updateCurrentDocScore(i);
+                else
+                {
+                    docIdInAllPostingLists = false;
+                    break;
+                }
+            }
+
+            if(docIdInAllPostingLists) {
+                updateCurrentDocScore(0);
+                heapScores.insertIntoPriorityQueue(currentDocScore, currentDocId);
+            }
+
+            if (postingListBlocks[0].next() == -1)
+                uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
+        }
+        return heapScores.getTopDocIdReversed();
+    }
+
 }

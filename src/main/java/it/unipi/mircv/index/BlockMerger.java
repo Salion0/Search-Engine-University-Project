@@ -38,6 +38,7 @@ public class BlockMerger {
         int numberOfBlocks = (directory.list().length-5)/3;
         */
 
+        System.out.println(POSTING_LIST_DESC_FILE);
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         //initialize the document index file handler
@@ -52,7 +53,7 @@ public class BlockMerger {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(STARTING_PATH+"/lexicon"+blockIndex+".dat",true);
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(STARTING_PATH + "/lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
                     STARTING_PATH+"/docIds"+blockIndex+".dat",
                     STARTING_PATH+"/termFreq"+blockIndex+".dat");
