@@ -106,7 +106,7 @@ public class TestQuerys {
         flagStopWordRemoval = true;
         flagStemming = false;
         Utils.loadStopWordList();
-        setParametersForNoCompression();
+        //setParametersForNoCompression();
 
         String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
                 "New York", "best lunch dishes"};
@@ -129,6 +129,80 @@ public class TestQuerys {
             String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT);
             setParametersForCompression();
             String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT_C);
+            Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
+        }
+
+        System.out.println("\ntest on Conjunctive and Conjunctive Without Compression --> SUCCESSFUL");
+    }
+
+    @Test
+    void testDisjunctiveWithAndWithoutCompression() throws IOException {
+        flagCompressedReading = false;
+        flagStopWordRemoval = true;
+        flagStemming = false;
+        Utils.loadStopWordList();
+        //setParametersForNoCompression();
+
+        String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
+                "New York", "best lunch dishes"};
+
+        for (int i = 0; i < querys.length; i++)
+        {
+            setParametersForNoCompression();
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT);
+            setParametersForCompression();
+            String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT_C);
+            Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
+        }
+
+        scoreType = BM25;
+        for (int i = 0; i < querys.length; i++)
+        {
+            setParametersForNoCompression();
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT);
+            setParametersForCompression();
+            String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT_C);
+            Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
+        }
+
+        System.out.println("\ntest on Conjunctive and Conjunctive Without Compression --> SUCCESSFUL");
+    }
+
+    @Test
+    void testMaxScoreWithAndWithoutCompression() throws IOException {
+        flagCompressedReading = false;
+        flagStopWordRemoval = true;
+        flagStemming = false;
+        Utils.loadStopWordList();
+        //setParametersForNoCompression();
+
+        String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
+                "New York", "best lunch dishes"};
+
+        for (int i = 0; i < querys.length; i++)
+        {
+            setParametersForNoCompression();
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE);
+            setParametersForCompression();
+            String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE_C);
+            Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
+            for (int j = 0; j < resultsConjunctive.length; j++)
+                Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
+        }
+
+        scoreType = BM25;
+        for (int i = 0; i < querys.length; i++)
+        {
+            setParametersForNoCompression();
+            String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE);
+            setParametersForCompression();
+            String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE_C);
             Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
             for (int j = 0; j < resultsConjunctive.length; j++)
                 Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);

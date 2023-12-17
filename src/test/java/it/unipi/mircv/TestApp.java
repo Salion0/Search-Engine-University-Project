@@ -22,7 +22,7 @@ public class TestApp {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForQueryTestCompressed";
+        STARTING_PATH = "dataForQueryTest";
         setFilePaths();
         Utils.loadStopWordList();
         printFilePaths();
@@ -45,9 +45,9 @@ public class TestApp {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_MAX_SCORE_C);
+        SystemEvaluator.queryResult("railroad workers", DISJUNCTIVE_MAX_SCORE);
 
-        //buildCompressedIndex();
+        buildCompressedIndex();
     }
 
     private static void buildCompressedIndex() throws IOException {
