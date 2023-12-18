@@ -29,6 +29,7 @@ public class TestScores {
 
     @Test
     void buildIndexForTest() throws IOException {
+        // compute the index on which the score functions are going to be tested
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
@@ -54,6 +55,8 @@ public class TestScores {
 
     @Test
     void testTFIDF() throws IOException {
+        // compute the actual scores w.r.t TFIDF for the docIds in the collection and compare them with the ones computed with
+        // our method to process the querys (in Disjunctive DAAT mode)
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
@@ -68,6 +71,7 @@ public class TestScores {
         printCollectionStatistics();
         Utils.loadStopWordList();
 
+        // evaluate the query
         String[] querys = new String[]{"Manhattan project"};
         SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT);
 
@@ -76,6 +80,7 @@ public class TestScores {
         //Assertions.assertEquals(3,score2DocIdMap.get(1.0406106f)); // computed score for docId = 3
         //Assertions.assertEquals(new int[]{0, 8},score2DocIdMap.get(0.9208187f)); // computed score for docId = 2 and docId = 8
 
+        // evaluate the query
         querys = new String[]{"science secret"};
         SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT);
 
@@ -83,6 +88,7 @@ public class TestScores {
         //Assertions.assertEquals(new int[]{1, 2},score2DocIdMap.get(0.69897f)); // computed score for docId = 1 and docId = 2
         //Assertions.assertEquals(8,score2DocIdMap.get(1.0f)); // computed score for docId = 8
 
+        // evaluate the query
         querys = new String[]{"into the ocean"};
         SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT);
 
@@ -94,7 +100,8 @@ public class TestScores {
 
     @Test
     void testBM25() throws IOException {
-
+        // compute the actual scores w.r.t BM25 for the docIds in the collection and compare them with the ones computed with
+        // our method to process the querys (in Disjunctive DAAT mode)
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
@@ -109,6 +116,7 @@ public class TestScores {
         printCollectionStatistics();
         Utils.loadStopWordList();
 
+        // evaluate the query
         String[] querys = new String[]{"Manhattan project"};
         SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT);
 
@@ -118,6 +126,7 @@ public class TestScores {
         //Assertions.assertEquals(3,score2DocIdMap.get(0.37519884f)); // computed score for docId = 3
         //Assertions.assertEquals(3,score2DocIdMap.get(0.37639308f)); // computed score for docId = 8
 
+        // evaluate the query
         querys = new String[]{"science secret"};
         SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT);
 
@@ -126,6 +135,7 @@ public class TestScores {
         //Assertions.assertEquals(2,score2DocIdMap.get(0.33454975f)); // computed score for docId = 2
         //Assertions.assertEquals(8,score2DocIdMap.get(0.40875912f)); // computed score for docId = 8
 
+        // evaluate the query
         querys = new String[]{"into the ocean"};
         SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT);
 
@@ -135,8 +145,8 @@ public class TestScores {
         System.out.println("test on the method BM25 --> SUCCESSFUL");
     }
 
-    private static void printCollectionStatistics() {
-
+    private static void printCollectionStatistics() {   // print AverageDocumentLength, CollectionSize and the
+                                                        // document lengths of the collection
         System.out.println("avgDocLen = " + avgDocLen);
         System.out.println("collectionSize = " + collectionSize);
         for (int i = 0; i < 10; i++)

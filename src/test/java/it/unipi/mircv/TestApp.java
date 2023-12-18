@@ -24,7 +24,7 @@ public class TestApp {
         flagCompressedReading = false;
         STARTING_PATH = "dataForQueryTest";  // set the name of the folder where the index is going to be computed
         setFilePaths(); // set the paths of the components of the index accordingly
-        Utils.loadStopWordList();
+        Utils.loadStopWordList(); // load the stopWord list in memory
         printFilePaths();
 
         //Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
