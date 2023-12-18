@@ -22,8 +22,8 @@ public class TestApp {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForQueryTest";
-        setFilePaths();
+        STARTING_PATH = "dataForQueryTest";  // set the name of the folder where the index is going to be computed
+        setFilePaths(); // set the paths of the components of the index accordingly
         Utils.loadStopWordList();
         printFilePaths();
 
@@ -50,7 +50,7 @@ public class TestApp {
         buildCompressedIndex();
     }
 
-    private static void buildCompressedIndex() throws IOException {
+    private static void buildCompressedIndex() throws IOException {     // build the index with compression
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;

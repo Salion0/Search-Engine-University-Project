@@ -14,16 +14,18 @@ public class TestCompressionMethods {
 
     @Test
     void testUnary() {
-
+        // compute the actual compression results and compare them with the ones obtained from our method used for Unary
         ArrayList<Integer> testIntegers = new ArrayList<>(List.of(5,1,1,1,4,3,1));
-        byte[] actualResult = new byte[2];
+        byte[] actualResult = new byte[2]; // here the actual compression results are stored
         actualResult[0] = 0x37;
         actualResult[1] = 0x0F;
         byte[] predictedResult;
         predictedResult = Unary.compress(testIntegers);
-        predictedResult = reverseByteArray(predictedResult);
+        predictedResult = reverseByteArray(predictedResult); // compute the compression according to our method
         for (int i = 0; i < actualResult.length; i++)
-            Assertions.assertEquals(predictedResult[i],actualResult[i]);
+            Assertions.assertEquals(predictedResult[i],actualResult[i]); // check if the compression method worked correctly
+
+        // repeat the test above for new values stored in the ArrayList
 
         testIntegers = new ArrayList<>(List.of(7,10,5,1,2,3));
         actualResult = new byte[4];
@@ -67,22 +69,23 @@ public class TestCompressionMethods {
 
     @Test
     void testVariableByte() {
-
+        // compute the actual compression results and compare them with the ones obtained from our method used for VariableByte
         ArrayList<Integer> testIntegers = new ArrayList<>(List.of(5,1,300));
-        byte[] actualResult = new byte[4];
+        byte[] actualResult = new byte[4]; // here the actual compression results are stored
         actualResult[0] = (byte) 0b00000101;
         actualResult[1] = (byte) 0b00000001;
         actualResult[2] = (byte) 0b10101100;
         actualResult[3] = (byte) 0b00000010;
         byte[] predictedResult;
-        predictedResult = VariableByte.compress(testIntegers);
+        predictedResult = VariableByte.compress(testIntegers); // compute the compression according to our method
         for (int i = 0; i < predictedResult.length; i++) {
             predictedResult[i] = reverseBits(predictedResult[i]);
             actualResult[i] = reverseBits(actualResult[i]);
         }
         for (int i = 0; i < predictedResult.length; i++)
-            Assertions.assertEquals(predictedResult[i],actualResult[i]);
+            Assertions.assertEquals(predictedResult[i],actualResult[i]); // check if the compression method worked correctly
 
+        // repeat the test above for new values stored in the ArrayList
 
         testIntegers = new ArrayList<>(List.of(7,10,8713));
         actualResult = new byte[4];

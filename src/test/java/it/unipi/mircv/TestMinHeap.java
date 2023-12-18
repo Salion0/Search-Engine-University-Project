@@ -15,25 +15,31 @@ public class TestMinHeap {
 
     @Test
     void testMinHeap() throws IOException {
+        // test if the MinHeap data structure works as expected
 
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Parameters.collectionSize = documentIndexHandler.readCollectionSize();
         Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
 
+        // store some scores and docIds for the test
         float[] arrayOfScores = new float[]{ 3.422f, 0.134f, 9.199f, 5.444f, 6.125f, 0.134f, 4.231f, 5.444f, 0.134f};
         int[] docIds = new int[]{78,23,15,10,30,55,100,21,3};
         MinHeapScores heapScores = new MinHeapScores();
         for (int i = 0; i < arrayOfScores.length; i++)
             heapScores.insertIntoPriorityQueue(arrayOfScores[i],docIds[i]);
         HashMap<Float, ArrayList<Integer>> testMap = heapScores.getScore2DocIdMap();
-        Assertions.assertEquals(testMap.size(),6);
+        Assertions.assertEquals(testMap.size(),6); // check if the number of keys is correct
+        // check if the docIds corresponding to the score are the expected ones
         Assertions.assertEquals(heapScores.getDocId(0.134f),new ArrayList<>(List.of(23,55,3)));
         Assertions.assertEquals(heapScores.getDocId(3.422f),new ArrayList<>(List.of(78)));
+        // check if the MinHeap correctly returns null for a score not present in the data structure
         Assertions.assertNull(heapScores.getDocId(1f));
+        // check if the MinHeap correctly returns the minimum score among the ones stored
         Assertions.assertEquals(0.134f,heapScores.getMinScore());
 
         score2DocIdMap = testMap;
+        // check if the scores and the corresponding docIds are removed correctly from the Minheap
         removeDocIdFromMap(5.444f);
         removeDocIdFromMap(0.134f);
         removeDocIdFromMap(0.134f);
@@ -47,6 +53,7 @@ public class TestMinHeap {
         Assertions.assertNull(score2DocIdMap.get(0.134f));
 
 
+        // check if the MinHeap returns the docIds in sorted (ascending) order w.r.t their scores
         heapScores = new MinHeapScores();
         for (int i = 0; i < arrayOfScores.length; i++)
             heapScores.insertIntoPriorityQueue(arrayOfScores[i],docIds[i]);

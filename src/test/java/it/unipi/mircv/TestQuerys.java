@@ -22,6 +22,7 @@ public class TestQuerys {
 
     @Test
     void testMaxScoreAndDisjunctive() throws IOException {
+        // test if Disjunctive DAAT returns the same results as MaxScore
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
@@ -35,9 +36,11 @@ public class TestQuerys {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
+        // querys to be processed
         String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
                     "New York", "best lunch dishes"};
 
+        // work with TFIDF to compute the score
         for (int i = 0; i < querys.length; i++)
         {
             String[] resultsDisjunctive = SystemEvaluator.queryResult(querys[i], DISJUNCTIVE_MAX_SCORE);
@@ -47,7 +50,7 @@ public class TestQuerys {
                 Assertions.assertEquals(resultsDisjunctive[j],resultsMaxScore[j]);
         }
 
-        scoreType = BM25;
+        scoreType = BM25; // work with BM25 to compute the score
         for (int i = 0; i < querys.length; i++)
         {
             String[] resultsDisjunctive = SystemEvaluator.queryResult(querys[i], DISJUNCTIVE_MAX_SCORE);
@@ -62,6 +65,7 @@ public class TestQuerys {
 
     @Test
     void testConjuctiveWithAndWithoutSkipping() throws IOException {
+        // test if Conjunctive DAAT returns the same results with and without Skipping with nextGEQ
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
@@ -75,9 +79,11 @@ public class TestQuerys {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
+        // querys to be processed
         String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
                 "New York", "best lunch dishes"};
 
+        // work with TFIDF to compute the scores
         for (int i = 0; i < querys.length; i++)
         {
             String[] resultsConjunctiveWithoutSkipping = SystemEvaluator.queryResult(querys[i], CONJUNCTIVE_DAAT_NO_SKIPPING);
@@ -87,7 +93,7 @@ public class TestQuerys {
                 Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithoutSkipping[j]);
         }
 
-        scoreType = BM25;
+        scoreType = BM25; // work with BM25 to compute the scores
         for (int i = 0; i < querys.length; i++)
         {
             String[] resultsConjunctiveWithoutSkipping = SystemEvaluator.queryResult(querys[i], CONJUNCTIVE_DAAT_NO_SKIPPING);
@@ -102,32 +108,34 @@ public class TestQuerys {
 
     @Test
     void testConjuctiveWithAndWithoutCompression() throws IOException {
+        // test if Disjunctive DAAT returns the same results with and without compression
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
         Utils.loadStopWordList();
-        //setParametersForNoCompression();
 
+        // querys to be processed
         String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
                 "New York", "best lunch dishes"};
 
+        scoreType = TFIDF; // work with TFIDF to compute the scores
         for (int i = 0; i < querys.length; i++)
         {
-            setParametersForNoCompression();
+            setParametersForNoCompression(); // switch to uncompressed index
             String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT);
-            setParametersForCompression();
+            setParametersForCompression(); // switch to compressed index
             String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT_C);
             Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
             for (int j = 0; j < resultsConjunctive.length; j++)
                 Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
         }
 
-        scoreType = BM25;
+        scoreType = BM25; // work with BM25 to compute the scores
         for (int i = 0; i < querys.length; i++)
         {
-            setParametersForNoCompression();
+            setParametersForNoCompression(); // switch to uncompressed index
             String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT);
-            setParametersForCompression();
+            setParametersForCompression(); // switch to compressed index
             String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],CONJUNCTIVE_DAAT_C);
             Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
             for (int j = 0; j < resultsConjunctive.length; j++)
@@ -139,32 +147,34 @@ public class TestQuerys {
 
     @Test
     void testDisjunctiveWithAndWithoutCompression() throws IOException {
+        // test if Disjunctive DAAT returns the same results with and without compression
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
         Utils.loadStopWordList();
-        //setParametersForNoCompression();
 
+        // querys to be processed
         String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
                 "New York", "best lunch dishes"};
 
+        scoreType = TFIDF;  // use TFIDF for computing the scores
         for (int i = 0; i < querys.length; i++)
         {
-            setParametersForNoCompression();
+            setParametersForNoCompression(); // switch to uncompressed index
             String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT);
-            setParametersForCompression();
+            setParametersForCompression(); // switch to compressed index
             String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT_C);
             Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
             for (int j = 0; j < resultsConjunctive.length; j++)
                 Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
         }
 
-        scoreType = BM25;
+        scoreType = BM25;  // use BM25 for computing the scores
         for (int i = 0; i < querys.length; i++)
         {
-            setParametersForNoCompression();
+            setParametersForNoCompression(); // switch to uncompressed index
             String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT);
-            setParametersForCompression();
+            setParametersForCompression(); // switch to compressed index
             String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_DAAT_C);
             Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
             for (int j = 0; j < resultsConjunctive.length; j++)
@@ -176,32 +186,34 @@ public class TestQuerys {
 
     @Test
     void testMaxScoreWithAndWithoutCompression() throws IOException {
+        // test if MaxScore returns the same results with and without compression
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
         Utils.loadStopWordList();
-        //setParametersForNoCompression();
 
+        // querys to be processed
         String[] querys = new String[]{"10 100","railroad workers","detection system", "project", "apple fruit",
                 "New York", "best lunch dishes"};
 
+        scoreType = TFIDF;  // use TFIDF for computing the scores
         for (int i = 0; i < querys.length; i++)
         {
-            setParametersForNoCompression();
+            setParametersForNoCompression(); // switch to uncompressed index
             String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE);
-            setParametersForCompression();
+            setParametersForCompression();  // switch to compressed index
             String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE_C);
             Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
             for (int j = 0; j < resultsConjunctive.length; j++)
                 Assertions.assertEquals(resultsConjunctive[j],resultsConjunctiveWithCompression[j]);
         }
 
-        scoreType = BM25;
+        scoreType = BM25; // use BM25 for computing the scores
         for (int i = 0; i < querys.length; i++)
         {
-            setParametersForNoCompression();
+            setParametersForNoCompression(); // switch to uncompressed index
             String[] resultsConjunctive = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE);
-            setParametersForCompression();
+            setParametersForCompression();  // switch to compressed index
             String[] resultsConjunctiveWithCompression = SystemEvaluator.queryResult(querys[i],DISJUNCTIVE_MAX_SCORE_C);
             Assertions.assertEquals(resultsConjunctiveWithCompression.length,resultsConjunctive.length);
             for (int j = 0; j < resultsConjunctive.length; j++)
@@ -211,25 +223,23 @@ public class TestQuerys {
         System.out.println("\ntest on Conjunctive and Conjunctive Without Compression --> SUCCESSFUL");
     }
 
-    private void setParametersForNoCompression() throws IOException {
-        STARTING_PATH = "dataForQueryTest";
+    private void setParametersForNoCompression() throws IOException {   // set the parameters to work with the
+        STARTING_PATH = "dataForQueryTest";                             // uncompressed index
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
-        scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
     }
 
-    private void setParametersForCompression() throws IOException {
-        STARTING_PATH = "dataForQueryTestCompressed";
+    private void setParametersForCompression() throws IOException {     // set the parameters to work with the
+        STARTING_PATH = "dataForQueryTestCompressed";                   // compressed index
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
-        scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
     }
 

@@ -17,6 +17,7 @@ public class TestCompressedReading {
 
     @Test
     void compareCollectionReading() throws IOException {
+        // test if the text read with and without Compressed Reading of the collection is the same
         fis = new FileInputStream("collection.tar.gz");
         gzis = new GZIPInputStream(fis);
         inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
@@ -34,15 +35,15 @@ public class TestCompressedReading {
             System.out.println(count++);
             String lineCompressedCase = readerForCompressedCase.readLine();
             String lineUncompressedCase = reader.readLine();
-            if (lineUncompressedCase == null && lineCompressedCase.startsWith("\0\0\0\0\0"))
-            {
+            if (lineUncompressedCase == null && lineCompressedCase.startsWith("\0\0\0\0\0")) // check if both readers have
+            {                                                                                // reached the end simultaneously
                 //we reached the end of the file -> close file readers and break
                 reader.close();
                 readerForCompressedCase.close();
                 break;
             }
-            Assertions.assertEquals(lineUncompressedCase,lineCompressedCase);
-        }
+            Assertions.assertEquals(lineUncompressedCase,lineCompressedCase); // check if the two readers are processing
+        }                                                                     // the same line of text from the collection
 
         System.out.println("\ntest on the Compressed Reading of the collection --> SUCCESSFUL");
     }
