@@ -27,6 +27,7 @@ public class DisjunctiveDAATCompression {
     private final SkipDescriptorCompression[] skipDescriptorsCompression;
     private final int[] numPostingPerBlock;
     private final boolean[] endOfPostingListFlag;
+    private MinHeapScores heapScores;
 
     public DisjunctiveDAATCompression(String[] queryTerms) throws IOException {
         documentIndexHandler = new DocumentIndexFileHandler();
@@ -91,7 +92,7 @@ public class DisjunctiveDAATCompression {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
-        MinHeapScores heapScores = new MinHeapScores();
+        heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
         int count = 0;//DEBUG
@@ -160,5 +161,9 @@ public class DisjunctiveDAATCompression {
                 endOfPostingListFlag[i] = true;
             }
         }
+    }
+
+    public MinHeapScores getHeapScores() {
+        return heapScores;
     }
 }

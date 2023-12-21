@@ -28,6 +28,7 @@ public class ConjunctiveDAAT {
     protected final InvertedIndexFileHandler invertedIndexFileHandler;
     protected float currentDocScore;
     protected Integer currentDocLen;
+    private MinHeapScores heapScores;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
@@ -63,7 +64,7 @@ public class ConjunctiveDAAT {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
-        MinHeapScores heapScores = new MinHeapScores();
+        heapScores = new MinHeapScores();
         int postingCount = 0;
         int currentDocId;
         int offsetNextGEQ;
@@ -194,7 +195,7 @@ public class ConjunctiveDAAT {
     }
 
     public ArrayList<Integer> processQueryWithoutSkipping() throws IOException {
-        MinHeapScores heapScores = new MinHeapScores();
+        heapScores = new MinHeapScores();
         int postingCount = 0;
         int currentDocId;
         boolean docIdInAllPostingLists;
@@ -230,6 +231,10 @@ public class ConjunctiveDAAT {
                 uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
         }
         return heapScores.getTopDocIdReversed();
+    }
+
+    public MinHeapScores getHeapScores() {
+        return heapScores;
     }
 
 }

@@ -28,6 +28,7 @@ public class MaxScoreDisjunctive {
     private final SkipDescriptor[] skipDescriptors;
     private final DocumentIndexFileHandler documentIndexHandler;
     private final InvertedIndexFileHandler invertedIndexHandler;
+    private MinHeapScores heapScores;
 
     public MaxScoreDisjunctive(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
@@ -92,7 +93,7 @@ public class MaxScoreDisjunctive {
 
     // ************************  -- MAX SCORE --   ****************************************
     public ArrayList<Integer> computeMaxScore() throws IOException {
-        MinHeapScores heapScores = new MinHeapScores();
+        heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
         float minScoreInHeap = 0; // teta
         int pivot = 0;
@@ -245,5 +246,9 @@ public class MaxScoreDisjunctive {
                 indexes[indexes[i]] = indexes[i];
             }
         }
+    }
+
+    public MinHeapScores getHeapScores() {
+        return heapScores;
     }
 }

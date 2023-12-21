@@ -26,6 +26,7 @@ public class ConjunctiveDAATCompression {
     protected final InvertedIndexFileHandler invertedIndexFileHandler;
     protected float currentDocScore;
     protected Integer currentDocLen;
+    private MinHeapScores heapScores;
 
     public ConjunctiveDAATCompression(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
@@ -74,7 +75,7 @@ public class ConjunctiveDAATCompression {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
-        MinHeapScores heapScores = new MinHeapScores();
+        heapScores = new MinHeapScores();
         int postingCount = 0;
         int numBlockProcessed = 0;
         int currentDocId;
@@ -237,4 +238,7 @@ public class ConjunctiveDAATCompression {
         }
     }
 
+    public MinHeapScores getHeapScores() {
+        return heapScores;
+    }
 }
