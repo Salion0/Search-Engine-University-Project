@@ -24,16 +24,14 @@ public class TestMatteo {
         flagStopWordRemoval = true;
         flagCompressedReading = true;
         long startTime;
-
-        /*
+/*
         startTime = currentTimeMillis();
         Index index = new Index("data/","collection.tar",false);
         //BlockMerger blockMerger = new BlockMerger();
         BlockMerger.mergeBlocks(index.getNumberOfBlocks());
         System.out.println("time: " + (currentTimeMillis() - startTime));
-         */
 
-
+ */
         //QUERY ------
         loadStopWordList();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
@@ -44,11 +42,12 @@ public class TestMatteo {
 
         //QUERY TIME ----------------------
         startTime = currentTimeMillis();
-        SystemEvaluator.queryResult("", DISJUNCTIVE_MAX_SCORE);
+        SystemEvaluator.queryResult("who is aziz hashim", DISJUNCTIVE_MAX_SCORE);
         System.out.println("time: " + (currentTimeMillis() - startTime));
 
-        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE);
-
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
         //CREATING FILE ----------------------
 
         SystemEvaluator.createFileQueryResults("queryResult/testStopWord3.txt",
