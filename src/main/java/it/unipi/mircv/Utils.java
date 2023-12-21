@@ -1,6 +1,7 @@
 package it.unipi.mircv;
 
-import ca.rmen.porterstemmer.PorterStemmer;
+//import ca.rmen.porterstemmer.PorterStemmer;
+import opennlp.tools.stemmer.PorterStemmer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -59,6 +60,7 @@ public class Utils {
         try {
             File file = new File("stop_words_english.json");
             stopWords = objectMapper.readValue(file, new TypeReference<>() {}); // Read the JSON file into a List
+            System.out.println(stopWords.get(0) + stopWords.get(3));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,7 +90,7 @@ public class Utils {
     public static String[] tokenization(String doc) {
         //html tags removal
         doc = doc.replaceAll("<[^>]*>", "");
-        //punctuation and whitespace
+        //punctuation
         String result = doc.replaceAll("\\p{Punct}","").toLowerCase();
         return result.split("\\s+");
     }
@@ -120,13 +122,15 @@ public class Utils {
 
 
     public static String stemWord(String toStem){
-        return porterStemmer.stemWord(toStem);
+        //return porterStemmer.stemWord(toStem);
+        return porterStemmer.stem(toStem);
     }
     public static String[] stemPhrase(String[] phrase){
         for(int i = 0; i < phrase.length; i++){
-            phrase[i] = porterStemmer.stemWord(phrase[i]);
+            //phrase[i] = porterStemmer.stemWord(phrase[i]);
+            phrase[i] = porterStemmer.stem(phrase[i]);
         }
-        return  phrase;
+        return phrase;
     }
 
 }

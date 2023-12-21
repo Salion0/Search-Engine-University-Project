@@ -28,6 +28,11 @@
       <version>9.5.0</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.opennlp</groupId>
+      <artifactId>opennlp-tools</artifactId>
+      <version>2.3.1</version>
+    </dependency>
+    <dependency>
       <groupId>ca.rmen</groupId>
       <artifactId>porter-stemmer</artifactId>
       <version>1.0.0</version>

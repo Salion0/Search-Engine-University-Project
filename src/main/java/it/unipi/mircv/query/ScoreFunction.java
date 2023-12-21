@@ -6,7 +6,7 @@ import static it.unipi.mircv.Parameters.collectionSize;
 public class  ScoreFunction{
 
     public static Float BM25(int termFrequency, int documentLength, int documentFrequency) {
-        return (float) ((float)termFrequency / ((float) termFrequency + 1.6 * (((float) documentLength/avgDocLen)*0.75 + 0.25))
+        return (float) ((float)termFrequency / ((float) termFrequency + 1.4 * (((float) documentLength/avgDocLen)*0.75 + 0.25))
                         * Math.log10((float)collectionSize/documentFrequency));
     }
     public Float computeIDF(int documentFrequency) {

@@ -31,15 +31,15 @@ public class TestMatteo {
         //BlockMerger blockMerger = new BlockMerger();
         BlockMerger.mergeBlocks(index.getNumberOfBlocks());
         System.out.println("time: " + (currentTimeMillis() - startTime));
-
-
          */
+
+
         //QUERY ------
         loadStopWordList();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
-        scoreType = TFIDF;
+        scoreType = BM25;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
         //QUERY TIME ----------------------
@@ -47,16 +47,15 @@ public class TestMatteo {
         SystemEvaluator.queryResult("", DISJUNCTIVE_MAX_SCORE);
         System.out.println("time: " + (currentTimeMillis() - startTime));
 
-        //.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
-        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
+        //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE);
 
         //CREATING FILE ----------------------
 
-        SystemEvaluator.createFileQueryResults("queryResult/NOCOMPdisjunctiveMaxStemmingTFIDF.txt",
-                "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_MAX_SCORE);
-
-        SystemEvaluator.createFileQueryResults("queryResult/NOCOMPdisjunctiveStemmingTFIDF.txt",
+        SystemEvaluator.createFileQueryResults("queryResult/testStopWord3.txt",
                 "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
+
+        //SystemEvaluator.createFileQueryResults("queryResult/NOCOMPdisjunctiveStemmingTFIDF.txt",
+        //        "query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT);
 
 
 

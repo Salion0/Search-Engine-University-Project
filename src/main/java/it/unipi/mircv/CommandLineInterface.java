@@ -20,13 +20,13 @@ public class CommandLineInterface {
                 "help --> print this command list\n" +
                 "index (c) --> perform indexing with compression or not\n" +
                 "query --> (hopefully) return most N relevant docIds\n" +
-                "quit";
+                "exit";
         System.out.println(commandList);
 
         Scanner scanner = new Scanner(System.in);
 
-        boolean quit = false;
-        while(!quit){
+        boolean exit = false;
+        while(!exit){
 
             System.out.print("enter a command: ");
             String[] command = scanner.nextLine().split("\\s+");
@@ -85,8 +85,8 @@ public class CommandLineInterface {
                     System.out.println(commandList);
                     break;
 
-                case "quit":
-                    quit = true;
+                case "exit":
+                    exit = true;
                     break;
 
                 default:
