@@ -92,7 +92,10 @@ public class CommandLineInterface {
         scanner.close();
     }
     private static void changeSettings(){
+        Scanner scanner = new Scanner(System.in);
         System.out.print("compressed reading (t/f): ");
+        scanner.nextLine();
+
     }
     private static void printSettings(){
         System.out.println("compressed reading: " + flagCompressedReading);
