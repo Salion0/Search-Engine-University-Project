@@ -1,11 +1,9 @@
 package it.unipi.mircv.query;
 
-import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.file.SkipDescriptorFileHandler;
 import it.unipi.mircv.index.PostingListBlock;
-import it.unipi.mircv.index.SkipDescriptor;
 import it.unipi.mircv.index.SkipDescriptorCompression;
 
 import java.io.IOException;
@@ -134,7 +132,7 @@ public class MaxScoreDisjunctiveCompression {
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                         case TFIDF ->
-                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                                score += ScoreFunction.TFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
                     //prima
                     //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
@@ -217,7 +215,7 @@ public class MaxScoreDisjunctiveCompression {
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                         case TFIDF ->
-                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                                score += ScoreFunction.TFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
                     //prima dello switch
                     //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);

@@ -1,6 +1,5 @@
 package it.unipi.mircv.query;
 
-import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
@@ -139,7 +138,7 @@ public class ConjunctiveDAAT {
             case BM25 ->
                     currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
             case TFIDF ->
-                    currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
+                    currentDocScore += ScoreFunction.TFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
         }
     }
 

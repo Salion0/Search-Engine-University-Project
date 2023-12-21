@@ -114,7 +114,7 @@ public class DisjunctiveDAATCompression {
                         case BM25 ->
                                 currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                         case TFIDF ->
-                                currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
+                                currentDocScore += ScoreFunction.TFIDF(currentTf, docFreqs[i]);
                     }
 
                     if(!endOfPostingListFlag[i] && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag

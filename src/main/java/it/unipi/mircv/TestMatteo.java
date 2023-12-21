@@ -41,6 +41,7 @@ public class TestMatteo {
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
         scoreType = TFIDF;
+        queryProcessType = DISJUNCTIVE_MAX_SCORE;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
@@ -48,10 +49,10 @@ public class TestMatteo {
 
         //QUERY TIME ----------------------
         startTime = currentTimeMillis();
-        SystemEvaluator.queryResult("", DISJUNCTIVE_MAX_SCORE_C);
+        SystemEvaluator.queryResult("", queryProcessType);
         System.out.println("time: " + (currentTimeMillis() - startTime));
 
-        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", CONJUNCTIVE_DAAT_C);
+        SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", queryProcessType);
         //SystemEvaluator.evaluateSystemTime("query/msmarco-test2020-queries.tsv", DISJUNCTIVE_DAAT_C);
 
         //CREATING FILE ----------------------

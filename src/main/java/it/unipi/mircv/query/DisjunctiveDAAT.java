@@ -10,8 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Parameters.collectionSize;
-import static it.unipi.mircv.Parameters.scoreType;
+import static it.unipi.mircv.Parameters.*;
 
 public class DisjunctiveDAAT {
     private final int numTermQuery;
@@ -80,7 +79,7 @@ public class DisjunctiveDAAT {
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
             //AIUDOO
-            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            int documentLength = docsLen[minDocId];
             //int documentLength = docsLen[minDocId];
             for (int i =0; i<numTermQuery;i++)
             {
@@ -91,7 +90,7 @@ public class DisjunctiveDAAT {
                         case BM25 ->
                                 currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                         case TFIDF ->
-                                currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
+                                currentDocScore += ScoreFunction.TFIDF(currentTf, docFreqs[i]);
                     }
                     //currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                     //currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);

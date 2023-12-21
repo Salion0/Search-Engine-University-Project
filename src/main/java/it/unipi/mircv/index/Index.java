@@ -19,7 +19,7 @@ public class Index {
     private int currentDocId;
     private boolean debugFlag;
     private int count = 0; //DEBUG
-    private String blockFolder;
+    private final String blockFolder;
     private String collectionFile;
 
 
@@ -33,7 +33,7 @@ public class Index {
 
         BufferedReader reader;
         if (flagCompressedReading) {
-            FileInputStream fis = new FileInputStream(collectionFile+".gz");
+            FileInputStream fis = new FileInputStream(collectionFile);
             GZIPInputStream gzis = new GZIPInputStream(fis);
             InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
             reader = new BufferedReader(inputStreamReader);

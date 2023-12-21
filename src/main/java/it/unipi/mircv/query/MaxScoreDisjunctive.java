@@ -129,7 +129,7 @@ public class MaxScoreDisjunctive {
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                         case TFIDF ->
-                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                                score += ScoreFunction.TFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
 
                     //score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
@@ -172,7 +172,7 @@ public class MaxScoreDisjunctive {
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                         case TFIDF ->
-                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                                score += ScoreFunction.TFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
                     //prima dello switch
                     //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);

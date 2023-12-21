@@ -1,92 +1,87 @@
 package it.unipi.mircv;
-import it.unipi.mircv.query.QueryProcessor;
+import it.unipi.mircv.evaluation.SystemEvaluator;
+import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.index.BlockMerger;
+import it.unipi.mircv.index.BlockMergerCompression;
+import it.unipi.mircv.index.Index;
+import it.unipi.mircv.query.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
+
+import static it.unipi.mircv.Config.MAX_NUM_DOC_RETRIEVED;
+import static it.unipi.mircv.Parameters.*;
+import static it.unipi.mircv.Utils.*;
 
 public class CommandLineInterface {
 
     public static void main( String[] args ) throws IOException {
+        String title = """
+                  ____                      _       _____             _           \s
+                 / ___|  ___  __ _ _ __ ___| |__   | ____|_ __   __ _(_)_ __   ___\s
+                 \\___ \\ / _ \\/ _` | '__/ __| '_ \\  |  _| | '_ \\ / _` | | '_ \\ / _ \\
+                  ___) |  __/ (_| | | | (__| | | | | |___| | | | (_| | | | | |  __/
+                 |____/ \\___|\\__,_|_|  \\___|_| |_| |_____|_| |_|\\__, |_|_| |_|\\___|
+                                                                |___/              \
+                """;
 
-        System.out.println("  ____                      _       _____             _            \n" +
-                " / ___|  ___  __ _ _ __ ___| |__   | ____|_ __   __ _(_)_ __   ___ \n" +
-                " \\___ \\ / _ \\/ _` | '__/ __| '_ \\  |  _| | '_ \\ / _` | | '_ \\ / _ \\\n" +
-                "  ___) |  __/ (_| | | | (__| | | | | |___| | | | (_| | | | | |  __/\n" +
-                " |____/ \\___|\\__,_|_|  \\___|_| |_| |_____|_| |_|\\__, |_|_| |_|\\___|\n" +
-                "                                                |___/              ");
+        String commandList = """
+                COMMAND LIST:\s
+                exit
+                help
+                index [file_name]   --> perform indexing |
+                query               --> (hopefully) return most N relevant docNo
+                settings (-c)       --> show setting, with (-c) change settings
+                ----------------------------------------------------------------
+                """;
 
-        String commandList = "command list: \n" +
-                "help --> print this command list\n" +
-                "index (c) --> perform indexing with compression or not\n" +
-                "query --> (hopefully) return most N relevant docIds\n" +
-                "quit";
-        System.out.println(commandList);
-
+        System.out.println(title);
+        System.out.println("DEFAULT SETTINGS:");
+        printSettings();
+        System.out.println("\n" + commandList);
+        loadStopWordList();
         Scanner scanner = new Scanner(System.in);
 
-        boolean quit = false;
-        while(!quit){
-
-            System.out.print("enter a command: ");
+        boolean exit = false;
+        while(!exit){
             String[] command = scanner.nextLine().split("\\s+");
 
             switch (command[0]) {
                 case "index":
                 {
-                    if (command.length>1){
-                        if(command[1].charAt(0) == 'c'){
-                            System.out.println("indexing with compression...");
-                            long startTime = System.currentTimeMillis();
-
-                            //TODO add indexing with compression
-
-                            long endTime = System.currentTimeMillis();
-                            long elapsedTime = endTime - startTime;
-                            System.out.println("indexing with compression finished in " + (float)elapsedTime/1000 +"sec");
-                            break;
-                        }
-
-                    } else {
-                        System.out.println("indexing...");
-                        long startTime = System.currentTimeMillis();
-
-                        //TODO add indexing
-
-                        long endTime = System.currentTimeMillis();
-                        long elapsedTime = endTime - startTime;
-                        System.out.println("indexing finished in " + (float)elapsedTime/1000 +"sec");
-                        break;
-                    }
-                }
-
-                case "query":
-                {
-                    //query terms are in command[1:length-1]
-                    System.out.println("number of terms: " + (command.length - 1));
                     long startTime = System.currentTimeMillis();
-
-                    //TODO add query processing
-
-                    // ---------------------TEST DAAT-----------------------------
-                    String query = "solis";
-                    QueryProcessor queryProcessor = new QueryProcessor(query);
-                    ArrayList<Integer> docId = queryProcessor.DAAT();
-                    System.out.println("Doc Id retrieved: ");
-                    System.out.println(docId);
-
-                    long endTime = System.currentTimeMillis();
-                    long elapsedTime = endTime - startTime;
-                    System.out.println("query processed in " + (float)elapsedTime/1000 +"sec");
+                    Index index = new Index("data/","collection.tar.gz", false);
+                    if(flagCompression){
+                        BlockMergerCompression blockMerger = new BlockMergerCompression();
+                        blockMerger.mergeBlocks(index.getNumberOfBlocks());
+                    }else{
+                        BlockMerger.mergeBlocks(index.getNumberOfBlocks());
+                    }
+                    System.out.println("indexed finished in " + (int)(System.currentTimeMillis() - startTime)/1000/60 +"min");
                     break;
                 }
+                case "query":
+                {
+                    String query = scanner.nextLine();
+                    long startTime = System.currentTimeMillis();
+                    SystemEvaluator.queryResult(query, queryProcessType);
+                    System.out.println("query processed in " + (System.currentTimeMillis() - startTime) +"ms");
+                    break;
+                }
+
+                case "settings":
+                    if(command.length>1 && command[1].equals("-c")) changeSettings();
+                    else printSettings();
+                    break;
 
                 case "help":
                     System.out.println(commandList);
                     break;
 
-                case "quit":
-                    quit = true;
+                case "exit":
+                    exit = true;
                     break;
 
                 default:
@@ -95,5 +90,41 @@ public class CommandLineInterface {
             }
         }
         scanner.close();
+    }
+    private static void changeSettings(){
+        System.out.print("compressed reading (t/f): ");
+    }
+    private static void printSettings(){
+        System.out.println("compressed reading: " + flagCompressedReading);
+        System.out.println("stop word removal: " + flagStopWordRemoval);
+        System.out.println("stemming: " + flagStemming);
+        System.out.println("score type: " + scoreType);
+        System.out.println("compression: " + flagCompression);
+        switch (queryProcessType) {
+            case DISJUNCTIVE_DAAT -> {
+                System.out.println("query type: disjunctive");
+                System.out.println("process type: DAAT");
+            }
+            case CONJUNCTIVE_DAAT -> {
+                System.out.println("query type: conjunctive");
+                System.out.println("process type: DAAT");
+            }
+            case DISJUNCTIVE_MAX_SCORE -> {
+                System.out.println("query type: disjunctive");
+                System.out.println("process type: MaxScore");
+            }
+            case DISJUNCTIVE_DAAT_C -> {
+                System.out.println("query type: disjunctive");
+                System.out.println("process type: DAAT");
+            }
+            case CONJUNCTIVE_DAAT_C -> {
+                System.out.println("query type: conjunctive");
+                System.out.println("process type: DAAT");
+            }
+            case DISJUNCTIVE_MAX_SCORE_C -> {
+                System.out.println("query type: disjunctive");
+                System.out.println("process type: MaxScore");
+            }
+        }
     }
 }

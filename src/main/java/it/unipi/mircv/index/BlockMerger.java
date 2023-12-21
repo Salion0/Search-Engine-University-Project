@@ -1,5 +1,4 @@
 package it.unipi.mircv.index;
-import it.unipi.mircv.Config;
 import it.unipi.mircv.Parameters;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
@@ -217,7 +216,7 @@ public class BlockMerger {
             //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
             float currentScoreBM25 = ScoreFunction.BM25(postingElement.getTermFreq(),
                     documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
-            float currentScoreTFIDF = ScoreFunction.computeTFIDF(postingElement.getTermFreq(),documentFrequency);
+            float currentScoreTFIDF = ScoreFunction.TFIDF(postingElement.getTermFreq(),documentFrequency);
             if (currentScoreBM25 > maxScoreBM25)
                 maxScoreBM25 = currentScoreBM25;
             if (currentScoreTFIDF > maxScoreTFIDF)

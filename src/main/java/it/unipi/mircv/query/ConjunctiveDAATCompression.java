@@ -186,7 +186,7 @@ public class ConjunctiveDAATCompression {
             case BM25 ->
                     currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
             case TFIDF ->
-                    currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
+                    currentDocScore += ScoreFunction.TFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
         }
     }
     protected void loadPostingListBlockCompression(int indexTerm, int numPosting, long offsetMaxDocId, long offsetTermFreq,

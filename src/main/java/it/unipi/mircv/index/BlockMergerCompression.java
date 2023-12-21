@@ -3,14 +3,11 @@ package it.unipi.mircv.index;
 import it.unipi.mircv.Parameters;
 import it.unipi.mircv.Utils;
 import it.unipi.mircv.compression.VariableByte;
-import it.unipi.mircv.index.*;
-import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.file.SkipDescriptorFileHandler;
 import it.unipi.mircv.query.ScoreFunction;
-import it.unipi.mircv.compression.Unary;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -288,7 +285,7 @@ public class BlockMergerCompression {
 
             float currentScoreBM25 = ScoreFunction.BM25(postingList.getTermFreqs().get(i),
                     documentIndexHandler.readDocumentLength(postingList.getDocIds().get(i)),documentFrequency);
-            float currentScoreTFIDF = ScoreFunction.computeTFIDF(postingList.getDocIds().get(i),documentFrequency);
+            float currentScoreTFIDF = ScoreFunction.TFIDF(postingList.getDocIds().get(i),documentFrequency);
 
             if (currentScoreBM25 > maxScoreBM25)
                 maxScoreBM25 = currentScoreBM25;
