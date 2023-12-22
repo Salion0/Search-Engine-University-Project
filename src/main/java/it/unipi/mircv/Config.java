@@ -27,11 +27,13 @@ public class Config {
     public static final int SKIP_DESC_ENTRY = 4 + OFFSET_BYTES_LENGTH;
     public static final int SKIP_DESC_ENTRY_COMPRESSION = 4 + OFFSET_COMPRESS_BYTES_LENGTH + 4 + OFFSET_COMPRESS_BYTES_LENGTH + 4;
     public static final int POSTING_LIST_BLOCK_LENGTH = 10000; //Expressed in element
-    public static final String LEXICON_FILE = "data/lexicon.dat";
-    public static final String TERM_FREQ_FILE = "data/termFreq.dat";
-    public static final String DOC_ID_FILE = "data/docIds.dat";
-    public static final String POSTING_LIST_DESC_FILE = "data/postingListDesc.dat";
-    public static final int MAX_NUM_DOC_RETRIEVED = 10;
+    public static String STARTING_PATH = "data";
+    public static String LEXICON_FILE = STARTING_PATH + "/lexicon.dat";
+    public static String TERM_FREQ_FILE = STARTING_PATH + "/termFreq.dat";
+    public static String DOC_ID_FILE = STARTING_PATH + "/docIds.dat";
+    public static String DOCUMENT_INDEX_FILE = STARTING_PATH + "/documentIndex.dat";
+    public static String POSTING_LIST_DESC_FILE = STARTING_PATH + "/postingListDesc.dat";
+    public static final int MAX_NUM_DOC_RETRIEVED = 20;
     public static final int MIN_NUM_POSTING_TO_SKIP = 10; // vecchio valore era 10
 
 }

@@ -16,16 +16,15 @@ public class DocumentIndexFileHandler {
     private final FileChannel fileChannel;
     private final RandomAccessFile randomAccessFile;
     long currentPosition;
-    String filePath = "data/documentIndex.dat";
 
     public DocumentIndexFileHandler() throws IOException {
-        File file = new File(this.filePath);
+        File file = new File(DOCUMENT_INDEX_FILE);
         if (!file.exists()) {
             if(file.createNewFile()) System.out.println("Document Index file created correctly");
             else System.out.println("Error in Document Index file creation");
         } else System.out.println("Document Index file founded");
 
-        randomAccessFile = new RandomAccessFile(this.filePath,"rw");
+        randomAccessFile = new RandomAccessFile(DOCUMENT_INDEX_FILE,"rw");
         fileChannel = randomAccessFile.getChannel();
         currentPosition = AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH;
     }

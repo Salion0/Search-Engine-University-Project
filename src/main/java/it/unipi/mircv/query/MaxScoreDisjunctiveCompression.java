@@ -28,6 +28,7 @@ public class MaxScoreDisjunctiveCompression {
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptorCompression[] skipDescriptorsCompression;
     private final InvertedIndexFileHandler invertedIndexFileHandler;
+    private MinHeapScores heapScores;
 
     public MaxScoreDisjunctiveCompression(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
@@ -92,7 +93,7 @@ public class MaxScoreDisjunctiveCompression {
 
     // ************************  -- MAX SCORE --   ****************************************
     public ArrayList<Integer> computeMaxScore() throws IOException {
-        MinHeapScores heapScores = new MinHeapScores();
+        heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
         float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
         float minScoreInHeap = 0; // teta
@@ -290,5 +291,9 @@ public class MaxScoreDisjunctiveCompression {
                 indexes[indexes[i]] = indexes[i];
             }
         }
+    }
+
+    public MinHeapScores getHeapScores() {
+        return heapScores;
     }
 }

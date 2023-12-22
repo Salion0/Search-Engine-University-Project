@@ -123,7 +123,7 @@ public class IndexTest {
                 //INDEXING
                 index = new Index(blockFolder,testCollection,true);
                 //MERGING
-                BlockMerger.path = "dataTest/spimiTest/";
+                //BlockMerger.path = "dataTest/spimiTest/"; TODO cambiare con la parametrizzazione dei file path
                 BlockMerger.mergeBlocks(index.getNumberOfBlocks());
                 //LOAD MERGED LEXICON
                 mergedLexicon = loadMergedLexicon();

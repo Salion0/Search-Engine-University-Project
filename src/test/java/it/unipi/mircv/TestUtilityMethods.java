@@ -5,6 +5,7 @@ import it.unipi.mircv.index.PostingElement;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.index.SkipDescriptor;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,22 +21,19 @@ public class TestUtilityMethods {
     static int[] numBlockRead = new int[5];
     static int[] offsets = new int[5];
 
-    public static void main(String[] args) throws IOException {
+    @Test
+    void testMinDocId() throws IOException {
+        // test if the min docID between the current posting element of the processed posting lists is returned correctly
         DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         Utils.loadStopWordList();
         Parameters.collectionSize = documentIndexHandler.readCollectionSize();
         Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
+        // initialize the posting list for the test
         setPostingListBlocksForTesting();
 
-        testMinDocId();
-        testSortArraysByArrays();
-    }
-
-    public static void testMinDocId() {
-
-        int[] arraysOfMinDocIds = {1,2,4,5,6,7,9,10,11,24};
+        int[] arraysOfMinDocIds = {1,2,4,5,6,7,9,10,11,24}; // actual min docIds
         int[] docFreqs = {3,3,3,3,3};
-        int[] arraysOfResults = new int[arraysOfMinDocIds.length];
+        int[] arraysOfResults = new int[arraysOfMinDocIds.length]; // the computed results will be stored in this array
 
         int minDocId;
         int count = 0;
@@ -74,7 +72,14 @@ public class TestUtilityMethods {
         return minDocId;
     }
 
-    public static void testSortArraysByArrays() throws IOException {
+    @Test
+    void testSortArraysByArrays() throws IOException {
+        // test if the arrays are sorted accordingly to the values of the elements of the array of reference
+        // the array of reference is the one passed as the first argument to the sortArraysByArray method
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        Utils.loadStopWordList();
+        // create the posting lists for the test
+        setPostingListBlocksForTesting();
         setLongerFirstPostingList();
         setLongerSecondPostingList();
         setLongerThirdPostingList();
@@ -82,6 +87,7 @@ public class TestUtilityMethods {
         setLongerFifthPostingList();
 
         int count = 0;
+        // create the array of skip descriptors
         for (int i = 0; i < 5; i++) {
             skipDescriptors[i] = new SkipDescriptor();
             skipDescriptors[i].add(13 + count,4 + count);
@@ -91,12 +97,14 @@ public class TestUtilityMethods {
             //System.out.println(postingListBlocks[i].toString());
         }
 
+        // create the array of document frequencies, it will be the reference array
         docFreqs[0] = 1;
         docFreqs[1] = 50;
         docFreqs[2] = 20;
         docFreqs[3] = 10;
         docFreqs[4] = 60;
 
+        // create the array of posting lists already sorted correctly
         PostingListBlock[] resultsPostingListBlocks = new PostingListBlock[5];
 
         for (int i = 0; i < 5; i++)
@@ -117,8 +125,9 @@ public class TestUtilityMethods {
         for (PostingElement postingElement: postingListBlocks[1].getList())
             resultsPostingListBlocks[3].addPostingElement(postingElement);
 
-        int[] resultsDocFreqs = new int[]{1,10,20,50,60};
-        int[] resultsOffsets = new int[]{0,30,20,10,40};
+        int[] resultsDocFreqs = new int[]{1,10,20,50,60}; // create the array of document frequencies already sorted correctly
+        int[] resultsOffsets = new int[]{0,30,20,10,40}; // create the array of offsets already sorted correctly
+        // create the array of skip descriptors already sorted correctly
         SkipDescriptor[] resultsOfSkipDescriptors = new SkipDescriptor[5];
         for (int i = 0; i < 5; i++)
             resultsOfSkipDescriptors[i] = new SkipDescriptor();
@@ -139,6 +148,7 @@ public class TestUtilityMethods {
         resultsOfSkipDescriptors[4].add(56,48);
         resultsOfSkipDescriptors[4].add(160,73);
 
+        // use the method to sort the arrays according to the values of the docFreqs array
         sortArraysByArray(docFreqs,offsets,skipDescriptors,postingListBlocks);
 
         Assertions.assertArrayEquals(resultsDocFreqs, docFreqs);
@@ -149,8 +159,6 @@ public class TestUtilityMethods {
 
             Assertions.assertArrayEquals(postingListBlocks[i].getList().toArray(),
                     resultsPostingListBlocks[i].getList().toArray());
-
-            //System.out.println(resultsPostingListBlocks[i].getPostingList());
         }
 
         System.out.println("test on the method sortArraysByArrays --> SUCCESSFUL");

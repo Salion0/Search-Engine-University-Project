@@ -14,7 +14,7 @@ public class Parameters {
     public static QueryProcessor queryProcessType = QueryProcessor.DISJUNCTIVE_MAX_SCORE;
     public static Score scoreType = Score.BM25;
     public enum QueryProcessor {
-        DISJUNCTIVE_DAAT, CONJUNCTIVE_DAAT, DISJUNCTIVE_MAX_SCORE,
+        DISJUNCTIVE_DAAT, CONJUNCTIVE_DAAT, CONJUNCTIVE_DAAT_NO_SKIPPING, DISJUNCTIVE_MAX_SCORE,
         DISJUNCTIVE_DAAT_C, CONJUNCTIVE_DAAT_C, DISJUNCTIVE_MAX_SCORE_C
     }
     public enum Score{ BM25, TFIDF }

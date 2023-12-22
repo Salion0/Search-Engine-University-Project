@@ -33,7 +33,7 @@ public class BlockMergerCompression {
     private static int offsetSkipDescriptor = 0;
 
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;
-    private static String path="data/";
+    //private static String path="data/";
 
     public void mergeBlocks(int numberOfBlocks) throws IOException {
         /*
@@ -42,7 +42,6 @@ public class BlockMergerCompression {
         File directory=new File(path);
         int numberOfBlocks = (directory.list().length-5)/3;
         */
-
 
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();
@@ -58,17 +57,17 @@ public class BlockMergerCompression {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(path+"lexicon"+blockIndex+".dat",true);
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(STARTING_PATH+"/lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
-                    path+"docIds"+blockIndex+".dat",
-                    path+"termFreq"+blockIndex+".dat");
+                    STARTING_PATH+"/docIds"+blockIndex+".dat",
+                    STARTING_PATH+"/termFreq"+blockIndex+".dat");
             lexiconBlocks.add(lexiconHandler);
             postingListBlocks.add(plHandler);
         }
 
-        FileOutputStream fosLexicon = new FileOutputStream(path+"lexicon.dat",true);
-        FileOutputStream fosDocId = new FileOutputStream(path+"docIds.dat",true);
-        FileOutputStream fosTermFreq = new FileOutputStream(path+"termFreq.dat",true);
+        FileOutputStream fosLexicon = new FileOutputStream(STARTING_PATH+"/lexicon.dat",true);
+        FileOutputStream fosDocId = new FileOutputStream(STARTING_PATH+"/docIds.dat",true);
+        FileOutputStream fosTermFreq = new FileOutputStream(STARTING_PATH+"/termFreq.dat",true);
         //------------------------------------------------------------------------------------------------------------------------------------------------
 
 

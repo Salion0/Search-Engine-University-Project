@@ -1,6 +1,4 @@
 package it.unipi.mircv.evaluation;
-import it.unipi.mircv.Parameters;
-import it.unipi.mircv.Parameters.Score;
 import it.unipi.mircv.Parameters.QueryProcessor;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.query.*;
@@ -9,6 +7,7 @@ import it.unipi.mircv.Utils;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static it.unipi.mircv.Config.MAX_NUM_DOC_RETRIEVED;
 import static it.unipi.mircv.Parameters.flagStemming;
@@ -85,6 +84,9 @@ public class SystemEvaluator {
             case CONJUNCTIVE_DAAT -> {
                 results = new ConjunctiveDAAT(queryTerms).processQuery();
             }
+            case CONJUNCTIVE_DAAT_NO_SKIPPING -> {
+                results = new ConjunctiveDAAT(queryTerms).processQueryWithoutSkipping();
+            }
             case DISJUNCTIVE_MAX_SCORE -> {
                 results = new MaxScoreDisjunctive(queryTerms).computeMaxScore();
             }
@@ -120,6 +122,9 @@ public class SystemEvaluator {
             case CONJUNCTIVE_DAAT -> {
                 results = new ConjunctiveDAAT(queryTerms).processQuery();
             }
+            case CONJUNCTIVE_DAAT_NO_SKIPPING -> {
+                results = new ConjunctiveDAAT(queryTerms).processQueryWithoutSkipping();
+            }
             case DISJUNCTIVE_MAX_SCORE -> {
                 results = new MaxScoreDisjunctive(queryTerms).computeMaxScore();
             }
@@ -136,6 +141,58 @@ public class SystemEvaluator {
 
         System.out.println(Arrays.toString(documentIndexHandler.getDocNoREVERSE(results)));
         return System.currentTimeMillis() - startTime;
+    }
+
+    public static HashMap<Float, ArrayList<Integer>> queryResultForTest(String query, QueryProcessor queryProcessor) throws IOException {
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
+        String[] queryTerms = Utils.tokenization(query);
+
+        if (flagStopWordRemoval) queryTerms = removeStopWords(queryTerms);
+        if (flagStemming) stemPhrase(queryTerms);
+
+        System.out.println("final query: " + Arrays.toString(queryTerms)); //DEBUG
+
+        MinHeapScores heapScores = new MinHeapScores();
+
+        switch (queryProcessor) {
+            case DISJUNCTIVE_DAAT -> {
+                DisjunctiveDAAT disjunctiveDAAT = new DisjunctiveDAAT(queryTerms);
+                disjunctiveDAAT.processQuery();
+                heapScores = disjunctiveDAAT.getHeapScores();
+            }
+            case CONJUNCTIVE_DAAT -> {
+                ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+                conjunctiveDAAT.processQuery();
+                heapScores = conjunctiveDAAT.getHeapScores();
+            }
+            case CONJUNCTIVE_DAAT_NO_SKIPPING -> {
+                ConjunctiveDAAT conjunctiveDAAT = new ConjunctiveDAAT(queryTerms);
+                conjunctiveDAAT.processQueryWithoutSkipping();
+                heapScores = conjunctiveDAAT.getHeapScores();
+            }
+            case DISJUNCTIVE_MAX_SCORE -> {
+                MaxScoreDisjunctive maxScoreDisjunctive = new MaxScoreDisjunctive(queryTerms);
+                maxScoreDisjunctive.computeMaxScore();
+                heapScores = maxScoreDisjunctive.getHeapScores();
+            }
+            case DISJUNCTIVE_DAAT_C -> {
+                DisjunctiveDAATCompression disjunctiveDAATCompression = new DisjunctiveDAATCompression(queryTerms);
+                disjunctiveDAATCompression.processQuery();
+                heapScores = disjunctiveDAATCompression.getHeapScores();
+            }
+            case CONJUNCTIVE_DAAT_C -> {
+                ConjunctiveDAATCompression conjunctiveDAATCompression = new ConjunctiveDAATCompression(queryTerms);
+                conjunctiveDAATCompression.processQuery();
+                heapScores = conjunctiveDAATCompression.getHeapScores();
+            }
+            case DISJUNCTIVE_MAX_SCORE_C -> {
+                MaxScoreDisjunctiveCompression maxScoreDisjunctiveCompression =
+                        new MaxScoreDisjunctiveCompression(queryTerms);
+                maxScoreDisjunctiveCompression.computeMaxScore();
+                heapScores = maxScoreDisjunctiveCompression.getHeapScores();
+            }
+        }
+        return heapScores.getScore2DocIdMap();
     }
 
     public static double computeMean(ArrayList<Long> list) {

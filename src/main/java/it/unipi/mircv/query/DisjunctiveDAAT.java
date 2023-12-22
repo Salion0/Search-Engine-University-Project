@@ -21,6 +21,7 @@ public class DisjunctiveDAAT {
     private final int[] docFreqs;
     private final int[] offsets;
     private final boolean[] endOfPostingListFlag;
+    private MinHeapScores heapScores;
 
     public DisjunctiveDAAT(String[] queryTerms) throws IOException {
         documentIndexHandler = new DocumentIndexFileHandler();
@@ -67,7 +68,7 @@ public class DisjunctiveDAAT {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
-        MinHeapScores heapScores = new MinHeapScores();
+        heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
         int count = 0;//DEBUG
@@ -126,5 +127,9 @@ public class DisjunctiveDAAT {
         else
             endOfPostingListFlag[i]=true;
 
+    }
+
+    public MinHeapScores getHeapScores() {
+        return heapScores;
     }
 }
