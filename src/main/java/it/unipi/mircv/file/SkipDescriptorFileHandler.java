@@ -1,8 +1,8 @@
 package it.unipi.mircv.file;
 
+
 import it.unipi.mircv.index.SkipDescriptorCompression;
 import it.unipi.mircv.index.SkipDescriptor;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;

@@ -1,4 +1,5 @@
 package it.unipi.mircv.index;
+
 import java.util.ArrayList;
 
 public class SkipDescriptorCompression {
