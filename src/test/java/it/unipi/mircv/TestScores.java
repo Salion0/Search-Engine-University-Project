@@ -42,8 +42,7 @@ public class TestScores {
 
         Index index = new Index(STARTING_PATH + '/',"test_collection_for_query.tsv",false);
 
-        BlockMerger blockMerger = new BlockMerger();
-        blockMerger.mergeBlocks(index.getNumberOfBlocks());
+        BlockMerger.mergeBlocks(index.getNumberOfBlocks());
 
 
         //QUERY ------
