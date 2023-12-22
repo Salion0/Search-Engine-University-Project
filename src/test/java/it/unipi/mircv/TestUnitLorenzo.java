@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static it.unipi.mircv.Config.STARTING_PATH;
+import static it.unipi.mircv.Config.INDEX_PATH;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.flagCompressedReading;
 import static it.unipi.mircv.Utils.*;
@@ -15,9 +15,6 @@ import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.PostingElement;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.index.SkipDescriptor;
-import it.unipi.mircv.query.ConjunctiveDAAT;
-import it.unipi.mircv.query.DisjunctiveDAAT;
-import it.unipi.mircv.query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -58,7 +55,7 @@ public class TestUnitLorenzo {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForQueryTest";
+        INDEX_PATH = "dataForQueryTest";
         setFilePaths();
         printFilePaths();
         Utils.loadStopWordList();

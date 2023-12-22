@@ -2,15 +2,12 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.query.DisjunctiveDAAT;
-import it.unipi.mircv.query.MaxScoreDisjunctive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
-import static it.unipi.mircv.Config.STARTING_PATH;
+import static it.unipi.mircv.Config.INDEX_PATH;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.*;
 import static it.unipi.mircv.Parameters.Score.BM25;
@@ -26,7 +23,7 @@ public class TestQuerys {
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
-        Config.STARTING_PATH = "dataForQueryTest";
+        Config.INDEX_PATH = "dataForQueryTest";
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
@@ -69,7 +66,7 @@ public class TestQuerys {
         flagCompressedReading = false;
         flagStopWordRemoval = true;
         flagStemming = false;
-        STARTING_PATH = "dataForQueryTest";
+        INDEX_PATH = "dataForQueryTest";
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
@@ -224,7 +221,7 @@ public class TestQuerys {
     }
 
     private void setParametersForNoCompression() throws IOException {   // set the parameters to work with the
-        STARTING_PATH = "dataForQueryTest";                             // uncompressed index
+        INDEX_PATH = "dataForQueryTest";                             // uncompressed index
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
@@ -234,7 +231,7 @@ public class TestQuerys {
     }
 
     private void setParametersForCompression() throws IOException {     // set the parameters to work with the
-        STARTING_PATH = "dataForQueryTestCompressed";                   // compressed index
+        INDEX_PATH = "dataForQueryTestCompressed";                   // compressed index
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();

@@ -57,17 +57,17 @@ public class BlockMergerCompression {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(STARTING_PATH+"/lexicon"+blockIndex+".dat",true);
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(INDEX_PATH +"/lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
-                    STARTING_PATH+"/docIds"+blockIndex+".dat",
-                    STARTING_PATH+"/termFreq"+blockIndex+".dat");
+                    INDEX_PATH +"/docIds"+blockIndex+".dat",
+                    INDEX_PATH +"/termFreq"+blockIndex+".dat");
             lexiconBlocks.add(lexiconHandler);
             postingListBlocks.add(plHandler);
         }
 
-        FileOutputStream fosLexicon = new FileOutputStream(STARTING_PATH+"/lexicon.dat",true);
-        FileOutputStream fosDocId = new FileOutputStream(STARTING_PATH+"/docIds.dat",true);
-        FileOutputStream fosTermFreq = new FileOutputStream(STARTING_PATH+"/termFreq.dat",true);
+        FileOutputStream fosLexicon = new FileOutputStream(INDEX_PATH +"/lexicon.dat",true);
+        FileOutputStream fosDocId = new FileOutputStream(INDEX_PATH +"/docIds.dat",true);
+        FileOutputStream fosTermFreq = new FileOutputStream(INDEX_PATH +"/termFreq.dat",true);
         //------------------------------------------------------------------------------------------------------------------------------------------------
 
 

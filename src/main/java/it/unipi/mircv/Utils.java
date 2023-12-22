@@ -109,7 +109,7 @@ public class Utils {
                     }
                 }
             }
-        } else Files.createDirectory(Paths.get(STARTING_PATH));
+        } else Files.createDirectory(Paths.get(INDEX_PATH));
     }
 
     public static void deleteFile(String filePath) {
@@ -132,15 +132,15 @@ public class Utils {
     }
 
     public static void setFilePaths() {
-        LEXICON_FILE = STARTING_PATH + "/lexicon.dat";
-        TERM_FREQ_FILE = STARTING_PATH + "/termFreq.dat";
-        DOC_ID_FILE = STARTING_PATH + "/docIds.dat";
-        DOCUMENT_INDEX_FILE = STARTING_PATH + "/documentIndex.dat";
-        POSTING_LIST_DESC_FILE = STARTING_PATH + "/postingListDesc.dat";
+        LEXICON_FILE = INDEX_PATH + "/lexicon.dat";
+        TERM_FREQ_FILE = INDEX_PATH + "/termFreq.dat";
+        DOC_ID_FILE = INDEX_PATH + "/docIds.dat";
+        DOCUMENT_INDEX_FILE = INDEX_PATH + "/documentIndex.dat";
+        POSTING_LIST_DESC_FILE = INDEX_PATH + "/postingListDesc.dat";
     }
 
     public static void printFilePaths() {
-        System.out.println(STARTING_PATH);
+        System.out.println(INDEX_PATH);
         System.out.println(LEXICON_FILE);
         System.out.println(TERM_FREQ_FILE);
         System.out.println(DOC_ID_FILE);

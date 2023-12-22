@@ -3,24 +3,17 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.file.InvertedIndexFileHandler;
-import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.BlockMerger;
-import it.unipi.mircv.index.BlockMergerCompression;
 import it.unipi.mircv.index.Index;
-import it.unipi.mircv.index.PostingListBlock;
-import it.unipi.mircv.query.MinHeapScores;
-import it.unipi.mircv.query.ScoreFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static it.unipi.mircv.Config.STARTING_PATH;
+import static it.unipi.mircv.Config.INDEX_PATH;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.*;
 import static it.unipi.mircv.Parameters.Score.BM25;
@@ -36,11 +29,11 @@ public class TestScores {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForScoreTest";
+        INDEX_PATH = "dataForScoreTest";
         setFilePaths();
         printFilePaths();
 
-        Index index = new Index(STARTING_PATH + '/',"test_collection_for_query.tsv",false);
+        Index index = new Index(INDEX_PATH + '/',"test_collection_for_query.tsv",false);
 
         BlockMerger.mergeBlocks(index.getNumberOfBlocks());
 
@@ -62,7 +55,7 @@ public class TestScores {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForScoreTest";
+        INDEX_PATH = "dataForScoreTest";
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
@@ -108,7 +101,7 @@ public class TestScores {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForScoreTest";
+        INDEX_PATH = "dataForScoreTest";
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
