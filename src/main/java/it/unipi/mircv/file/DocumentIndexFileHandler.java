@@ -22,7 +22,7 @@ public class DocumentIndexFileHandler {
         if (!file.exists()) {
             if(file.createNewFile()) System.out.println("Document Index file created correctly");
             else System.out.println("Error in Document Index file creation");
-        } else System.out.println("Document Index file founded");
+        }
 
         randomAccessFile = new RandomAccessFile(DOCUMENT_INDEX_FILE,"rw");
         fileChannel = randomAccessFile.getChannel();
@@ -73,7 +73,6 @@ public class DocumentIndexFileHandler {
         ByteBuffer buffer = ByteBuffer.allocate(
                 (DOCLENGTH_BYTES_LENGTH+DOCNO_BYTES_LENGTH) * Parameters.collectionSize
         );
-        System.out.print(buffer.limit());
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
         fileChannel.read(buffer);
         buffer.position(0); //skip first docno

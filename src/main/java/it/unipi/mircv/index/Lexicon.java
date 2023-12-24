@@ -53,10 +53,6 @@ public class Lexicon {
             //Write Lexicon on file using ByteBuffer
             byte[] termBytes = term.getBytes(StandardCharsets.UTF_8);
 
-
-            if (termBytes.length > TERM_BYTES_LENGTH)
-                continue; //TODO questo è da spostare da qui, il termine non dovrebbe proprio arrivarci (->da gestire nella tokenization)
-
             ByteBuffer entryBuffer = ByteBuffer.allocate( TERM_BYTES_LENGTH+OFFSET_BYTES_LENGTH+DOCUMFREQ_BYTES_LENGTH+COLLECTIONFREQ_BYTES_LENGTH);
             entryBuffer.put(termBytes);
             entryBuffer.position(TERM_BYTES_LENGTH);
@@ -112,10 +108,9 @@ public class Lexicon {
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
         for(String term: treeMap.keySet()){
-            stringBuilder.append("Term: "+treeMap.get(term).getTerm()+"\n")
-                    .append("Posting List: "+ getPostingList(term)+"\n")
-                    .append("DF: "+getDf(term)+"\n")
-                    .append("CF: "+getCf(term)+"\n");
+            stringBuilder.append("Term: ").append(treeMap.get(term).getTerm()).append("\n").
+                    append("Posting List: ").append(getPostingList(term)).append("\n").append("DF: ").
+                    append(getDf(term)).append("\n").append("CF: ").append(getCf(term)).append("\n");
         }
         return stringBuilder.toString();
     }

@@ -22,15 +22,14 @@ public class ConjunctiveDAATCompression {
     protected final PostingListBlock[] postingListBlocks;
     protected final SkipDescriptorCompression[] skipDescriptorsCompression;
     protected final int[] numPostingPerBlock;
-    protected final DocumentIndexFileHandler documentIndexFileHandler;
     protected final InvertedIndexFileHandler invertedIndexFileHandler;
     protected float currentDocScore;
     protected Integer currentDocLen;
     private MinHeapScores heapScores;
+    private boolean invalidConstruction = false;
 
     public ConjunctiveDAATCompression(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
-        documentIndexFileHandler = new DocumentIndexFileHandler();
         invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
@@ -46,6 +45,11 @@ public class ConjunctiveDAATCompression {
 
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconFileHandler.findTermEntryCompression(queryTerms[i]);
+            if(entryBuffer == null){ //if the ith term is not present in lexicon
+                System.out.println(queryTerms[i] + " is not inside the index");
+                invalidConstruction = true;
+                break;
+            }
             docFreqs[i] = lexiconFileHandler.getDfCompression(entryBuffer);
             offsetsDocId[i] = lexiconFileHandler.getOffsetDocIdCompression(entryBuffer);
             offsetsTermFreq[i] = lexiconFileHandler.getOffsetTermFreqCompression(entryBuffer);
@@ -64,6 +68,8 @@ public class ConjunctiveDAATCompression {
                         offsetsDocId[i], lexiconFileHandler.getNumByteDocId(entryBuffer),
                         offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
             }
+            lexiconFileHandler.close();
+            skipDescriptorFileHandler.closeFileChannel();
         }
         //TODO anzichè ordinare 300 array basterebbe ordinare gli entryBuffer facendo una prima get della sola docfreq come ho fatto per numPostingPerBlock
         sortArraysByArray(docFreqs, offsetsDocId, offsetsTermFreq,
@@ -75,6 +81,10 @@ public class ConjunctiveDAATCompression {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
+        if(invalidConstruction){
+            invertedIndexFileHandler.close();
+            return new ArrayList<>(0);
+        }
         heapScores = new MinHeapScores();
         int postingCount = 0;
         int numBlockProcessed = 0;
@@ -106,6 +116,7 @@ public class ConjunctiveDAATCompression {
                     returnNextGEQ = skipDescriptorsCompression[i].nextGEQ(currentDocId); // get the nextGEQ of the current posting list
                     if(returnNextGEQ[0] == -1)
                     {
+                        invertedIndexFileHandler.close();
                         return heapScores.getTopDocIdReversed();
                     }
                     else
@@ -166,6 +177,7 @@ public class ConjunctiveDAATCompression {
                 );
             }
         }
+        invertedIndexFileHandler.close();
         return heapScores.getTopDocIdReversed();
     }
 

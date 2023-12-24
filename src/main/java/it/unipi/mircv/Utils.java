@@ -120,15 +120,24 @@ public class Utils {
         else System.out.println("File does not exist.");
     }
 
-
     public static String stemWord(String toStem){
         return porterStemmer.stemWord(toStem);
     }
-    public static String[] stemPhrase(String[] phrase){
+    public static void stemPhrase(String[] phrase){
         for(int i = 0; i < phrase.length; i++){
             phrase[i] = porterStemmer.stemWord(phrase[i]);
         }
-        return  phrase;
+    }
+
+    public static String[] removeElementFromArray(String[] arr, int positionToRemove) {
+        String[] result = new String[arr.length - 1];
+        int index = 0;
+        for (int i = 0; i < arr.length; i++) {
+            if (i != positionToRemove) {
+                result[index++] = arr[i];
+            }
+        }
+        return result;
     }
 
     public static void setFilePaths() {

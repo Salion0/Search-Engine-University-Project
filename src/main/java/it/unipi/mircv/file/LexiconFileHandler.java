@@ -68,10 +68,9 @@ public class LexiconFileHandler {
                 lexiconFile.read(dataBuffer, center * Config.LEXICON_ENTRY_LENGTH);
                 return dataBuffer;
             }
-             termBuffer.clear();
-         }
-
-        return dataBuffer;
+            termBuffer.clear();
+        }
+        return null;
     }
     public ByteBuffer findTermEntryCompression(String term) throws IOException {
         //Find a term in the lexicon file by binary search assuming that a=0; b=FileSize; c = center that we calculate at each iteration

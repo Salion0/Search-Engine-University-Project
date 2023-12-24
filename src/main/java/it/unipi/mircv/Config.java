@@ -31,7 +31,7 @@ public class Config {
     public static String DOC_ID_FILE = INDEX_PATH + "/docIds.dat";
     public static String DOCUMENT_INDEX_FILE = INDEX_PATH + "/documentIndex.dat";
     public static String POSTING_LIST_DESC_FILE = INDEX_PATH + "/postingListDesc.dat";
-    public static final int MAX_NUM_DOC_RETRIEVED = 20;
+    public static final int MAX_NUM_DOC_RETRIEVED = 10;
     public static final int MIN_NUM_POSTING_TO_SKIP = 100; // vecchio valore era 10
 
 }

@@ -29,6 +29,7 @@ public class MaxScoreDisjunctiveCompression {
     private final SkipDescriptorCompression[] skipDescriptorsCompression;
     private final InvertedIndexFileHandler invertedIndexFileHandler;
     private MinHeapScores heapScores;
+    private boolean invalidConstruction = false;
 
     public MaxScoreDisjunctiveCompression(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
@@ -48,6 +49,11 @@ public class MaxScoreDisjunctiveCompression {
 
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconFileHandler.findTermEntryCompression(queryTerms[i]);
+            if(entryBuffer == null){ //if the ith term is not present in lexicon
+                System.out.println(queryTerms[i] + " is not inside the index");
+                invalidConstruction = true;
+                break;
+            }
             docFreqs[i] = lexiconFileHandler.getDfCompression(entryBuffer);
             offsetsDocId[i] = lexiconFileHandler.getOffsetDocIdCompression(entryBuffer);
             offsetsTermFreq[i] = lexiconFileHandler.getOffsetTermFreqCompression(entryBuffer);
@@ -82,6 +88,8 @@ public class MaxScoreDisjunctiveCompression {
         for(int i = 0; i < numTermQuery; i++){
             numPostingPerBlock[i] = (int) Math.sqrt(docFreqs[i]);
         }
+        lexiconFileHandler.close();
+        skipDescriptorFileHandler.closeFileChannel();
     }
 
     protected void loadPostingListBlockCompression(int indexTerm, int numPosting, long offsetMaxDocId, long offsetTermFreq,
@@ -93,6 +101,7 @@ public class MaxScoreDisjunctiveCompression {
 
     // ************************  -- MAX SCORE --   ****************************************
     public ArrayList<Integer> computeMaxScore() throws IOException {
+        if(invalidConstruction) return new ArrayList<>(0);
         heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
         float[] documentUpperBounds = new float[postingListBlocks.length]; // ub
@@ -231,7 +240,7 @@ public class MaxScoreDisjunctiveCompression {
 
             minCurrentDocId = next;
         }
-
+        invertedIndexFileHandler.close();
         return heapScores.getTopDocIdReversed();
     }
 

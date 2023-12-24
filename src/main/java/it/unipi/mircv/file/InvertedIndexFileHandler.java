@@ -1,6 +1,5 @@
 package it.unipi.mircv.file;
 
-import it.unipi.mircv.Utils;
 import it.unipi.mircv.index.PostingElement;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.index.PostingList2;
@@ -93,7 +92,7 @@ public class InvertedIndexFileHandler {
         return postingListBlock;
     }
     public void close() throws IOException {
-        this.docIdChannel.close();
+        docIdChannel.close();
         termFreqChannel.close();
     }
 

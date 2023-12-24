@@ -100,6 +100,7 @@ public class SystemEvaluator {
                 results = new MaxScoreDisjunctiveCompression(queryTerms).computeMaxScore();
             }
         }
+        documentIndexHandler.closeFileChannel();
         return documentIndexHandler.getDocNoREVERSE(results);
     }
 
@@ -144,7 +145,6 @@ public class SystemEvaluator {
     }
 
     public static HashMap<Float, ArrayList<Integer>> queryResultForTest(String query, QueryProcessor queryProcessor) throws IOException {
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler();
         String[] queryTerms = Utils.tokenization(query);
 
         if (flagStopWordRemoval) queryTerms = removeStopWords(queryTerms);
