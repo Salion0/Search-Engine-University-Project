@@ -15,7 +15,7 @@ import static it.unipi.mircv.Parameters.flagStopWordRemoval;
 import static it.unipi.mircv.Utils.*;
 
 public class SystemEvaluator {
-
+    //even if it is not used do not delete it
     public static void evaluateSystemTime(String tsvFile, QueryProcessor queryProcessor) throws IOException {
 
         ArrayList<Query> queries = new ArrayList<>();
@@ -30,6 +30,7 @@ public class SystemEvaluator {
         System.out.println("mean: " + computeMean(resultsTimes));
     }
 
+    //even if it is not used do not delete it
     public static void createFileQueryResults(String fileName, String queryFile, QueryProcessor queryProcessor) throws IOException {
         StringBuilder stringToWrite;
         String fixed = "Q0";
@@ -100,8 +101,10 @@ public class SystemEvaluator {
                 results = new MaxScoreDisjunctiveCompression(queryTerms).computeMaxScore();
             }
         }
+
+        String[] docNo = documentIndexHandler.getDocNoREVERSE(results);
         documentIndexHandler.closeFileChannel();
-        return documentIndexHandler.getDocNoREVERSE(results);
+        return docNo;
     }
 
     public static long testQueryTime(String query, QueryProcessor queryProcessor) throws IOException {

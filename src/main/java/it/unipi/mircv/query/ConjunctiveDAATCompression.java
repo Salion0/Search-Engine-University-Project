@@ -68,8 +68,6 @@ public class ConjunctiveDAATCompression {
                         offsetsDocId[i], lexiconFileHandler.getNumByteDocId(entryBuffer),
                         offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
             }
-            lexiconFileHandler.close();
-            skipDescriptorFileHandler.closeFileChannel();
         }
         //TODO anzichè ordinare 300 array basterebbe ordinare gli entryBuffer facendo una prima get della sola docfreq come ho fatto per numPostingPerBlock
         sortArraysByArray(docFreqs, offsetsDocId, offsetsTermFreq,
@@ -78,6 +76,8 @@ public class ConjunctiveDAATCompression {
         for(int i = 0; i< numTermQuery; i++){
             numPostingPerBlock[i] = (int) Math.sqrt(docFreqs[i]);
         }
+        lexiconFileHandler.close();
+        skipDescriptorFileHandler.closeFileChannel();
     }
 
     public ArrayList<Integer> processQuery() throws IOException {

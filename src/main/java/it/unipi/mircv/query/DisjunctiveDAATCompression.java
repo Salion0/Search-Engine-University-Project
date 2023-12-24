@@ -73,10 +73,10 @@ public class DisjunctiveDAATCompression {
                         offsetsTermFreq[i], lexiconFileHandler.getNumByteTermFreq(entryBuffer));
             }
 
-            lexiconFileHandler.close();
-            skipDescriptorFileHandler.closeFileChannel();
             numBlockRead[i] = 1;
         }
+        lexiconFileHandler.close();
+        skipDescriptorFileHandler.closeFileChannel();
     }
 
     private int getMinDocId() {
