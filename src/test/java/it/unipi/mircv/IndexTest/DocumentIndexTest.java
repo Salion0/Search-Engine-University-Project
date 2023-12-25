@@ -1,23 +1,11 @@
 package it.unipi.mircv.IndexTest;
 
-import it.unipi.mircv.Config;
-import it.unipi.mircv.Utils;
+
 import it.unipi.mircv.index.DocumentIndex;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.file.InvertedIndexFileHandler;
-import it.unipi.mircv.file.LexiconFileHandler;
-import it.unipi.mircv.index.*;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Assertions.*;
-
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.HashMap;
-import java.util.Random;
 
-import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Utils.stemWord;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

@@ -27,7 +27,8 @@ public class IndexTest {
     static Index index;
 
     static int currentDocId = 0;
-        static int processDocument(Lexicon lexicon, String[] tokens) throws IOException {
+    static int processDocument(Lexicon lexicon, String[] tokens) throws IOException {
+        STARTING_PATH = "dataTest/spimiTest/";
         HashMap<String, Integer> wordCountDocument = new HashMap<>();
         int tokenCount = 0;
 

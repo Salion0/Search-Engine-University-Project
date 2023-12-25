@@ -3,8 +3,7 @@ package it.unipi.mircv.IndexTest;
 
 import it.unipi.mircv.index.PostingElement;
 import it.unipi.mircv.index.PostingList;
-import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 

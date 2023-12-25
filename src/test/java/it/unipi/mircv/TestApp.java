@@ -21,30 +21,32 @@ public class TestApp {
 
     @Test
     public static void main(String[] args) throws IOException {
-            // compute the index on which the score functions are going to be tested
-            flagStemming = false;
-            flagStopWordRemoval = true;
-            flagCompressedReading = false;
-            STARTING_PATH = "dataForQueryTest";
-            setFilePaths();
-            printFilePaths();
+        // compute the index on which the score functions are going to be tested
+        flagStemming = false;
+        flagStopWordRemoval = true;
+        flagCompressedReading = false;
+        STARTING_PATH = "dataForQueryTest";
+        Utils.loadStopWordList();
+        setFilePaths();
+        printFilePaths();
 
-            Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
+        Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
 
-            BlockMerger blockMerger = new BlockMerger();
-            blockMerger.mergeBlocks(index.getNumberOfBlocks());
+        BlockMerger blockMerger = new BlockMerger();
+        blockMerger.mergeBlocks(index.getNumberOfBlocks());
 
 
-            //QUERY ------
-            DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
-            collectionSize = documentIndexFileHandler.readCollectionSize();
-            avgDocLen = documentIndexFileHandler.readAvgDocLen();
-            scoreType = TFIDF;
-            docsLen = documentIndexFileHandler.loadAllDocumentLengths();
+        //QUERY ------
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-            SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT);
+        //SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT);
 
-            buildCompressedIndex();
+        buildCompressedIndex();
+        buildIndexForTest();
     }
 
     private static void buildCompressedIndex() throws IOException {
@@ -68,6 +70,31 @@ public class TestApp {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT_C);
+        //SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT_C);
+    }
+
+    private static void buildIndexForTest() throws IOException {
+        // compute the index on which the score functions are going to be tested
+        flagStemming = false;
+        flagStopWordRemoval = true;
+        flagCompressedReading = false;
+        STARTING_PATH = "dataForScoreTest";
+        setFilePaths();
+        printFilePaths();
+
+        Index index = new Index(STARTING_PATH + '/',"test_collection_for_query.tsv",false);
+
+        BlockMerger blockMerger = new BlockMerger();
+        blockMerger.mergeBlocks(index.getNumberOfBlocks());
+
+
+        //QUERY ------
+        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
+        collectionSize = documentIndexFileHandler.readCollectionSize();
+        avgDocLen = documentIndexFileHandler.readAvgDocLen();
+        scoreType = TFIDF;
+        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
+
+        SystemEvaluator.queryResult("project", DISJUNCTIVE_DAAT);
     }
 }

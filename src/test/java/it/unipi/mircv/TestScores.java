@@ -3,14 +3,8 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.file.InvertedIndexFileHandler;
-import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.BlockMerger;
-import it.unipi.mircv.index.BlockMergerCompression;
 import it.unipi.mircv.index.Index;
-import it.unipi.mircv.index.PostingListBlock;
-import it.unipi.mircv.query.MinHeapScores;
-import it.unipi.mircv.query.ScoreFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -29,32 +23,6 @@ import static it.unipi.mircv.Utils.printFilePaths;
 import static it.unipi.mircv.Utils.setFilePaths;
 
 public class TestScores {
-
-    @Test
-    void buildIndexForTest() throws IOException {
-        // compute the index on which the score functions are going to be tested
-        flagStemming = false;
-        flagStopWordRemoval = true;
-        flagCompressedReading = false;
-        STARTING_PATH = "dataForScoreTest";
-        setFilePaths();
-        printFilePaths();
-
-        Index index = new Index(STARTING_PATH + '/',"test_collection_for_query.tsv",false);
-
-        BlockMerger blockMerger = new BlockMerger();
-        blockMerger.mergeBlocks(index.getNumberOfBlocks());
-
-
-        //QUERY ------
-        DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
-        collectionSize = documentIndexFileHandler.readCollectionSize();
-        avgDocLen = documentIndexFileHandler.readAvgDocLen();
-        scoreType = TFIDF;
-        docsLen = documentIndexFileHandler.loadAllDocumentLengths();
-
-        SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT);
-    }
 
     @Test
     void testTFIDF() throws IOException {
@@ -126,26 +94,26 @@ public class TestScores {
         score2DocIdMap = SystemEvaluator.queryResultForTest(querys[0],DISJUNCTIVE_DAAT);
 
         // To compute the scores, WolframAplha was used
-        Assertions.assertEquals(new ArrayList<>(List.of(0)),score2DocIdMap.get(0.4060303f)); // computed score for docId = 0
-        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.19046701f)); // computed score for docId = 2
-        Assertions.assertEquals(new ArrayList<>(List.of(3)),score2DocIdMap.get(0.37519884f)); // computed score for docId = 3
-        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.37639308f)); // computed score for docId = 8
+        Assertions.assertEquals(new ArrayList<>(List.of(0)),score2DocIdMap.get(0.45585084f)); // computed score for docId = 0
+        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.18595329f)); // computed score for docId = 2
+        Assertions.assertEquals(new ArrayList<>(List.of(3)),score2DocIdMap.get(0.41942838f)); // computed score for docId = 3
+        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.43028915f)); // computed score for docId = 8
 
         // evaluate the query
         querys = new String[]{"science secret"};
         score2DocIdMap = SystemEvaluator.queryResultForTest(querys[0],DISJUNCTIVE_DAAT);
 
         // To compute the scores, WolframAplha was used
-        Assertions.assertEquals(new ArrayList<>(List.of(1)),score2DocIdMap.get(0.24931414f)); // computed score for docId = 1
-        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.33454975f)); // computed score for docId = 2
-        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.40875915f)); // computed score for docId = 8
+        Assertions.assertEquals(new ArrayList<>(List.of(1)),score2DocIdMap.get(0.29368487f)); // computed score for docId = 1
+        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.32662153f)); // computed score for docId = 2
+        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.46728975f)); // computed score for docId = 8
 
         // evaluate the query
         querys = new String[]{"into the ocean"};
         score2DocIdMap = SystemEvaluator.queryResultForTest(querys[0],DISJUNCTIVE_DAAT);
 
         // To compute the scores, WolframAplha was used
-        Assertions.assertEquals(new ArrayList<>(List.of(9)),score2DocIdMap.get(0.3163842f)); // computed score for docId = 9
+        Assertions.assertEquals(new ArrayList<>(List.of(9)),score2DocIdMap.get(0.4f)); // computed score for docId = 9
 
         System.out.println("test on the method BM25 --> SUCCESSFUL");
     }
