@@ -69,8 +69,8 @@ public class TestMinHeap {
         for (int i = 0; i < secondArrayOfScores.length; i++)
             secondHeapScores.insertIntoPriorityQueue(secondArrayOfScores[i],secondDocIds[i]);
 
-        ArrayList<Integer> secondRankedDocIds = new ArrayList<>(List.of(10, 21, 1400, 30, 1500, 1600, 1700, 15, 1800, 1900, 2000,
-                2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900));
+        ArrayList<Integer> secondRankedDocIds = new ArrayList<>(List.of(
+                2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900));
         ArrayList<Integer> secondResultDocIds = secondHeapScores.getTopDocIdReversed();
         Assertions.assertEquals(secondRankedDocIds,secondResultDocIds);
 

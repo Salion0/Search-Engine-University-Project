@@ -28,7 +28,7 @@ public class IndexTest {
 
     static int currentDocId = 0;
     static int processDocument(Lexicon lexicon, String[] tokens) throws IOException {
-        STARTING_PATH = "dataTest/spimiTest/";
+        INDEX_PATH = "dataTest/spimiTest/";
         HashMap<String, Integer> wordCountDocument = new HashMap<>();
         int tokenCount = 0;
 
@@ -54,7 +54,7 @@ public class IndexTest {
         for (String term: wordCountDocument.keySet()) {
             lexicon.addPostingElement(term, currentDocId , wordCountDocument.get(term));
             String filledTerm = term;
-            for(int i=term.length();i<Config.TERM_BYTES_LENGTH;i++){//ADD BLANKSPACE TO THE STRING
+            for(int i = term.length(); i< TERM_BYTES_LENGTH; i++){//ADD BLANKSPACE TO THE STRING
                 filledTerm = filledTerm.concat("\0");
             }
             lexicon.getMap().get(term).setTerm(filledTerm);

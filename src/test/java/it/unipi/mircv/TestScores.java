@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static it.unipi.mircv.Config.STARTING_PATH;
+import static it.unipi.mircv.Config.INDEX_PATH;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.*;
 import static it.unipi.mircv.Parameters.Score.BM25;
@@ -31,7 +31,7 @@ public class TestScores {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForScoreTest";
+        INDEX_PATH = "dataForScoreTest";
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
@@ -77,7 +77,7 @@ public class TestScores {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForScoreTest";
+        INDEX_PATH = "dataForScoreTest";
         setFilePaths();
         printFilePaths();
         DocumentIndexFileHandler documentIndexFileHandler = new DocumentIndexFileHandler();
@@ -91,6 +91,7 @@ public class TestScores {
 
         // evaluate the query
         String[] querys = new String[]{"Manhattan project"};
+        System.out.println(SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT));
         score2DocIdMap = SystemEvaluator.queryResultForTest(querys[0],DISJUNCTIVE_DAAT);
 
         // To compute the scores, WolframAplha was used

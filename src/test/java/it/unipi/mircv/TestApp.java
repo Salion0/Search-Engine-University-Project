@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static it.unipi.mircv.Config.STARTING_PATH;
+import static it.unipi.mircv.Config.INDEX_PATH;
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT;
 import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
@@ -25,12 +25,12 @@ public class TestApp {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForQueryTest";
+        INDEX_PATH = "dataForQueryTest";
         Utils.loadStopWordList();
         setFilePaths();
         printFilePaths();
 
-        Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
+        Index index = new Index(INDEX_PATH + '/',"test_collection.tsv",false);
 
         BlockMerger blockMerger = new BlockMerger();
         blockMerger.mergeBlocks(index.getNumberOfBlocks());
@@ -53,11 +53,11 @@ public class TestApp {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForQueryTestCompressed";
+        INDEX_PATH = "dataForQueryTestCompressed";
         setFilePaths();
         printFilePaths();
 
-        Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
+        Index index = new Index(INDEX_PATH + '/',"test_collection.tsv",false);
 
         BlockMergerCompression blockMergerCompression = new BlockMergerCompression();
         blockMergerCompression.mergeBlocks(index.getNumberOfBlocks());
@@ -78,11 +78,11 @@ public class TestApp {
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForScoreTest";
+        INDEX_PATH = "dataForScoreTest";
         setFilePaths();
         printFilePaths();
 
-        Index index = new Index(STARTING_PATH + '/',"test_collection_for_query.tsv",false);
+        Index index = new Index(INDEX_PATH + '/',"test_collection_for_query.tsv",false);
 
         BlockMerger blockMerger = new BlockMerger();
         blockMerger.mergeBlocks(index.getNumberOfBlocks());
@@ -95,6 +95,6 @@ public class TestApp {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        SystemEvaluator.queryResult("project", DISJUNCTIVE_DAAT);
+        SystemEvaluator.queryResult("science", DISJUNCTIVE_DAAT);
     }
 }
