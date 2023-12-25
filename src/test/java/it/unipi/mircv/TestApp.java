@@ -43,10 +43,9 @@ public class TestApp {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        //SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT);
+        SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT);
 
         buildCompressedIndex();
-        buildIndexForTest();
     }
 
     private static void buildCompressedIndex() throws IOException {
@@ -70,10 +69,11 @@ public class TestApp {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        //SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT_C);
+        SystemEvaluator.queryResult("Manhattan", DISJUNCTIVE_DAAT_C);
     }
 
-    private static void buildIndexForTest() throws IOException {
+    @Test
+    void buildIndexForTest() throws IOException {
         // compute the index on which the score functions are going to be tested
         flagStemming = false;
         flagStopWordRemoval = true;
@@ -95,6 +95,6 @@ public class TestApp {
         scoreType = TFIDF;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
-        SystemEvaluator.queryResult("science", DISJUNCTIVE_DAAT);
+        SystemEvaluator.queryResult("river", DISJUNCTIVE_DAAT);
     }
 }
