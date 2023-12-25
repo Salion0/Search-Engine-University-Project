@@ -91,7 +91,7 @@ public class CommandLineInterface {
                     String query = scanner.nextLine();
                     long startTime = System.currentTimeMillis();
                     String[] results = SystemEvaluator.queryResult(query, queryProcessType);
-                    System.out.println("query processed in " + (System.currentTimeMillis() - startTime) + "ms");
+                    System.out.println("query processed in " + (System.currentTimeMillis() - startTime) + "ms; \ndocno retrieved:");
                     for (String result: results) { System.out.println(result); }
                     documentIndexFileHandler.closeFileChannel();
                 }
