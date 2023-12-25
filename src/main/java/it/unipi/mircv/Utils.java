@@ -109,7 +109,7 @@ public class Utils {
                     }
                 }
             }
-        } else Files.createDirectory(Paths.get(STARTING_PATH));
+        } else Files.createDirectory(Paths.get(INDEX_PATH));
     }
 
     public static void deleteFile(String filePath) {
@@ -120,27 +120,36 @@ public class Utils {
         else System.out.println("File does not exist.");
     }
 
-
     public static String stemWord(String toStem){
         return porterStemmer.stemWord(toStem);
     }
-    public static String[] stemPhrase(String[] phrase){
+    public static void stemPhrase(String[] phrase){
         for(int i = 0; i < phrase.length; i++){
             phrase[i] = porterStemmer.stemWord(phrase[i]);
         }
-        return  phrase;
+    }
+
+    public static String[] removeElementFromArray(String[] arr, int positionToRemove) {
+        String[] result = new String[arr.length - 1];
+        int index = 0;
+        for (int i = 0; i < arr.length; i++) {
+            if (i != positionToRemove) {
+                result[index++] = arr[i];
+            }
+        }
+        return result;
     }
 
     public static void setFilePaths() {
-        LEXICON_FILE = STARTING_PATH + "/lexicon.dat";
-        TERM_FREQ_FILE = STARTING_PATH + "/termFreq.dat";
-        DOC_ID_FILE = STARTING_PATH + "/docIds.dat";
-        DOCUMENT_INDEX_FILE = STARTING_PATH + "/documentIndex.dat";
-        POSTING_LIST_DESC_FILE = STARTING_PATH + "/postingListDesc.dat";
+        LEXICON_FILE = INDEX_PATH + "/lexicon.dat";
+        TERM_FREQ_FILE = INDEX_PATH + "/termFreq.dat";
+        DOC_ID_FILE = INDEX_PATH + "/docIds.dat";
+        DOCUMENT_INDEX_FILE = INDEX_PATH + "/documentIndex.dat";
+        POSTING_LIST_DESC_FILE = INDEX_PATH + "/postingListDesc.dat";
     }
 
     public static void printFilePaths() {
-        System.out.println(STARTING_PATH);
+        System.out.println(INDEX_PATH);
         System.out.println(LEXICON_FILE);
         System.out.println(TERM_FREQ_FILE);
         System.out.println(DOC_ID_FILE);

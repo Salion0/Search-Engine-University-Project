@@ -1,15 +1,10 @@
 package it.unipi.mircv;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.BlockMerger;
-import it.unipi.mircv.index.BlockMergerCompression;
 import it.unipi.mircv.index.Index;
-import it.unipi.mircv.query.DisjunctiveDAAT;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static it.unipi.mircv.Parameters.*;
 import static it.unipi.mircv.Parameters.QueryProcessor.*;
@@ -24,11 +19,11 @@ public class App
         flagStemming = false;
         flagStopWordRemoval = true;
         flagCompressedReading = false;
-        STARTING_PATH = "dataForQueryTest";
+        INDEX_PATH = "dataForQueryTest";
         setFilePaths();
         printFilePaths();
 
-        Index index = new Index(STARTING_PATH + '/',"test_collection.tsv",false);
+        Index index = new Index(INDEX_PATH + '/',"test_collection.tsv",false);
 
         //BlockMergerCompression blockMerger = new BlockMergerCompression();
         //blockMerger.mergeBlocks(index.getNumberOfBlocks());

@@ -1,6 +1,5 @@
 package it.unipi.mircv.query;
 
-import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.file.SkipDescriptorFileHandler;
@@ -18,7 +17,7 @@ import static it.unipi.mircv.Config.*;
 import static it.unipi.mircv.Parameters.scoreType;
 
 public class MaxScoreDisjunctive {
-    private int numTermQuery;
+    private final int numTermQuery;
     private final int[] docFreqs;
     private final int[] offsets;
     private final int[] numElementsRead; // count the numbers of element read for each posting list
@@ -26,13 +25,12 @@ public class MaxScoreDisjunctive {
     private final boolean[] endOfPostingListFlag;
     private final PostingListBlock[] postingListBlocks;
     private final SkipDescriptor[] skipDescriptors;
-    private final DocumentIndexFileHandler documentIndexHandler;
     private final InvertedIndexFileHandler invertedIndexHandler;
     private MinHeapScores heapScores;
+    private boolean invalidConstruction = false;
 
     public MaxScoreDisjunctive(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
-        documentIndexHandler = new DocumentIndexFileHandler();
         invertedIndexHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         numTermQuery = queryTerms.length;
@@ -40,13 +38,18 @@ public class MaxScoreDisjunctive {
         postingListBlocks = new PostingListBlock[numTermQuery];
         docFreqs = new int[numTermQuery];
         offsets = new int[numTermQuery];
-        numElementsRead = new int[postingListBlocks.length]; // count the numbers of element read for each posting list
-        endOfPostingListFlag = new boolean[postingListBlocks.length];
+        numElementsRead = new int[numTermQuery]; // count the numbers of element read for each posting list
+        endOfPostingListFlag = new boolean[numTermQuery];
         upperBoundScores = new float[numTermQuery];
         skipDescriptors = new SkipDescriptor[numTermQuery];
 
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
+            if(entryBuffer == null){ //if the ith term is not present in lexicon
+                System.out.println(queryTerms[i] + " is not inside the index");
+                invalidConstruction = true;
+                break;
+            }
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
             switch (scoreType){
@@ -70,8 +73,9 @@ public class MaxScoreDisjunctive {
                 postingListBlocks[i] = invertedIndexHandler.getPostingList(offsets[i], docFreqs[i]);
             }
         }
-
         sortArraysByArray(upperBoundScores, docFreqs, offsets, skipDescriptors, postingListBlocks);
+        lexiconHandler.close();
+        skipDescriptorFileHandler.closeFileChannel();
     }
 
     private void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
@@ -93,6 +97,10 @@ public class MaxScoreDisjunctive {
 
     // ************************  -- MAX SCORE --   ****************************************
     public ArrayList<Integer> computeMaxScore() throws IOException {
+        if(invalidConstruction){
+            invertedIndexHandler.close();
+            return new ArrayList<>(0);
+        }
         heapScores = new MinHeapScores();
         heapScores.setTopDocCount(MAX_NUM_DOC_RETRIEVED); // initialize the priority queue with 20 elements set to 0
         float minScoreInHeap = 0; // teta
@@ -108,7 +116,7 @@ public class MaxScoreDisjunctive {
         int next;
         int minDocIdDocumentLength; // optimization to avoid reading document length more than one time
         int countFinishedPostingLists = 0;
-        minCurrentDocId = getMinCurrentDocId(); // get the mi docId between the current element of all posting lists
+        minCurrentDocId = getMinCurrentDocId(); // get the min docId between the current element of all posting lists
 
         while (pivot < postingListBlocks.length && minCurrentDocId != Integer.MAX_VALUE) // DEBUG
         {
@@ -130,7 +138,7 @@ public class MaxScoreDisjunctive {
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                         case TFIDF ->
-                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                                score += ScoreFunction.TFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
 
                     //score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
@@ -173,7 +181,7 @@ public class MaxScoreDisjunctive {
                         case BM25 ->
                                 score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
                         case TFIDF ->
-                                score += ScoreFunction.computeTFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
+                                score += ScoreFunction.TFIDF(postingListBlocks[i].getCurrentTf(), docFreqs[i]);
                     }
                     //prima dello switch
                     //score += ScoreFunction.BM25(postingListBlocks[i].getCurrentTf(), minDocIdDocumentLength, docFreqs[i]);
@@ -189,7 +197,7 @@ public class MaxScoreDisjunctive {
             minCurrentDocId = next;
             //System.out.println("minCurrentDocId = " + minCurrentDocId);
         }
-
+        invertedIndexHandler.close();
         return heapScores.getTopDocIdReversed();
     }
 
@@ -204,10 +212,9 @@ public class MaxScoreDisjunctive {
 
     public int getMinCurrentDocId() {
         int minCurrentDocId = Integer.MAX_VALUE;
-        for (int i = 0; i < postingListBlocks.length; i++)
+        for (int i = 0; i < numTermQuery; i++)
             if (postingListBlocks[i].getCurrentDocId() < minCurrentDocId)
                 minCurrentDocId = postingListBlocks[i].getCurrentDocId();
-
         return minCurrentDocId;
     }
 

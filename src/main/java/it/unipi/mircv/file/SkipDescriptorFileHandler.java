@@ -1,8 +1,8 @@
 package it.unipi.mircv.file;
 
+
 import it.unipi.mircv.index.SkipDescriptorCompression;
 import it.unipi.mircv.index.SkipDescriptor;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -18,9 +18,7 @@ public class SkipDescriptorFileHandler {
 
     public SkipDescriptorFileHandler() throws IOException {
         File file = new File(POSTING_LIST_DESC_FILE);
-        if (file.exists()) {
-            System.out.println("Posting List Descriptor file founded");
-        } else {
+        if (!file.exists()) {
             // Create the file
             if (file.createNewFile()) {
                 System.out.println("Posting List Descriptor file created correctly");

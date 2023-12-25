@@ -10,12 +10,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Parameters.collectionSize;
-import static it.unipi.mircv.Parameters.scoreType;
+import static it.unipi.mircv.Parameters.*;
 
 public class DisjunctiveDAAT {
     private final int numTermQuery;
-    private final DocumentIndexFileHandler documentIndexHandler;
     private final InvertedIndexFileHandler invertedIndexHandler;
     private final PostingListBlock[] postingListBlocks;
     private final int[] numBlockRead;
@@ -23,9 +21,9 @@ public class DisjunctiveDAAT {
     private final int[] offsets;
     private final boolean[] endOfPostingListFlag;
     private MinHeapScores heapScores;
+    private boolean invalidConstruction;
 
     public DisjunctiveDAAT(String[] queryTerms) throws IOException {
-        documentIndexHandler = new DocumentIndexFileHandler();
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
         invertedIndexHandler = new InvertedIndexFileHandler();
 
@@ -42,6 +40,11 @@ public class DisjunctiveDAAT {
         for (int i = 0; i < numTermQuery; i++)
         {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
+            if(entryBuffer == null){ //if the ith term is not present in lexicon
+                System.out.println(queryTerms[i] + " is not inside the index");
+                invalidConstruction = true;
+                break;
+            }
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
 
@@ -52,6 +55,7 @@ public class DisjunctiveDAAT {
 
             numBlockRead[i] = 1;
         }
+        lexiconHandler.close();
     }
 
     private int getMinDocId() {
@@ -69,6 +73,10 @@ public class DisjunctiveDAAT {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
+        if(invalidConstruction){
+            invertedIndexHandler.close();
+            return new ArrayList<>(0);
+        }
         heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
@@ -81,7 +89,7 @@ public class DisjunctiveDAAT {
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
             //AIUDOO
-            int documentLength = documentIndexHandler.readDocumentLength(minDocId);
+            int documentLength = docsLen[minDocId];
             //int documentLength = docsLen[minDocId];
             for (int i =0; i<numTermQuery;i++)
             {
@@ -92,7 +100,7 @@ public class DisjunctiveDAAT {
                         case BM25 ->
                                 currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                         case TFIDF ->
-                                currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
+                                currentDocScore += ScoreFunction.TFIDF(currentTf, docFreqs[i]);
                     }
                     //currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                     //currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
@@ -103,7 +111,7 @@ public class DisjunctiveDAAT {
             }
             heapScores.insertIntoPriorityQueue(currentDocScore , minDocId);
         }
-
+        invertedIndexHandler.close();
         return heapScores.getTopDocIdReversed();
     }
 

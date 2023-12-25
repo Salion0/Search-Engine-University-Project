@@ -94,9 +94,6 @@ public class TestLorenzo {
         long startTime = System.currentTimeMillis();
         String[] queryTerms = string.split(" ");
         queryTerms = removeStopWords(queryTerms);
-        MaxScore maxScore2 = new MaxScore(queryTerms);
-        ArrayList<Integer> results2 = maxScore2.computeMaxScore();
-        System.out.println(results2);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("MAX-SCORE finished in " + (float)elapsedTime/1000 +"sec");

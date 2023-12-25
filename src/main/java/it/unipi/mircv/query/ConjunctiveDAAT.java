@@ -1,6 +1,5 @@
 package it.unipi.mircv.query;
 
-import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
@@ -19,20 +18,19 @@ import static it.unipi.mircv.Parameters.docsLen;
 import static it.unipi.mircv.Parameters.scoreType;
 
 public class ConjunctiveDAAT {
-    protected final int numTermQuery;
-    protected final int[] docFreqs;
-    protected final int[] offsets;
-    protected final PostingListBlock[] postingListBlocks;
-    protected final SkipDescriptor[] skipDescriptors;
-    protected final DocumentIndexFileHandler documentIndexFileHandler;
-    protected final InvertedIndexFileHandler invertedIndexFileHandler;
-    protected float currentDocScore;
-    protected Integer currentDocLen;
+    private final int numTermQuery;
+    private final int[] docFreqs;
+    private final int[] offsets;
+    private final PostingListBlock[] postingListBlocks;
+    private final SkipDescriptor[] skipDescriptors;
+    private final InvertedIndexFileHandler invertedIndexFileHandler;
+    private float currentDocScore;
+    private Integer currentDocLen;
     private MinHeapScores heapScores;
+    private boolean invalidConstruction = false;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
-        documentIndexFileHandler = new DocumentIndexFileHandler();
         invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
@@ -45,6 +43,11 @@ public class ConjunctiveDAAT {
 
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
+            if(entryBuffer == null){ //if the ith term is not present in lexicon
+                System.out.println(queryTerms[i] + " is not inside the index");
+                invalidConstruction = true;
+                break;
+            }
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
 
@@ -59,11 +62,16 @@ public class ConjunctiveDAAT {
                 postingListBlocks[i] = invertedIndexFileHandler.getPostingList(offsets[i], docFreqs[i]);
             }
         }
-
         sortArraysByArray(docFreqs, offsets, skipDescriptors, postingListBlocks);
+        lexiconHandler.close();
+        skipDescriptorFileHandler.closeFileChannel();
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
+        if(invalidConstruction){
+            invertedIndexFileHandler.close();
+            return new ArrayList<>(0);
+        }
         heapScores = new MinHeapScores();
         int postingCount = 0;
         int currentDocId;
@@ -87,6 +95,7 @@ public class ConjunctiveDAAT {
                     offsetNextGEQ = skipDescriptors[i].nextGEQ(currentDocId); // get the nextGEQ of the current posting list
                     if(offsetNextGEQ == -1)
                     {
+                        invertedIndexFileHandler.close();
                         return heapScores.getTopDocIdReversed();
                         //docIdNotInAllPostingLists = true;
                         //break;
@@ -118,6 +127,7 @@ public class ConjunctiveDAAT {
             if (postingListBlocks[0].next() == -1)
                 uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
         }
+        invertedIndexFileHandler.close();
         return heapScores.getTopDocIdReversed();
     }
 
@@ -140,7 +150,7 @@ public class ConjunctiveDAAT {
             case BM25 ->
                     currentDocScore += ScoreFunction.BM25(postingListBlocks[index].getCurrentTf(), currentDocLen, docFreqs[index]);
             case TFIDF ->
-                    currentDocScore += ScoreFunction.computeTFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
+                    currentDocScore += ScoreFunction.TFIDF(postingListBlocks[index].getCurrentTf(), docFreqs[index]);
         }
     }
 
@@ -230,6 +240,7 @@ public class ConjunctiveDAAT {
             if (postingListBlocks[0].next() == -1)
                 uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
         }
+        invertedIndexFileHandler.close();
         return heapScores.getTopDocIdReversed();
     }
 

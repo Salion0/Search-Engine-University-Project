@@ -1,5 +1,4 @@
 package it.unipi.mircv.index;
-import it.unipi.mircv.Config;
 import it.unipi.mircv.Parameters;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
@@ -42,7 +41,7 @@ public class BlockMerger {
         //initialize the skip descriptor file handler
         skipDescriptorFileHandler = new SkipDescriptorFileHandler();
         //initialize the document index file handler
-        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler(STARTING_PATH + "/documentIndex.dat");
+        DocumentIndexFileHandler documentIndexHandler = new DocumentIndexFileHandler(INDEX_PATH + "/documentIndex.dat");
         //read the collection size and the average document length
         Parameters.collectionSize = documentIndexHandler.readCollectionSize();
         Parameters.avgDocLen = documentIndexHandler.readAvgDocLen();
@@ -53,17 +52,17 @@ public class BlockMerger {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(STARTING_PATH + "/lexicon"+blockIndex+".dat",true);
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(INDEX_PATH + "/lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
-                    STARTING_PATH+"/docIds"+blockIndex+".dat",
-                    STARTING_PATH+"/termFreq"+blockIndex+".dat");
+                    INDEX_PATH +"/docIds"+blockIndex+".dat",
+                    INDEX_PATH +"/termFreq"+blockIndex+".dat");
             lexiconBlocks.add(lexiconHandler);
             postingListBlocks.add(plHandler);
         }
 
-        FileOutputStream fosLexicon = new FileOutputStream(STARTING_PATH+"/lexicon.dat",true);
-        FileOutputStream fosDocId = new FileOutputStream(STARTING_PATH+"/docIds.dat",true);
-        FileOutputStream fosTermFreq = new FileOutputStream(STARTING_PATH+"/termFreq.dat",true);
+        FileOutputStream fosLexicon = new FileOutputStream(INDEX_PATH +"/lexicon.dat",true);
+        FileOutputStream fosDocId = new FileOutputStream(INDEX_PATH +"/docIds.dat",true);
+        FileOutputStream fosTermFreq = new FileOutputStream(INDEX_PATH +"/termFreq.dat",true);
         //------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -216,7 +215,7 @@ public class BlockMerger {
             //System.out.println(postingElement.getTermFreq() + "-" + documentIndexHandler.readDocumentLength(postingElement.getDocId()) + "-" + documentFrequency);
             float currentScoreBM25 = ScoreFunction.BM25(postingElement.getTermFreq(),
                     documentIndexHandler.readDocumentLength(postingElement.getDocId()),documentFrequency);
-            float currentScoreTFIDF = ScoreFunction.computeTFIDF(postingElement.getTermFreq(),documentFrequency);
+            float currentScoreTFIDF = ScoreFunction.TFIDF(postingElement.getTermFreq(),documentFrequency);
             if (currentScoreBM25 > maxScoreBM25)
                 maxScoreBM25 = currentScoreBM25;
             if (currentScoreTFIDF > maxScoreTFIDF)

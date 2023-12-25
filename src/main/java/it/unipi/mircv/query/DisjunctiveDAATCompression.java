@@ -1,6 +1,5 @@
 package it.unipi.mircv.query;
 
-import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.file.SkipDescriptorFileHandler;
@@ -16,22 +15,18 @@ import static it.unipi.mircv.Parameters.*;
 
 public class DisjunctiveDAATCompression {
     private final int numTermQuery;
-    private final DocumentIndexFileHandler documentIndexHandler;
     private final InvertedIndexFileHandler invertedIndexFileHandler;
-    private final LexiconFileHandler lexiconFileHandler;
     private final PostingListBlock[] postingListBlocks;
     private final int[] numBlockRead;
     private final int[] docFreqs;
-    private final long[] offsetsDocId;
-    private final long[] offsetsTermFreq;
     private final SkipDescriptorCompression[] skipDescriptorsCompression;
     private final int[] numPostingPerBlock;
     private final boolean[] endOfPostingListFlag;
     private MinHeapScores heapScores;
+    private boolean invalidConstruction;
 
     public DisjunctiveDAATCompression(String[] queryTerms) throws IOException {
-        documentIndexHandler = new DocumentIndexFileHandler();
-        lexiconFileHandler = new LexiconFileHandler();
+        LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();
         invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
@@ -40,8 +35,8 @@ public class DisjunctiveDAATCompression {
 
         postingListBlocks = new PostingListBlock[numTermQuery];
         docFreqs =  new int[numTermQuery];
-        offsetsDocId = new long[numTermQuery];
-        offsetsTermFreq = new long[numTermQuery];
+        long[] offsetsDocId = new long[numTermQuery];
+        long[] offsetsTermFreq = new long[numTermQuery];
         numBlockRead = new int[numTermQuery];
         skipDescriptorsCompression = new SkipDescriptorCompression[numTermQuery];
         endOfPostingListFlag = new boolean[numTermQuery];
@@ -51,6 +46,11 @@ public class DisjunctiveDAATCompression {
         for (int i = 0; i < numTermQuery; i++)
         {
             ByteBuffer entryBuffer = lexiconFileHandler.findTermEntryCompression(queryTerms[i]);
+            if(entryBuffer == null){ //if the ith term is not present in lexicon
+                System.out.println(queryTerms[i] + " is not inside the index");
+                invalidConstruction = true;
+                break;
+            }
             docFreqs[i] = lexiconFileHandler.getDfCompression(entryBuffer);
             offsetsDocId[i] = lexiconFileHandler.getOffsetDocIdCompression(entryBuffer);
             offsetsTermFreq[i] = lexiconFileHandler.getOffsetTermFreqCompression(entryBuffer);
@@ -75,6 +75,8 @@ public class DisjunctiveDAATCompression {
 
             numBlockRead[i] = 1;
         }
+        lexiconFileHandler.close();
+        skipDescriptorFileHandler.closeFileChannel();
     }
 
     private int getMinDocId() {
@@ -92,6 +94,10 @@ public class DisjunctiveDAATCompression {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
+        if(invalidConstruction){
+            invertedIndexFileHandler.close();
+            return new ArrayList<>(0);
+        }
         heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
@@ -115,7 +121,7 @@ public class DisjunctiveDAATCompression {
                         case BM25 ->
                                 currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
                         case TFIDF ->
-                                currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
+                                currentDocScore += ScoreFunction.TFIDF(currentTf, docFreqs[i]);
                     }
 
                     if(!endOfPostingListFlag[i] && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
@@ -124,7 +130,7 @@ public class DisjunctiveDAATCompression {
             }
             heapScores.insertIntoPriorityQueue(currentDocScore , minDocId);
         }
-
+        invertedIndexFileHandler.close();
         return heapScores.getTopDocIdReversed();
     }
 

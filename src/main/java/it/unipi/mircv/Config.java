@@ -1,7 +1,5 @@
 package it.unipi.mircv;
 
-import java.util.List;
-
 public class Config {
     public static final int MEMORY_THRESHOLD_PERC = 8;
     public static final int TERM_BYTES_LENGTH = 64;
@@ -27,13 +25,13 @@ public class Config {
     public static final int SKIP_DESC_ENTRY = 4 + OFFSET_BYTES_LENGTH;
     public static final int SKIP_DESC_ENTRY_COMPRESSION = 4 + OFFSET_COMPRESS_BYTES_LENGTH + 4 + OFFSET_COMPRESS_BYTES_LENGTH + 4;
     public static final int POSTING_LIST_BLOCK_LENGTH = 10000; //Expressed in element
-    public static String STARTING_PATH = "data";
-    public static String LEXICON_FILE = STARTING_PATH + "/lexicon.dat";
-    public static String TERM_FREQ_FILE = STARTING_PATH + "/termFreq.dat";
-    public static String DOC_ID_FILE = STARTING_PATH + "/docIds.dat";
-    public static String DOCUMENT_INDEX_FILE = STARTING_PATH + "/documentIndex.dat";
-    public static String POSTING_LIST_DESC_FILE = STARTING_PATH + "/postingListDesc.dat";
-    public static final int MAX_NUM_DOC_RETRIEVED = 20;
-    public static final int MIN_NUM_POSTING_TO_SKIP = 10; // vecchio valore era 10
+    public static String INDEX_PATH = "data";
+    public static String LEXICON_FILE = INDEX_PATH + "/lexicon.dat";
+    public static String TERM_FREQ_FILE = INDEX_PATH + "/termFreq.dat";
+    public static String DOC_ID_FILE = INDEX_PATH + "/docIds.dat";
+    public static String DOCUMENT_INDEX_FILE = INDEX_PATH + "/documentIndex.dat";
+    public static String POSTING_LIST_DESC_FILE = INDEX_PATH + "/postingListDesc.dat";
+    public static final int MAX_NUM_DOC_RETRIEVED = 10;
+    public static final int MIN_NUM_POSTING_TO_SKIP = 100; // vecchio valore era 10
 
 }

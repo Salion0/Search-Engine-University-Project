@@ -3,14 +3,11 @@ package it.unipi.mircv.index;
 import it.unipi.mircv.Parameters;
 import it.unipi.mircv.Utils;
 import it.unipi.mircv.compression.VariableByte;
-import it.unipi.mircv.index.*;
-import it.unipi.mircv.Config;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.file.SkipDescriptorFileHandler;
 import it.unipi.mircv.query.ScoreFunction;
-import it.unipi.mircv.compression.Unary;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -60,17 +57,17 @@ public class BlockMergerCompression {
         for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
             // initialize the handlers for each block
 
-            LexiconFileHandler lexiconHandler = new LexiconFileHandler(STARTING_PATH+"/lexicon"+blockIndex+".dat",true);
+            LexiconFileHandler lexiconHandler = new LexiconFileHandler(INDEX_PATH +"/lexicon"+blockIndex+".dat",true);
             InvertedIndexFileHandler plHandler = new InvertedIndexFileHandler(
-                    STARTING_PATH+"/docIds"+blockIndex+".dat",
-                    STARTING_PATH+"/termFreq"+blockIndex+".dat");
+                    INDEX_PATH +"/docIds"+blockIndex+".dat",
+                    INDEX_PATH +"/termFreq"+blockIndex+".dat");
             lexiconBlocks.add(lexiconHandler);
             postingListBlocks.add(plHandler);
         }
 
-        FileOutputStream fosLexicon = new FileOutputStream(STARTING_PATH+"/lexicon.dat",true);
-        FileOutputStream fosDocId = new FileOutputStream(STARTING_PATH+"/docIds.dat",true);
-        FileOutputStream fosTermFreq = new FileOutputStream(STARTING_PATH+"/termFreq.dat",true);
+        FileOutputStream fosLexicon = new FileOutputStream(INDEX_PATH +"/lexicon.dat",true);
+        FileOutputStream fosDocId = new FileOutputStream(INDEX_PATH +"/docIds.dat",true);
+        FileOutputStream fosTermFreq = new FileOutputStream(INDEX_PATH +"/termFreq.dat",true);
         //------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -186,24 +183,9 @@ public class BlockMergerCompression {
                         postingList2Compress.getSomeTermFreq(i, i + postingListSizeBlock)
                 );
 
-                //DEBUG
-                if(term.subSequence(0,8).equals("project\0")) {
-                    System.out.println(term);
-                    System.out.println(postingList2CompressBlock.getDocIds().size());
-                    System.out.println(postingList2CompressBlock.getTermFreqs().size());
-                    if(i==0) System.out.println(postingList2CompressBlock);
-                }
-
                 byte[][] compressedPLB = postingList2CompressBlock.getBytesCompressed();
                 fosDocId.write(compressedPLB[0]); //append to precedent PostingList docID
                 fosTermFreq.write(compressedPLB[1]); //append to precedent PostingList termFreq
-
-                //DEBUG
-                if(term.subSequence(0,8).equals("project\0") && i == 0) {
-                    System.out.println(compressedPLB[0].length);
-                    Utils.printReverseBytes(compressedPLB[0]);
-                    System.out.println(Arrays.toString(VariableByte.decompress(compressedPLB[0])));
-                }
 
                 int numByteDocIdCompressed = compressedPLB[0].length;
                 int numByteTermFreqCompressed = compressedPLB[1].length;
@@ -287,7 +269,7 @@ public class BlockMergerCompression {
 
             float currentScoreBM25 = ScoreFunction.BM25(postingList.getTermFreqs().get(i),
                     documentIndexHandler.readDocumentLength(postingList.getDocIds().get(i)),documentFrequency);
-            float currentScoreTFIDF = ScoreFunction.computeTFIDF(postingList.getDocIds().get(i),documentFrequency);
+            float currentScoreTFIDF = ScoreFunction.TFIDF(postingList.getDocIds().get(i),documentFrequency);
 
             if (currentScoreBM25 > maxScoreBM25)
                 maxScoreBM25 = currentScoreBM25;

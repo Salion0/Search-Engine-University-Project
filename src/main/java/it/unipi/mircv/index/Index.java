@@ -1,6 +1,4 @@
 package it.unipi.mircv.index;
-
-import ca.rmen.porterstemmer.PorterStemmer;
 import it.unipi.mircv.Utils;
 
 import java.io.*;
@@ -14,12 +12,11 @@ import static it.unipi.mircv.Utils.*;
 
 public class Index {
     private final DocumentIndex documentIndex;
-    private final PorterStemmer stemmer = new PorterStemmer();
     private int numberOfBlocks;
     private int currentDocId;
     private boolean debugFlag;
     private int count = 0; //DEBUG
-    private String blockFolder;
+    private final String blockFolder;
     private String collectionFile;
 
 
@@ -33,7 +30,7 @@ public class Index {
 
         BufferedReader reader;
         if (flagCompressedReading) {
-            FileInputStream fis = new FileInputStream(collectionFile+".gz");
+            FileInputStream fis = new FileInputStream(collectionFile);
             GZIPInputStream gzis = new GZIPInputStream(fis);
             InputStreamReader inputStreamReader = new InputStreamReader(gzis, StandardCharsets.UTF_8);
             reader = new BufferedReader(inputStreamReader);
@@ -144,13 +141,13 @@ public class Index {
         //Count all occurrence of all terms in a document
         for (String token : tokens) //map with frequencies only
         {
-            if (token == null) continue;
+            if (token == null || token.isEmpty()) continue;
 
             if (flagStopWordRemoval && Utils.seekInStopwords(token))  continue;// stopWordRemoval
 
             if (flagStemming) token = stemWord(token); // stemming
 
-            if (token.length() > TERM_BYTES_LENGTH) continue;// il token è più lungo di 64 byte quindi lo scartiamo
+            if(token.getBytes(StandardCharsets.UTF_8).length > TERM_BYTES_LENGTH) continue; //il token è più lungo di 64 byte quindi lo scartiamo
 
             tokenCount++;
             if (wordCountDocument.get(token) == null)
