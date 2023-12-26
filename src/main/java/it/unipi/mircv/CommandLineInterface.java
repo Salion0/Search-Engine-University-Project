@@ -65,17 +65,19 @@ public class CommandLineInterface {
 
             switch (command[0]) {
                 case "index" -> {
-                    if(command.length>1 && new File((command[1])).exists()){
-                        long startTime = System.currentTimeMillis();
-                        Index index = new Index(INDEX_PATH + '/', command[1], false);
-                        if (flagCompression) {
-                            BlockMergerCompression blockMerger = new BlockMergerCompression();
-                            blockMerger.mergeBlocks(index.getNumberOfBlocks());
-                        } else {
-                            BlockMerger.mergeBlocks(index.getNumberOfBlocks());
-                        }
-                        System.out.println("indexed finished in " + (int) (System.currentTimeMillis() - startTime) / 1000 / 60 + "min");
-                    }else System.out.println(command[1] + " has not been founded as collection file_name");
+                    if(command.length>1){
+                        if(new File((command[1])).exists()){
+                            long startTime = System.currentTimeMillis();
+                            Index index = new Index(INDEX_PATH + '/', command[1], false);
+                            if (flagCompression) {
+                                BlockMergerCompression blockMerger = new BlockMergerCompression();
+                                blockMerger.mergeBlocks(index.getNumberOfBlocks());
+                            } else {
+                                BlockMerger.mergeBlocks(index.getNumberOfBlocks());
+                            }
+                            System.out.println("indexed finished in " + (int) (System.currentTimeMillis() - startTime) / 1000 / 60 + "min");
+                        }else System.out.println(command[1] + " has not been founded as collection file_name");
+                    }else System.out.println("insert a file_name");
                 }
                 case "query" -> {
                     if(command.length>1){ System.out.print("wrong command\n"); break; }
@@ -89,7 +91,7 @@ public class CommandLineInterface {
                     String query = scanner.nextLine();
                     long startTime = System.currentTimeMillis();
                     String[] results = SystemEvaluator.queryResult(query, queryProcessType);
-                    System.out.println("query processed in " + (System.currentTimeMillis() - startTime) + "ms");
+                    System.out.println("query processed in " + (System.currentTimeMillis() - startTime) + "ms; \ndocno retrieved:");
                     for (String result: results) { System.out.println(result); }
                     documentIndexFileHandler.closeFileChannel();
                 }
