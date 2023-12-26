@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
-public class TestUnitLorenzo {
+public class TestQueryProcessing {
     static PostingListBlock[] postingListBlocks = new PostingListBlock[5];
     static SkipDescriptor[] skipDescriptors = new SkipDescriptor[5];
     static boolean[] endOfPostingListFlag = new boolean[5];

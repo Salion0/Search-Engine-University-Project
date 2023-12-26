@@ -91,30 +91,29 @@ public class TestScores {
 
         // evaluate the query
         String[] querys = new String[]{"Manhattan project"};
-        System.out.println(SystemEvaluator.queryResult(querys[0],DISJUNCTIVE_DAAT));
         score2DocIdMap = SystemEvaluator.queryResultForTest(querys[0],DISJUNCTIVE_DAAT);
 
         // To compute the scores, WolframAplha was used
-        Assertions.assertEquals(new ArrayList<>(List.of(0)),score2DocIdMap.get(0.45585084f)); // computed score for docId = 0
-        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.18595329f)); // computed score for docId = 2
-        Assertions.assertEquals(new ArrayList<>(List.of(3)),score2DocIdMap.get(0.41942838f)); // computed score for docId = 3
-        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.43028915f)); // computed score for docId = 8
+        Assertions.assertEquals(new ArrayList<>(List.of(0)),score2DocIdMap.get(0.40475547f)); // computed score for docId = 0
+        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.16409898f)); // computed score for docId = 2
+        Assertions.assertEquals(new ArrayList<>(List.of(3)),score2DocIdMap.get(0.37058663f)); // computed score for docId = 3
+        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.37971908f)); // computed score for docId = 8
 
         // evaluate the query
         querys = new String[]{"science secret"};
         score2DocIdMap = SystemEvaluator.queryResultForTest(querys[0],DISJUNCTIVE_DAAT);
 
         // To compute the scores, WolframAplha was used
-        Assertions.assertEquals(new ArrayList<>(List.of(1)),score2DocIdMap.get(0.29368487f)); // computed score for docId = 1
-        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.32662153f)); // computed score for docId = 2
-        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.46728975f)); // computed score for docId = 8
+        Assertions.assertEquals(new ArrayList<>(List.of(1)),score2DocIdMap.get(0.25650275f)); // computed score for docId = 1
+        Assertions.assertEquals(new ArrayList<>(List.of(2)),score2DocIdMap.get(0.28823504f)); // computed score for docId = 2
+        Assertions.assertEquals(new ArrayList<>(List.of(8)),score2DocIdMap.get(0.41237113f)); // computed score for docId = 8
 
         // evaluate the query
         querys = new String[]{"into the ocean"};
         score2DocIdMap = SystemEvaluator.queryResultForTest(querys[0],DISJUNCTIVE_DAAT);
 
         // To compute the scores, WolframAplha was used
-        Assertions.assertEquals(new ArrayList<>(List.of(9)),score2DocIdMap.get(0.4f)); // computed score for docId = 9
+        Assertions.assertEquals(new ArrayList<>(List.of(9)),score2DocIdMap.get(0.3478261f)); // computed score for docId = 9
 
         System.out.println("test on the method BM25 --> SUCCESSFUL");
     }

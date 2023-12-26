@@ -15,7 +15,7 @@ import static it.unipi.mircv.Parameters.Score.TFIDF;
 import static it.unipi.mircv.Parameters.docsLen;
 import static it.unipi.mircv.Utils.*;
 
-public class TestQuerys {
+public class TestQuerysResults {
 
     @Test
     void testMaxScoreAndDisjunctive() throws IOException {
