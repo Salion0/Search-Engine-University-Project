@@ -77,7 +77,7 @@ public class CommandLineInterface {
                             }
                             System.out.println("indexed finished in " + (int) (System.currentTimeMillis() - startTime) / 1000 / 60 + "min");
                         }else System.out.println(command[1] + " has not been founded as collection file_name");
-                    }else System.out.println("insert a file_name");
+                    }else System.out.println("file_name not specified");
                 }
                 case "query" -> {
                     if(command.length>1){ System.out.print("wrong command\n"); break; }
