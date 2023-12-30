@@ -4,7 +4,11 @@ The project revolves around the building of a Search Engine. the first phase car
 Here the user queries are processed and the most relevant documents for each query are returned to the user.
 
 ## Program execution
-To execute the program, the project has to be compiled using JDK-21 (https://www.oracle.com/it/java/technologies/downloads/#java21) by using the **javac** command. The path for the  file where the **main** is located is the following: src\main\java\it\unipi\mircv\CommandLineInterface.java.
+To execute the program, the project has to be compiled using JDK-21 (https://www.oracle.com/it/java/technologies/downloads/#java21) and Maven (https://maven.apache.org/download.cgi). The path for the  file where the **main** is located is the following: src\main\java\it\unipi\mircv\CommandLineInterface.java.
+*   git clone https://github.com/Salion0/Search-Engine-University-Project
+*   cd Search-Engine-University-Project
+*   java -jar target/SearchEngine-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+*   mvn clean package -Dmaven.test.skip\=true
 
 ## Program Functionalities
 The program is able to carry out the following procedures:
