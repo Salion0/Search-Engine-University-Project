@@ -4,6 +4,9 @@ import static it.unipi.mircv.utility.Parameters.avgDocLen;
 import static it.unipi.mircv.utility.Parameters.collectionSize;
 
 public class  ScoreFunction{
+    /*
+     A set of score functions used to rank the documents retrieved by the query.
+     */
  
     public static float BM25(int termFrequency, int documentLength, int documentFrequency) {
         return (float) (( termFrequency / (termFrequency + 1.5 * ((1 - 0.75) + 0.75*(documentLength / avgDocLen))) )

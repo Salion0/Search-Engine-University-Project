@@ -58,7 +58,7 @@ public class DisjunctiveDAAT {
     }
 
     private int getMinDocId() {
-        int minDocId = collectionSize;  //valore che indica che le posting list sono state raggiunte
+        int minDocId = collectionSize;  //value that is greater than any doc id
 
         //find the current min doc id in the posting lists of the query terms
         for (int i = 0; i < numTermQuery; i++){
@@ -79,17 +79,13 @@ public class DisjunctiveDAAT {
         heapScores = new MinHeapScores();
         float currentDocScore;
         int minDocId;
-        int count = 0;//DEBUG
 
         while ((minDocId = getMinDocId()) != collectionSize)
         {
             currentDocScore = 0;
-            //System.out.println("minDocId: " + minDocId); //DEBUG
             //-----------------------COMPUTE THE SCORE-------------------------------------------------------
             int currentTf;
-            //AIUDOO
             int documentLength = docsLen[minDocId];
-            //int documentLength = docsLen[minDocId];
             for (int i =0; i<numTermQuery;i++)
             {
                 if (postingListBlocks[i].getCurrentDocId() == minDocId)
@@ -101,8 +97,6 @@ public class DisjunctiveDAAT {
                         case TFIDF ->
                                 currentDocScore += ScoreFunction.TFIDF(currentTf, docFreqs[i]);
                     }
-                    //currentDocScore += ScoreFunction.BM25(currentTf, documentLength, docFreqs[i]);
-                    //currentDocScore += ScoreFunction.computeTFIDF(currentTf, docFreqs[i]);
 
                     if(!endOfPostingListFlag[i] && postingListBlocks[i].next() == -1)  //increment position and if end of block reached then set the flag
                         updatePostingListBlock(i);
@@ -114,13 +108,16 @@ public class DisjunctiveDAAT {
         return heapScores.getTopDocIdReversed();
     }
 
-    //TODO cambiare la logica di questo metodo con la stessa che c'è in conjunctive DAAT in processQuery
     private void updatePostingListBlock(int i) throws IOException {
+        /*--------------------------------------
+            update the posting list block
+            by reading the next block if exist
+         --------------------------------------*/
         // read the subsequent block
         int elementToRead = docFreqs[i] - POSTING_LIST_BLOCK_LENGTH*numBlockRead[i];
-        //System.out.println(elementToRead); //DEBUG
 
-        //check if exist a subsequent block using the docFreqs which is equal to the length of the posting list
+        //check if exist a subsequent block using the docFreqs which is equal to
+        // the length of the posting list
         if (elementToRead > 0)
         {
             if(elementToRead > POSTING_LIST_BLOCK_LENGTH )
@@ -129,8 +126,7 @@ public class DisjunctiveDAAT {
             postingListBlocks[i] = invertedIndexHandler.getPostingList(
                     offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead);
 
-            //System.out.println(this.invertedIndexHandler.getPostingList(offsets[i] + (POSTING_LIST_BLOCK_LENGTH * numBlockRead[i]), elementToRead)); //DEBUG
-            numBlockRead[i]++; // ho letto un altro blocco quindi aumento il campo
+            numBlockRead[i]++; //increment the number of block read
         }
         else
             endOfPostingListFlag[i]=true;

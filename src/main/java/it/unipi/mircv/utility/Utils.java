@@ -16,35 +16,6 @@ import static it.unipi.mircv.utility.Config.*;
 public class Utils {
     private static final PorterStemmer porterStemmer = new PorterStemmer();
 
-    //PER LA COMPRESSIONE
-    static public void printReverseBytes(byte[] bytesToPrint){
-        bytesToPrint = reverseByteArray(bytesToPrint);
-        System.out.print("bytes: " + bytesToPrint.length + "\tcode: ");
-        for (byte b :bytesToPrint) {
-            for (int i = 7; i >= 0; i--) {
-                byte bit = (byte) ((b >> i) & 1);
-                System.out.print(bit);
-            }System.out.print(" ");
-        }System.out.println();
-    }
-
-    static public void printBytes(byte[] bytesToPrint){
-        System.out.print("bytes: " + bytesToPrint.length + "\tcode: ");
-        for (byte b :bytesToPrint) {
-            for (int i = 0; i < 8; i++) {
-                byte bit = (byte) ((b >> i) & 1);
-                System.out.print(bit);
-            }System.out.print(" ");
-        }System.out.println();
-    }
-    static public void printByte(byte b){
-        System.out.print("bytes: 1" + "\tcode: ");
-        for (int i = 0; i < 8; i++) {
-            byte bit = (byte) ((b >> i) & 1);
-            System.out.print(bit);
-        }System.out.println();
-    }
-
     public static byte[] reverseByteArray(byte[] array) {
         int length = array.length;
         byte[] reversedArray = new byte[length];
@@ -55,7 +26,7 @@ public class Utils {
         return reversedArray;
     }
 
-    //PER LE STOPWORDS
+    //STOPWORDS
     public static void loadStopWordList() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -87,6 +58,7 @@ public class Utils {
         return false;
     }
 
+    //TOKENIZATION
     public static String[] tokenization(String doc) {
         //html tags removal
         doc = doc.replaceAll("<[^>]*>", "");
@@ -95,6 +67,7 @@ public class Utils {
         return result.split("\\s+");
     }
 
+    //FOLDER MANAGEMENT
     public static void cleanFolder(String folderName) throws IOException {
         //function called every time the indexing starts in order to clean up the folder where blocks are stored
         File folder = new File(folderName);
@@ -120,6 +93,7 @@ public class Utils {
         else System.out.println("File does not exist.");
     }
 
+    //STEMMING
     public static String stemWord(String toStem){
         return porterStemmer.stemWord(toStem);
     }
@@ -129,17 +103,7 @@ public class Utils {
         }
     }
 
-    public static String[] removeElementFromArray(String[] arr, int positionToRemove) {
-        String[] result = new String[arr.length - 1];
-        int index = 0;
-        for (int i = 0; i < arr.length; i++) {
-            if (i != positionToRemove) {
-                result[index++] = arr[i];
-            }
-        }
-        return result;
-    }
-
+    //FILE PATHS
     public static void setFilePaths() {
         LEXICON_FILE = INDEX_PATH + "/lexicon.dat";
         TERM_FREQ_FILE = INDEX_PATH + "/termFreq.dat";

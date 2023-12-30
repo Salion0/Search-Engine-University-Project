@@ -17,6 +17,9 @@ import static it.unipi.mircv.utility.Parameters.docsLen;
 import static it.unipi.mircv.utility.Parameters.scoreType;
 
 public class ConjunctiveDAAT {
+    /*
+    * This class implements the Conjunctive Document-at-a-time query processing algorithm.
+    */
     private final int numTermQuery;
     private final int[] docFreqs;
     private final int[] offsets;
@@ -29,27 +32,33 @@ public class ConjunctiveDAAT {
     private boolean invalidConstruction = false;
 
     public ConjunctiveDAAT(String[] queryTerms) throws IOException {
+
+        // Initialize the file handlers
         LexiconFileHandler lexiconHandler = new LexiconFileHandler();
         invertedIndexFileHandler = new InvertedIndexFileHandler();
         SkipDescriptorFileHandler skipDescriptorFileHandler = new SkipDescriptorFileHandler();
 
         numTermQuery = queryTerms.length;
 
+        // Initialize the arrays
         postingListBlocks = new PostingListBlock[numTermQuery];
         docFreqs = new int[numTermQuery];
         offsets = new int[numTermQuery];
         skipDescriptors = new SkipDescriptor[numTermQuery];
 
+        // Initialize the arrays with the information of the query terms
         for (int i = 0; i < numTermQuery; i++) {
             ByteBuffer entryBuffer = lexiconHandler.findTermEntry(queryTerms[i]);
-            if(entryBuffer == null){ //if the ith term is not present in lexicon
+            if(entryBuffer == null){    //if the ith term is not present in lexicon
                 System.out.println(queryTerms[i] + " is not inside the index");
                 invalidConstruction = true;
                 break;
             }
+            //get the information of the ith term
             docFreqs[i] = lexiconHandler.getDf(entryBuffer);
             offsets[i] = lexiconHandler.getOffset(entryBuffer);
 
+            //if the ith term has a posting list longer than MIN_NUM_POSTING_TO_SKIP, load the skip descriptors
             if(docFreqs[i] > (MIN_NUM_POSTING_TO_SKIP * MIN_NUM_POSTING_TO_SKIP)){
                 skipDescriptors[i] = skipDescriptorFileHandler.readSkipDescriptor(
                         lexiconHandler.getOffsetSkipDesc(entryBuffer), (int) Math.ceil((float) docFreqs[i] / (int) Math.sqrt(docFreqs[i])));
@@ -67,19 +76,29 @@ public class ConjunctiveDAAT {
     }
 
     public ArrayList<Integer> processQuery() throws IOException {
+        /*--------------------------------------
+            This method implements the Conjunctive Document-at-a-time
+            query processing algorithm.
+        --------------------------------------*/
+
+        // If the query is invalid, return an empty list
         if(invalidConstruction){
             invertedIndexFileHandler.close();
             return new ArrayList<>(0);
         }
+
+        // Initialize the heap
         heapScores = new MinHeapScores();
         int postingCount = 0;
         int currentDocId;
         int offsetNextGEQ;
         boolean docIdInAllPostingLists;
 
+        // Load the first posting list block for each term
         if(skipDescriptors[0] != null)
             uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH); //load the first posting list block
 
+        // Iterate over the posting lists
         while(postingCount < docFreqs[0]){
             currentDocId = postingListBlocks[0].getCurrentDocId();
             postingCount++;
@@ -101,31 +120,36 @@ public class ConjunctiveDAAT {
                     }
                     else
                     {
-                        //TODO questo si può portare fuori da qui e mettere un array globale così ogni volta si può evitare di calcolarlo
                         int postingListSkipBlockSize = (int) Math.sqrt(docFreqs[i]); //compute the skip size (square root of the posting list length)
-                        if (!(postingListBlocks[i].getMaxDocID() > currentDocId                  // controllo il range del currentDocId per vedere
-                                && postingListBlocks[i].getMinDocID() < currentDocId)) // se siamo nello stesso blocco di prima
+                        //check if we are in the same block of the previous iteration
+                        if (!(postingListBlocks[i].getMaxDocID() > currentDocId
+                                && postingListBlocks[i].getMinDocID() < currentDocId))
                             uploadPostingListBlock(i, (offsetNextGEQ - offsets[i]), postingListSkipBlockSize);
                     }
                 }
 
+                //check if the currentDocId is in the posting list
                 if(currentDocIdInPostingList(i, currentDocId))
                     updateCurrentDocScore(i);
                 else
                 {
-                    docIdInAllPostingLists = false;
+                    docIdInAllPostingLists = false; //if the currentDocId is not in the posting list, we can stop the iteration
                     break;
                 }
             }
 
+            //if the currentDocId is in all the posting lists, we can update the score and
+            // insert the docId in the heap
             if(docIdInAllPostingLists) {
                 updateCurrentDocScore(0);
                 heapScores.insertIntoPriorityQueue(currentDocScore, currentDocId);
             }
 
+            //load the next posting list block
             if (postingListBlocks[0].next() == -1)
                 uploadPostingListBlock(0, postingCount, POSTING_LIST_BLOCK_LENGTH);
         }
+        //close the file handlers
         invertedIndexFileHandler.close();
         return heapScores.getTopDocIdReversed();
     }
@@ -154,6 +178,11 @@ public class ConjunctiveDAAT {
     }
 
     protected void uploadPostingListBlock(int indexTerm, int readElement, int blockSize) throws IOException {
+        /*--------------------------------------------
+         This method loads a posting list block of the
+         indexTerm-th posting list.
+         --------------------------------------------*/
+
         if (docFreqs[indexTerm] - readElement < blockSize) {
             postingListBlocks[indexTerm] = invertedIndexFileHandler.getPostingList(
                     offsets[indexTerm] + readElement,
@@ -168,8 +197,11 @@ public class ConjunctiveDAAT {
         }
     }
     protected static void sortArraysByArray(int[] arrayToSort, int[] otherArray, SkipDescriptor[] otherOtherArray, PostingListBlock[] otherOtherOtherArray){
-        // Sort all the input arrays according to the elements of the first array
-        // Initialize an array of indexes to keep track of the original positions of the elements
+        /*--------------------------------------------
+         This method sorts the arrayToSort and applies
+          the same permutation to the other arrays.
+         --------------------------------------------*/
+
         Integer[] indexes = new Integer[arrayToSort.length];
         for (int i = 0; i < indexes.length; i++) {
             indexes[i] = i;
@@ -204,6 +236,11 @@ public class ConjunctiveDAAT {
     }
 
     public ArrayList<Integer> processQueryWithoutSkipping() throws IOException {
+        /*-----------------------------------------------------------
+            This method implements the Conjunctive Document-at-a-time
+            query processing algorithm without using skipping.
+        ------------------------------------------------------------*/
+
         heapScores = new MinHeapScores();
         int postingCount = 0;
         int currentDocId;

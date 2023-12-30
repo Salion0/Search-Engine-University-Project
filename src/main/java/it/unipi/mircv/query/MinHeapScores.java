@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 import static it.unipi.mircv.utility.Config.*;
 public class MinHeapScores {
+    /*
+    * This class is used to keep track of the top k documents retrieved by the query.
+    * The class is implemented using a min-heap. The heap is implemented using a priority queue.
+    * An hashmap is used to keep track of the docIDs associated to the score.
+     */
 
     //------------------Priority Queue of Doc Retrieved-----------------------//
     private final HashMap<Float, ArrayList<Integer>> score2DocIdMap;  //list of docIDs retrieved sorted by ranking
