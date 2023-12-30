@@ -10,6 +10,11 @@ import java.util.TreeMap;
 import static it.unipi.mircv.utility.Config.*;
 
 public class Lexicon {
+    /*
+     * This class maps a lexicon data structure to a java object
+     * it is based on a treemap to make easier the implementation cause
+     * entry in the lexicon need to be ordered by term
+    */
 
     private final TreeMap<String,LexiconEntry> treeMap = new TreeMap<>();
 
@@ -43,6 +48,12 @@ public class Lexicon {
 
 
     public void toBlock(String path, String  fileLexicon, String fileDocId, String fileTermFreq) throws IOException {
+        /*--------------------------------------
+            write the lexicon constructed so far
+            to a file in the format of a block of
+            the spimi algorithm
+         --------------------------------------*/
+
         FileOutputStream fosLexicon = new FileOutputStream(path+fileLexicon,true);
         FileOutputStream fosDocId = new FileOutputStream(path+fileDocId,true);
         FileOutputStream fosTermFreq = new FileOutputStream(path+fileTermFreq,true);

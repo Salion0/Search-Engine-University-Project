@@ -2,6 +2,11 @@ package it.unipi.mircv.index;
 import java.util.ArrayList;
 
 public class SkipDescriptor {
+    /*
+     * Represent a SkipDescritor List. It is implemented using two ArrayLists:
+     * - maxDocIds: contains the maxDocId of each block
+     * - offsetMaxDocIds: contains the offset of each block corresponding to the maxDocId
+     */
     private final ArrayList<Integer> maxDocIds;
     private final ArrayList<Integer> offsetMaxDocIds;
 

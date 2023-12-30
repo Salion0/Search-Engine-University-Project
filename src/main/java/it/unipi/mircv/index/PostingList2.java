@@ -6,6 +6,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class PostingList2 {
+    /*
+     * This is a new version of PostingList that uses two ArrayLists instead of one.
+     * Useful for implementing the compression and make it efficient.
+     *  It is used to store the posting list of a term.
+     */
     private final ArrayList<Integer> docIds;
     private final ArrayList<Integer> termFreqs;
 

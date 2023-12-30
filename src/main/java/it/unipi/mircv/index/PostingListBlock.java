@@ -2,6 +2,11 @@ package it.unipi.mircv.index;
 
 public class PostingListBlock extends PostingList
 {
+    /*
+    * This class is used to iterate over a posting list. It represent a
+    * portion of a posting list, and it is used to iterate over it cause we cannot assume that an
+    * entire posting list can be loaded in memory.
+    */
     private int currentPosition;
     private int length;
     private int maxDocID;

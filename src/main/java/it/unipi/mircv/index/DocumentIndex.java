@@ -5,8 +5,12 @@ import java.io.IOException;
 
 
 public class DocumentIndex {
-    //private final ArrayList<Integer> documentLengths = new ArrayList<>();
-    //private final ArrayList<String> documentNos = new ArrayList<>();
+    /**
+     * This class is used to store the document index.
+     * The document index is a file that contains the document number and the document length.
+     * The document length is the number of tokens in the document.
+     * The document index is used to compute the average document length.
+     */
     private int numberOfDocuments;
     private final DocumentIndexFileHandler documentIndexFileHandler;
     private long numberOfTokens;

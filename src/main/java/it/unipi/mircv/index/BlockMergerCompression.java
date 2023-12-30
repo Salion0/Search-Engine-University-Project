@@ -17,6 +17,10 @@ import java.util.PriorityQueue;
 import static it.unipi.mircv.utility.Config.*;
 
 public class BlockMergerCompression {
+    /*
+     Version of BlockMerger class that uses compression
+     */
+
     private static int numberOfBlocks;
     private static long offsetToWriteDocId = 0;
     private static long offsetToWriteTermFreq = 0;
@@ -26,7 +30,6 @@ public class BlockMergerCompression {
     private static ArrayList<Boolean> minTermFoundInBlock = new ArrayList<>();
 
     private static PriorityQueue<String> minTermQueue = new PriorityQueue();
-    private static int postingListOffset = 0;  //offset to write in the final lexicon file for each term
     private static int offsetSkipDescriptor = 0;
 
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;

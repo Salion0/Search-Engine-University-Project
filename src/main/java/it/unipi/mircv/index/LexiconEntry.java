@@ -1,6 +1,12 @@
 package it.unipi.mircv.index;
 
 public class LexiconEntry {
+    /**
+     * LexiconEntry is a class that represents a lexicon entry.
+     * It contains the term, the collection frequency, the document frequency and the posting list.
+     * Upperbound scores are stored in file cause it was not necessery to the indexing purpose cause they are
+     * computed only during the merging phase.
+     */
 
     private String term;
     private int documentFreq;

@@ -4,6 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class PostingList {
+    /*
+     * PostingList is a list of PostingElement so it is implemented as an ArrayList
+     * of PostingElement. It is used to store the posting list of a term.
+     */
     private final ArrayList<PostingElement> postingList = new ArrayList<>();
     public PostingList() {}
     public PostingList(PostingElement postingElement) {

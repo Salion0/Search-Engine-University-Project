@@ -1,6 +1,9 @@
 package it.unipi.mircv.index;
 
 public class PostingElement {
+    /*
+     * This class represents a posting element, i.e. a pair (docId, termFreq)
+     */
     private final int docId;
     private final int termFreq;
 

@@ -3,6 +3,9 @@ package it.unipi.mircv.index;
 import java.util.ArrayList;
 
 public class SkipDescriptorCompression {
+    /*
+     Version of SkipDescriptor class that uses compression
+     */
     private final ArrayList<Integer> maxDocIds;
     private final ArrayList<Long> offsetMaxDocIds;
     private final ArrayList<Integer> numByteMaxDocIds;

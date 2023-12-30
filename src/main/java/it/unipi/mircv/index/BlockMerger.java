@@ -17,6 +17,16 @@ import static it.unipi.mircv.utility.Config.*;
 
 
 public class BlockMerger {
+    /*
+    This class merges the blocks of the inverted index and the lexicon.
+    The blocks are merged in a single file for each one.
+    The final files are:
+        - lexicon.dat
+        - docIds.dat
+        - termFreq.dat
+    *   - postingListDesc.dat  --> skip descriptor file
+    *
+     */
     private static int numberOfBlocks;
     private static int offsetToWrite = 0;
     private static final ArrayList<LexiconFileHandler> lexiconBlocks = new ArrayList<>();
@@ -30,12 +40,7 @@ public class BlockMerger {
     private static SkipDescriptorFileHandler skipDescriptorFileHandler;
 
     public static void mergeBlocks(int numberOfBlocks) throws IOException {
-        /*
-        //count number of blocks
-        String path = "./data/";
-        File directory=new File(path);
-        int numberOfBlocks = (directory.list().length-5)/3;
-        */
+
 
         System.out.println(POSTING_LIST_DESC_FILE);
         //initialize the skip descriptor file handler
@@ -67,9 +72,7 @@ public class BlockMerger {
 
 
         //Initialize the priority queue with the first term of each block
-/*
-        System.out.print("number of blocks:"+numberOfBlocks+"\n");  //DEBUG
-*/
+
         for (int i = 0; i < numberOfBlocks; i++) {
             LexiconEntry lexiconEntry = lexiconBlocks.get(i).nextBlockEntryLexiconFile();
             if(lexiconEntry!=null) {
@@ -83,7 +86,6 @@ public class BlockMerger {
 
         //at each iteration a new term is handled. The minTerm will be the first term in lexicographical increasing order
         while(true) {
-            //System.out.println("Merging working progress... Percentage: boh");
 
             //if the queue is empty, the merging is completed
             if(minTerm == null)
@@ -139,13 +141,6 @@ public class BlockMerger {
         fosLexicon.close();
         fosDocId.close();
         fosTermFreq.close();
-/*        //close the skip descriptor file handler
-        skipDescriptorFileHandler.closeFileChannel();
-        //close the handlers for each block
-        for (int blockIndex = 0; blockIndex < numberOfBlocks; blockIndex++) {
-            lexiconBlocks.get(blockIndex).close();
-            postingListBlocks.get(blockIndex).close();
-        }*/
     }
 
     private static void writeToDisk(FileOutputStream fosLexicon, FileOutputStream fosDocId, FileOutputStream fosTermFreq,
