@@ -1,14 +1,14 @@
 package it.unipi.mircv.index;
-import it.unipi.mircv.Utils;
+import it.unipi.mircv.utility.Utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Utils.*;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Config.*;
+import static it.unipi.mircv.utility.Utils.*;
 
 public class Index {
     private final DocumentIndex documentIndex;

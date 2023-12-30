@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Config.*;
 
 public class SkipDescriptorFileHandler {
     private final RandomAccessFile randomAccessFile;

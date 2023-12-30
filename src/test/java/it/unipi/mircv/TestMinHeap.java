@@ -2,6 +2,8 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.query.MinHeapScores;
+import it.unipi.mircv.utility.Parameters;
+import it.unipi.mircv.utility.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

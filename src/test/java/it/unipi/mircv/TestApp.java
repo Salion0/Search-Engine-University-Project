@@ -5,17 +5,18 @@ import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.index.BlockMerger;
 import it.unipi.mircv.index.BlockMergerCompression;
 import it.unipi.mircv.index.Index;
+import it.unipi.mircv.utility.Utils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static it.unipi.mircv.Config.INDEX_PATH;
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT;
-import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
-import static it.unipi.mircv.Parameters.Score.TFIDF;
-import static it.unipi.mircv.Utils.printFilePaths;
-import static it.unipi.mircv.Utils.setFilePaths;
+import static it.unipi.mircv.utility.Config.INDEX_PATH;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Parameters.QueryProcessor.DISJUNCTIVE_DAAT;
+import static it.unipi.mircv.utility.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
+import static it.unipi.mircv.utility.Parameters.Score.TFIDF;
+import static it.unipi.mircv.utility.Utils.printFilePaths;
+import static it.unipi.mircv.utility.Utils.setFilePaths;
 
 public class TestApp {
 

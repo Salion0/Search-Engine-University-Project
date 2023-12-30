@@ -1,7 +1,7 @@
 package it.unipi.mircv.IndexTest;
 
-import it.unipi.mircv.Config;
-import it.unipi.mircv.Utils;
+import it.unipi.mircv.utility.Config;
+import it.unipi.mircv.utility.Utils;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.Lexicon;

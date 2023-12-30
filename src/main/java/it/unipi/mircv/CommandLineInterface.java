@@ -10,12 +10,12 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.io.File;
 
-import static it.unipi.mircv.Config.INDEX_PATH;
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Parameters.QueryProcessor.*;
-import static it.unipi.mircv.Parameters.Score.BM25;
-import static it.unipi.mircv.Parameters.Score.TFIDF;
-import static it.unipi.mircv.Utils.*;
+import static it.unipi.mircv.utility.Config.INDEX_PATH;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.utility.Parameters.Score.BM25;
+import static it.unipi.mircv.utility.Parameters.Score.TFIDF;
+import static it.unipi.mircv.utility.Utils.*;
 
 public class CommandLineInterface {
 

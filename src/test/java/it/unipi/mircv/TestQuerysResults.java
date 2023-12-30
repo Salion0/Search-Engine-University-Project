@@ -2,18 +2,20 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
+import it.unipi.mircv.utility.Config;
+import it.unipi.mircv.utility.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static it.unipi.mircv.Config.INDEX_PATH;
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Parameters.QueryProcessor.*;
-import static it.unipi.mircv.Parameters.Score.BM25;
-import static it.unipi.mircv.Parameters.Score.TFIDF;
-import static it.unipi.mircv.Parameters.docsLen;
-import static it.unipi.mircv.Utils.*;
+import static it.unipi.mircv.utility.Config.INDEX_PATH;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.utility.Parameters.Score.BM25;
+import static it.unipi.mircv.utility.Parameters.Score.TFIDF;
+import static it.unipi.mircv.utility.Parameters.docsLen;
+import static it.unipi.mircv.utility.Utils.*;
 
 public class TestQuerysResults {
 

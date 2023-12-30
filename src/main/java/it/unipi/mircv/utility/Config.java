@@ -1,4 +1,4 @@
-package it.unipi.mircv;
+package it.unipi.mircv.utility;
 
 public class Config {
     public static final int MEMORY_THRESHOLD_PERC = 8;
@@ -16,10 +16,14 @@ public class Config {
     public static final int OFFSET_SKIP_DESC_BYTES_LENGTH = 4;
     public static final int UPPER_BOUND_SCORE_LENGTH = 4;
     public static final int NUM_BYTE_TO_READ_BYTE_LENGTH = 4;
+
+    //
     public static final int LEXICON_COMPRESS_ENTRY_LENGTH = TERM_BYTES_LENGTH +
             OFFSET_COMPRESS_BYTES_LENGTH + OFFSET_COMPRESS_BYTES_LENGTH +
             DOCUMFREQ_BYTES_LENGTH + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH +
             NUM_BYTE_TO_READ_BYTE_LENGTH + NUM_BYTE_TO_READ_BYTE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
+
+    //first bm25 and then tfidf
     public static final int LEXICON_ENTRY_LENGTH = TERM_BYTES_LENGTH + OFFSET_BYTES_LENGTH + DOCUMFREQ_BYTES_LENGTH
             + COLLECTIONFREQ_BYTES_LENGTH + UPPER_BOUND_SCORE_LENGTH + UPPER_BOUND_SCORE_LENGTH + OFFSET_SKIP_DESC_BYTES_LENGTH;
     public static final int SKIP_DESC_ENTRY = 4 + OFFSET_BYTES_LENGTH;

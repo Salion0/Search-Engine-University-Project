@@ -1,5 +1,5 @@
 package it.unipi.mircv.index;
-import it.unipi.mircv.Parameters;
+import it.unipi.mircv.utility.Parameters;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Config.*;
 
 
 public class BlockMerger {

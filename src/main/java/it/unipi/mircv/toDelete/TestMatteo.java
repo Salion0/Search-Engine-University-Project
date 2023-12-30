@@ -1,19 +1,15 @@
-package it.unipi.mircv;
+package it.unipi.mircv.toDelete;
 
 import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.LexiconFileHandler;
-import it.unipi.mircv.index.BlockMergerCompression;
-import it.unipi.mircv.index.DocumentIndex;
-import it.unipi.mircv.index.Index;
 
 import java.io.IOException;
 
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Parameters.QueryProcessor.*;
-import static it.unipi.mircv.Parameters.Score.*;
-import static it.unipi.mircv.Utils.loadStopWordList;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.utility.Parameters.Score.*;
+import static it.unipi.mircv.utility.Utils.loadStopWordList;
 import static java.lang.System.currentTimeMillis;
 
 public class TestMatteo {
@@ -38,7 +34,7 @@ public class TestMatteo {
         collectionSize = documentIndexFileHandler.readCollectionSize();
         avgDocLen = documentIndexFileHandler.readAvgDocLen();
         scoreType = BM25;
-        queryProcessType = DISJUNCTIVE_DAAT_C;
+        queryProcessType = CONJUNCTIVE_DAAT_C;
         docsLen = documentIndexFileHandler.loadAllDocumentLengths();
 
         LexiconFileHandler lexiconFileHandler = new LexiconFileHandler();

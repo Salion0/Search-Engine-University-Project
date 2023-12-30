@@ -3,24 +3,22 @@ package it.unipi.mircv;
 
 import it.unipi.mircv.evaluation.SystemEvaluator;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
-import it.unipi.mircv.index.BlockMerger;
-import it.unipi.mircv.index.Index;
+import it.unipi.mircv.utility.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static it.unipi.mircv.Config.INDEX_PATH;
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Parameters.QueryProcessor.*;
-import static it.unipi.mircv.Parameters.Score.BM25;
-import static it.unipi.mircv.Parameters.Score.TFIDF;
-import static it.unipi.mircv.Utils.printFilePaths;
-import static it.unipi.mircv.Utils.setFilePaths;
+import static it.unipi.mircv.utility.Config.INDEX_PATH;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Parameters.QueryProcessor.*;
+import static it.unipi.mircv.utility.Parameters.Score.BM25;
+import static it.unipi.mircv.utility.Parameters.Score.TFIDF;
+import static it.unipi.mircv.utility.Utils.printFilePaths;
+import static it.unipi.mircv.utility.Utils.setFilePaths;
 
 public class TestScores {
 

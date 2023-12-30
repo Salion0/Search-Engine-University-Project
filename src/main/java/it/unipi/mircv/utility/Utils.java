@@ -1,4 +1,4 @@
-package it.unipi.mircv;
+package it.unipi.mircv.utility;
 
 import ca.rmen.porterstemmer.PorterStemmer;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -10,8 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import static it.unipi.mircv.Parameters.stopWords;
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Parameters.stopWords;
+import static it.unipi.mircv.utility.Config.*;
 
 public class Utils {
     private static final PorterStemmer porterStemmer = new PorterStemmer();

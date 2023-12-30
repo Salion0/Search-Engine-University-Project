@@ -1,25 +1,19 @@
-package it.unipi.mircv;
+package it.unipi.mircv.toDelete;
 
-import it.unipi.mircv.compression.VariableByte;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.file.SkipDescriptorFileHandler;
 import it.unipi.mircv.index.*;
-import it.unipi.mircv.query.*;
 import it.unipi.mircv.evaluation.SystemEvaluator;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
-import static it.unipi.mircv.Parameters.QueryProcessor.DISJUNCTIVE_MAX_SCORE_C;
-import static it.unipi.mircv.Parameters.Score.TFIDF;
-import static it.unipi.mircv.Utils.loadStopWordList;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Parameters.QueryProcessor.DISJUNCTIVE_DAAT_C;
+import static it.unipi.mircv.utility.Parameters.Score.TFIDF;
+import static it.unipi.mircv.utility.Utils.loadStopWordList;
 import static java.lang.System.currentTimeMillis;
 
 public class TestCompression {

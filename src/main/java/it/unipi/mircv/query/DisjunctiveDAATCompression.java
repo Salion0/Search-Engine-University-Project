@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Parameters.*;
+import static it.unipi.mircv.utility.Config.*;
+import static it.unipi.mircv.utility.Parameters.*;
 
 public class DisjunctiveDAATCompression {
     private final int numTermQuery;

@@ -3,7 +3,7 @@ package it.unipi.mircv.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Config.*;
 public class MinHeapScores {
 
     //------------------Priority Queue of Doc Retrieved-----------------------//

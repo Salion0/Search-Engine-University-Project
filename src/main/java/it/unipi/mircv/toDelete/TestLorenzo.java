@@ -1,10 +1,9 @@
-package it.unipi.mircv;
+package it.unipi.mircv.toDelete;
 
+import it.unipi.mircv.utility.Utils;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
-import it.unipi.mircv.index.BlockMerger;
-import it.unipi.mircv.index.Index;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.query.*;
 
@@ -12,8 +11,8 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Utils.removeStopWords;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Utils.removeStopWords;
 import static java.util.Collections.binarySearch;
 
 public class TestLorenzo {

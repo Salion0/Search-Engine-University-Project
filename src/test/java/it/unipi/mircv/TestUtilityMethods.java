@@ -4,6 +4,8 @@ import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.index.PostingElement;
 import it.unipi.mircv.index.PostingListBlock;
 import it.unipi.mircv.index.SkipDescriptor;
+import it.unipi.mircv.utility.Parameters;
+import it.unipi.mircv.utility.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +13,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import static it.unipi.mircv.Parameters.collectionSize;
+import static it.unipi.mircv.utility.Parameters.collectionSize;
 
 public class TestUtilityMethods {
     static PostingListBlock[] postingListBlocks = new PostingListBlock[5];

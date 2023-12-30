@@ -1,7 +1,6 @@
 package it.unipi.mircv.IndexTest;
 
-import it.unipi.mircv.Config;
-import it.unipi.mircv.Utils;
+import it.unipi.mircv.utility.Utils;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.*;
@@ -10,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.*;
 
 import java.util.HashMap;
-import static it.unipi.mircv.Parameters.*;
-import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Utils.stemWord;
+import static it.unipi.mircv.utility.Parameters.*;
+import static it.unipi.mircv.utility.Config.*;
+import static it.unipi.mircv.utility.Utils.stemWord;
 
 
 public class IndexTest {

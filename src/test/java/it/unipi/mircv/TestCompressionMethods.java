@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.unipi.mircv.Utils.*;
+import static it.unipi.mircv.utility.Utils.*;
 
 public class TestCompressionMethods {
 

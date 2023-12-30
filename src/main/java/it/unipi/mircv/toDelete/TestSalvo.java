@@ -1,4 +1,4 @@
-package it.unipi.mircv;
+package it.unipi.mircv.toDelete;
 
 import it.unipi.mircv.file.LexiconFileHandler;
 import it.unipi.mircv.index.LexiconEntry;

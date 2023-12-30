@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import static it.unipi.mircv.Parameters.docsLen;
-import static it.unipi.mircv.Config.*;
-import static it.unipi.mircv.Parameters.scoreType;
+import static it.unipi.mircv.utility.Parameters.docsLen;
+import static it.unipi.mircv.utility.Config.*;
+import static it.unipi.mircv.utility.Parameters.scoreType;
 
 public class MaxScoreDisjunctive {
     private final int numTermQuery;

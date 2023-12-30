@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Config.*;
 
 public class Lexicon {
 

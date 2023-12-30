@@ -1,8 +1,6 @@
 package it.unipi.mircv.index;
 
-import it.unipi.mircv.Parameters;
-import it.unipi.mircv.Utils;
-import it.unipi.mircv.compression.VariableByte;
+import it.unipi.mircv.utility.Parameters;
 import it.unipi.mircv.file.DocumentIndexFileHandler;
 import it.unipi.mircv.file.InvertedIndexFileHandler;
 import it.unipi.mircv.file.LexiconFileHandler;
@@ -14,10 +12,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Config.*;
 
 public class BlockMergerCompression {
     private static int numberOfBlocks;

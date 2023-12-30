@@ -1,7 +1,6 @@
 package it.unipi.mircv.file;
 
-import it.unipi.mircv.Config;
-import it.unipi.mircv.Parameters;
+import it.unipi.mircv.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,24 +9,33 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Config.*;
 
 public class DocumentIndexFileHandler {
-    private final FileChannel fileChannel;
-    private final RandomAccessFile randomAccessFile;
-    long currentPosition;
+    private final FileChannel fileChannel;   //file channel for the document index file
+    private final RandomAccessFile randomAccessFile;  //random access file for the document index file
+    long currentPosition; //current position in the file
 
     public DocumentIndexFileHandler() throws IOException {
+        // Create the object file
         File file = new File(DOCUMENT_INDEX_FILE);
+        //if the file doesn't exist, create it
         if (!file.exists()) {
             if(file.createNewFile()) System.out.println("Document Index file created correctly");
             else System.out.println("Error in Document Index file creation");
         }
 
+        //open the file
         randomAccessFile = new RandomAccessFile(DOCUMENT_INDEX_FILE,"rw");
         fileChannel = randomAccessFile.getChannel();
+        //set the current position to the first docno
         currentPosition = AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH;
     }
+
+
+    //this constructor is equal to the precedent
+    //except for the fact that it allow to specify
+    //the path of the file
     public DocumentIndexFileHandler(String filePath) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
@@ -40,6 +48,13 @@ public class DocumentIndexFileHandler {
     }
 
     public void writeEntry(String docNo, int docLength) throws IOException {
+    /*---------------------------------------------------------
+       write entry in the document index file as follows:
+         docno (string) | docLength (int)
+            4 bytes     |   4 bytes
+    ---------------------------------------------------------*/
+
+        //allocate a byte buffer with the length of the docno and the doclength
         ByteBuffer byteBuffer = ByteBuffer.allocate(DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH);
         byteBuffer.put(docNo.getBytes());
         byteBuffer.position(DOCNO_BYTES_LENGTH);
@@ -52,6 +67,11 @@ public class DocumentIndexFileHandler {
     }
 
     public void writeAverageDocumentLength(float averageDocumentLength, int numberOfDocuments) throws IOException {
+    /*---------------------------------------------------------
+       write entry in the document index file as follows:
+         docno (string) | docLength (int)
+            4 bytes     |   4 bytes
+    ---------------------------------------------------------*/
         ByteBuffer byteBuffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
         byteBuffer.putFloat(averageDocumentLength);
         byteBuffer.position(AVGDOCLENGHT_BYTES_LENGTH);
@@ -62,6 +82,11 @@ public class DocumentIndexFileHandler {
     }
 
     public int readDocumentLength(int docId) throws IOException {
+    /*---------------------------------------------------------
+        read the document length from the document index file
+        of the document with the specified docId
+    ---------------------------------------------------------*/
+
         ByteBuffer buffer = ByteBuffer.allocate(DOCLENGTH_BYTES_LENGTH);
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH + (long) docId * (DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH) + DOCNO_BYTES_LENGTH);
         fileChannel.read(buffer);
@@ -69,6 +94,11 @@ public class DocumentIndexFileHandler {
         return buffer.getInt();
     }
     public int[] loadAllDocumentLengths() throws IOException {
+    /*---------------------------------------------------------
+        load in memory all the document lengths from
+        the document index file
+    ---------------------------------------------------------*/
+
         int[] docsLen = new int[Parameters.collectionSize];
         ByteBuffer buffer = ByteBuffer.allocate(
                 (DOCLENGTH_BYTES_LENGTH+DOCNO_BYTES_LENGTH) * Parameters.collectionSize

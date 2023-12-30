@@ -1,12 +1,12 @@
 package it.unipi.mircv.file;
-import it.unipi.mircv.Config;
+import it.unipi.mircv.utility.Config;
 import it.unipi.mircv.index.LexiconEntry;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import static it.unipi.mircv.Config.*;
+import static it.unipi.mircv.utility.Config.*;
 
 public class LexiconFileHandler {
     private int lexiconRow;
