@@ -13,11 +13,21 @@ import java.util.ArrayList;
 import static it.unipi.mircv.utility.Config.*;
 
 public class SkipDescriptorFileHandler {
+    /*
+     * The SkipDescriptorFileHandler class is used to read and write the skip descriptors of
+     *  the posting lists from the disk.
+     * The skip descriptors are stored in a file called "posting_list_desc.txt" in the following format:
+     * - each line represents a posting list
+     * - each line is composed by a sequence of pairs (maxDocId, offsetMaxDocId)
+     * - each pair is separated by a space
+     */
+
     private final RandomAccessFile randomAccessFile;
     private final FileChannel fileChannel;
 
     public SkipDescriptorFileHandler() throws IOException {
         File file = new File(POSTING_LIST_DESC_FILE);
+        // Check if the file already exists
         if (!file.exists()) {
             // Create the file
             if (file.createNewFile()) {
@@ -33,8 +43,11 @@ public class SkipDescriptorFileHandler {
 
     //this method will be called for each term in the conjunctive query in order to perform nextGEQ()
     public SkipDescriptor readSkipDescriptor(int offset, int length) throws IOException {
-        //la length sarà la radice quadrata della posting list approssimata per eccesso
-        //offset è quello logico
+        /*---------------------------------------------------------
+            read a skip descriptor from the file by specifying
+            the offset and the length of the skip descriptor in
+            the file (in terms of number of entries)
+        ---------------------------------------------------------*/
         SkipDescriptor skipDescriptor = new SkipDescriptor();
         ByteBuffer skipDescriptorBuffer = ByteBuffer.allocate(length * (SKIP_DESC_ENTRY));
         fileChannel.read(skipDescriptorBuffer, (long) offset * (SKIP_DESC_ENTRY));
@@ -44,9 +57,10 @@ public class SkipDescriptorFileHandler {
         }
         return skipDescriptor;
     }
+
+    //same as above but for compressed skip descriptors
     public SkipDescriptorCompression readSkipDescriptorCompression(int offset, int length) throws IOException {
-        //la length sarà la radice quadrata della posting list approssimata per eccesso
-        //offset è quello logico
+
         SkipDescriptorCompression skipDescriptorCompression = new SkipDescriptorCompression();
         ByteBuffer skipDescriptorBuffer = ByteBuffer.allocate(length * (SKIP_DESC_ENTRY_COMPRESSION));
         fileChannel.read(skipDescriptorBuffer, (long) offset * (SKIP_DESC_ENTRY_COMPRESSION));
@@ -61,6 +75,11 @@ public class SkipDescriptorFileHandler {
     }
 
     public void writeSkipDescriptor(int offset, SkipDescriptor skipDescriptor) throws IOException {
+        /*---------------------------------------------------------
+            write a skip descriptor to the file by specifying
+            the offset and the skip descriptor
+        ---------------------------------------------------------*/
+        //allocate a buffer of (SKIP_DESC_ENTRY+num of entry)bytes for each entry of the skip descriptor
         ByteBuffer byteBuffer = ByteBuffer.allocate(skipDescriptor.size() * (SKIP_DESC_ENTRY));
         ArrayList<Integer> maxDocIds = skipDescriptor.getMaxDocIds();
         ArrayList<Integer> offsetMaxDocIds = skipDescriptor.getOffsetMaxDocIds();
@@ -71,9 +90,12 @@ public class SkipDescriptorFileHandler {
         }
 
         byteBuffer.rewind();
+        //write the buffer to the file at the specified offset
         fileChannel.position((long) offset * (SKIP_DESC_ENTRY));
         fileChannel.write(byteBuffer);
     }
+
+    //same as above but for compressed skip descriptors
     public void writeSkipDescriptorCompressed(int offset, SkipDescriptorCompression skipDescriptorCompression) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.allocate(skipDescriptorCompression.size() * (SKIP_DESC_ENTRY_COMPRESSION));
         ArrayList<Integer> maxDocIds = skipDescriptorCompression.getMaxDocIds();

@@ -56,13 +56,18 @@ public class DocumentIndexFileHandler {
 
         //allocate a byte buffer with the length of the docno and the doclength
         ByteBuffer byteBuffer = ByteBuffer.allocate(DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH);
+        //put the docno in the byte buffer
         byteBuffer.put(docNo.getBytes());
+        //set the position to the doc length position in the byte buffer = docNo length
         byteBuffer.position(DOCNO_BYTES_LENGTH);
         byteBuffer.putInt(docLength);
 
-        byteBuffer.rewind();
+        byteBuffer.rewind(); //set the buffer position to 0
+
+        //set the position in the file channel to the current position and write the entry to the file
         fileChannel.position(currentPosition);
         fileChannel.write(byteBuffer);
+        //increment the current position by the length of the entry
         currentPosition += (DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH);
     }
 
@@ -72,11 +77,16 @@ public class DocumentIndexFileHandler {
          docno (string) | docLength (int)
             4 bytes     |   4 bytes
     ---------------------------------------------------------*/
+
+        //allocate a byte buffer with the length of the average document length + num_doc_bytes_length
         ByteBuffer byteBuffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
+        //put the avgDocLength in the byte buffer
         byteBuffer.putFloat(averageDocumentLength);
+        //set the position to the "num of doc" position in the byte buffer = avg length in bytes
         byteBuffer.position(AVGDOCLENGHT_BYTES_LENGTH);
         byteBuffer.putInt(numberOfDocuments);
-        byteBuffer.rewind();
+        byteBuffer.rewind();    //set the buffer position to 0
+        //set the position in the file channel to the current position and write the entry to the file
         fileChannel.position(0);
         fileChannel.write(byteBuffer);
     }
@@ -87,9 +97,13 @@ public class DocumentIndexFileHandler {
         of the document with the specified docId
     ---------------------------------------------------------*/
 
+        //allocate a byte buffer with the length of the doclength
         ByteBuffer buffer = ByteBuffer.allocate(DOCLENGTH_BYTES_LENGTH);
+        //set the position in the file channel to the position of the doclength of the specified docId
+        // position = skip the firts 8 byte and then go to line of the docId = docId * (docno + doclength)
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH + (long) docId * (DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH) + DOCNO_BYTES_LENGTH);
         fileChannel.read(buffer);
+        //set the buffer position to 0 and read the doclength
         buffer.position(0);
         return buffer.getInt();
     }
@@ -98,13 +112,17 @@ public class DocumentIndexFileHandler {
         load in memory all the document lengths from
         the document index file
     ---------------------------------------------------------*/
-
+        //array of document lengths to return
         int[] docsLen = new int[Parameters.collectionSize];
+        //allocate a byte buffer with document index file length
         ByteBuffer buffer = ByteBuffer.allocate(
                 (DOCLENGTH_BYTES_LENGTH+DOCNO_BYTES_LENGTH) * Parameters.collectionSize
         );
+        //read all the entry in the document index file
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH);
         fileChannel.read(buffer);
+
+        //get all the doclengths from the byte buffer
         buffer.position(0); //skip first docno
         for(int i = 0; buffer.position()+ DOCNO_BYTES_LENGTH < buffer.limit(); i++) {
             buffer.position(buffer.position() + DOCNO_BYTES_LENGTH);
@@ -113,6 +131,7 @@ public class DocumentIndexFileHandler {
         return docsLen;
     }
 
+    //equal to the precedent but with a different parameter
     public int[] loadAllDocumentLengths(int collectionSize) throws IOException {
         int[] docsLen = new int[collectionSize];
         ByteBuffer buffer = ByteBuffer.allocate(
@@ -129,7 +148,11 @@ public class DocumentIndexFileHandler {
         }
         return docsLen;
     }
+
     public float readAvgDocLen() throws IOException {
+        /*---------------------------------------------------------
+            read the average document length from the document index file
+        ---------------------------------------------------------*/
         ByteBuffer buffer = ByteBuffer.allocate(AVGDOCLENGHT_BYTES_LENGTH);
         fileChannel.position(0);
         fileChannel.read(buffer);
@@ -138,6 +161,9 @@ public class DocumentIndexFileHandler {
     }
 
     public int readCollectionSize() throws IOException {
+        /*---------------------------------------------------------
+            read the number of documents from the document index file
+        ---------------------------------------------------------*/
         ByteBuffer buffer = ByteBuffer.allocate(NUM_DOC_BYTES_LENGTH);
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH);
         fileChannel.read(buffer);
@@ -151,6 +177,10 @@ public class DocumentIndexFileHandler {
     }
 
     public String readDocNo(int docId) throws IOException {
+        /*---------------------------------------------------------
+            read the docno from the document index file
+            of the document with the specified docId
+        ---------------------------------------------------------*/
         ByteBuffer buffer = ByteBuffer.allocate(DOCNO_BYTES_LENGTH);
         fileChannel.position(AVGDOCLENGHT_BYTES_LENGTH + NUM_DOC_BYTES_LENGTH + (long) docId * (DOCNO_BYTES_LENGTH + DOCLENGTH_BYTES_LENGTH));
         fileChannel.read(buffer);
@@ -159,6 +189,10 @@ public class DocumentIndexFileHandler {
     }
 
     public String[] getDocNoREVERSE(ArrayList<Integer> docIds) throws IOException {
+        /*---------------------------------------------------------
+            read the docNos from the document index file
+            by specifing their docIDs
+        ---------------------------------------------------------*/
         int resultsSize = docIds.size();
         String[] docNos = new String[resultsSize];
         for(int i = 0; i < resultsSize; i ++){
